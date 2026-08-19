@@ -1,1 +1,1 @@
-export const add = (a: number, b: number) => a + b;
+export { PlayerProvider } from "./state/usePlayer";
