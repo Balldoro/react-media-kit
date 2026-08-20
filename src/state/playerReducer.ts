@@ -1,6 +1,5 @@
-import type { PlayerAction, PlayerState } from "../types";
-
-export type PlayerStore = ReturnType<typeof createPlayerStore>;
+import type { PlayerAction, PlayerState } from "@/types";
+import { normalizeTime } from "@/utils/time";
 
 export function playerReducer(state: PlayerState, action: PlayerAction): PlayerState {
   switch (action.type) {
@@ -10,63 +9,13 @@ export function playerReducer(state: PlayerState, action: PlayerAction): PlayerS
       return { ...state, isPlaying: false };
     case "TOGGLE":
       return { ...state, isPlaying: !state.isPlaying };
-  }
-}
-
-export function createPlayerStore() {
-  let state = { isPlaying: false };
-  const controls = { play, pause, toggle };
-  const listeners = new Set<() => void>();
-
-  let abortController = new AbortController();
-  let video: HTMLVideoElement | null = null;
-
-  const dispatch = (action: PlayerAction) => {
-    state = playerReducer(state, action);
-    listeners.forEach((l) => l());
-  };
-
-  const handlePlay = () => dispatch({ type: "PLAY" });
-  const handlePause = () => dispatch({ type: "PAUSE" });
-
-  const init = (videoEl: HTMLVideoElement) => {
-    video = videoEl;
-    videoEl.addEventListener("play", handlePlay, { signal: abortController.signal });
-    videoEl.addEventListener("pause", handlePause, { signal: abortController.signal });
-  };
-
-  function play() {
-    video?.play();
-  }
-
-  function pause() {
-    video?.pause();
-  }
-
-  function toggle() {
-    if (state.isPlaying) {
-      pause();
-      return;
+    case "INIT": {
+      const { durationInSec } = action.payload;
+      return { ...state, durationInSec: normalizeTime(durationInSec) };
     }
-    play();
+    case "TIME_UPDATE": {
+      const { currentTimeInSec } = action.payload;
+      return { ...state, currentTimeInSec: normalizeTime(currentTimeInSec) };
+    }
   }
-
-  const destroy = () => {
-    abortController.abort();
-    abortController = new AbortController();
-    listeners.clear();
-  };
-
-  return {
-    subscribe: (listener: () => void) => {
-      listeners.add(listener);
-      return () => {
-        listeners.delete(listener);
-      };
-    },
-    init,
-    destroy,
-    getSnapshot: () => state,
-    getControls: () => controls,
-  };
 }
