@@ -1,4 +1,4 @@
-import { usePlayerCtx } from "../state/usePlayer";
+import { usePlayerCtx } from "@/state/usePlayer";
 
 interface VideoProps {
   src: string;
