@@ -33,6 +33,12 @@ export function createPlayerStore() {
 
   const toggle = () => (state.isPlaying ? pause() : play());
 
+  function skip(delta: number) {
+    if (!video) return;
+    const newValue = Math.max(Math.min(video.currentTime + delta, state.durationInSec), 0);
+    seek(newValue);
+  }
+
   function handleTimeUpdate(this: HTMLVideoElement) {
     const { currentTime } = this;
     dispatch({ type: "TIME_UPDATE", payload: { value: currentTime } });
@@ -90,7 +96,7 @@ export function createPlayerStore() {
     };
   }
 
-  const controls = { play, pause, toggle, seek };
+  const controls = { play, pause, toggle, seek, skip };
 
   return { subscribe, init, destroy, getSnapshot: () => state, getControls: () => controls };
 }

@@ -7,13 +7,6 @@ export interface PlayerState {
   optimisticTimeInSec: number | null;
 }
 
-export interface PlayerActions {
-  play: () => void;
-  pause: () => void;
-  toggle: () => void;
-  seek: (time: number) => void;
-}
-
 export type PlayerAction =
   PlayAction | PauseAction | ToggleAction | InitAction | TimeUpdateAction | SeekingAction;
 
