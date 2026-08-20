@@ -1,1 +1,1 @@
-export { Seekbar } from "@/components/seekbar";
+export { Seekbar, useSeekbar } from "./seekbar";

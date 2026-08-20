@@ -1,2 +1,2 @@
 export { Player } from "@/state/usePlayer";
-export { Seekbar } from "@/components";
+export { Seekbar, useSeekbar } from "@/components";

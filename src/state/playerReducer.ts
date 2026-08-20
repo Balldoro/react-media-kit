@@ -14,8 +14,12 @@ export function playerReducer(state: PlayerState, action: PlayerAction): PlayerS
       return { ...state, durationInSec: normalizeTime(durationInSec) };
     }
     case "TIME_UPDATE": {
-      const { currentTimeInSec } = action.payload;
-      return { ...state, currentTimeInSec: normalizeTime(currentTimeInSec) };
+      const { value } = action.payload;
+      return { ...state, currentTimeInSec: normalizeTime(value), optimisticTimeInSec: null };
+    }
+    case "SEEKING": {
+      const { value } = action.payload;
+      return { ...state, optimisticTimeInSec: normalizeTime(value) };
     }
   }
 }

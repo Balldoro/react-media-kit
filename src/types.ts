@@ -4,15 +4,18 @@ export interface PlayerState {
   isPlaying: boolean;
   durationInSec: number;
   currentTimeInSec: number;
+  optimisticTimeInSec: number | null;
 }
 
 export interface PlayerActions {
   play: () => void;
   pause: () => void;
   toggle: () => void;
+  seek: (time: number) => void;
 }
 
-export type PlayerAction = PlayAction | PauseAction | ToggleAction | InitAction | TimeUpdateAction;
+export type PlayerAction =
+  PlayAction | PauseAction | ToggleAction | InitAction | TimeUpdateAction | SeekingAction;
 
 export interface PlayAction {
   type: "PLAY";
@@ -33,5 +36,10 @@ export interface InitAction {
 
 export interface TimeUpdateAction {
   type: "TIME_UPDATE";
-  payload: { currentTimeInSec: number };
+  payload: { value: number };
+}
+
+export interface SeekingAction {
+  type: "SEEKING";
+  payload: { value: number };
 }

@@ -1,11 +1,18 @@
-import type { PlayerAction } from "@/types";
+import type { PlayerAction, PlayerState } from "@/types";
 import { playerReducer } from "@/state/playerReducer";
+import { createSeekQueue } from "./seekQueue";
 
 export type PlayerStore = ReturnType<typeof createPlayerStore>;
 
 export function createPlayerStore() {
-  let state = { isPlaying: false, durationInSec: 3787, currentTimeInSec: 0 };
-  const controls = { play, pause, toggle };
+  let state: PlayerState = {
+    isPlaying: false,
+    durationInSec: 0,
+    currentTimeInSec: 0,
+    optimisticTimeInSec: null,
+  };
+
+  const seekQueue = createSeekQueue();
   const listeners = new Set<() => void>();
 
   let abortController = new AbortController();
@@ -17,59 +24,73 @@ export function createPlayerStore() {
   };
 
   const handlePlay = () => dispatch({ type: "PLAY" });
+
   const handlePause = () => dispatch({ type: "PAUSE" });
 
-  const handleTimeUpdate = (e: Event) => {
-    const { currentTime } = e.target as HTMLVideoElement;
-    dispatch({ type: "TIME_UPDATE", payload: { currentTimeInSec: currentTime } });
-  };
+  const play = () => video?.play();
 
-  const handleInit = (e: Event) => {
-    const { duration } = e.target as HTMLVideoElement;
+  const pause = () => video?.pause();
+
+  const toggle = () => (state.isPlaying ? pause() : play());
+
+  function handleTimeUpdate(this: HTMLVideoElement) {
+    const { currentTime } = this;
+    dispatch({ type: "TIME_UPDATE", payload: { value: currentTime } });
+  }
+
+  function seek(time: number) {
+    if (!video) return;
+
+    if (video.seeking) {
+      seekQueue.set(time);
+    } else {
+      video.currentTime = time;
+    }
+    dispatch({ type: "SEEKING", payload: { value: time } });
+  }
+
+  function handleSeeking(this: HTMLVideoElement) {
+    if (seekQueue.get().isPending) return;
+    dispatch({ type: "SEEKING", payload: { value: this.currentTime } });
+  }
+
+  function handleSeeked() {
+    const seekQueueState = seekQueue.pop();
+    if (seekQueueState.isPending && video) {
+      video.currentTime = seekQueueState.value;
+    }
+  }
+
+  function handleInit(this: HTMLVideoElement) {
+    const { duration } = this;
     dispatch({ type: "INIT", payload: { durationInSec: duration } });
-  };
+  }
 
-  const init = (videoEl: HTMLVideoElement) => {
+  function init(videoEl: HTMLVideoElement) {
     video = videoEl;
 
     videoEl.addEventListener("loadedmetadata", handleInit, { signal: abortController.signal });
     videoEl.addEventListener("play", handlePlay, { signal: abortController.signal });
     videoEl.addEventListener("pause", handlePause, { signal: abortController.signal });
+    videoEl.addEventListener("seeking", handleSeeking, { signal: abortController.signal });
     videoEl.addEventListener("timeupdate", handleTimeUpdate, { signal: abortController.signal });
-  };
-
-  function play() {
-    video?.play();
+    videoEl.addEventListener("seeked", handleSeeked, { signal: abortController.signal });
   }
 
-  function pause() {
-    video?.pause();
-  }
-
-  function toggle() {
-    if (state.isPlaying) {
-      pause();
-      return;
-    }
-    play();
-  }
-
-  const destroy = () => {
+  function destroy() {
     abortController.abort();
     abortController = new AbortController();
     listeners.clear();
-  };
+  }
 
-  return {
-    subscribe: (listener: () => void) => {
-      listeners.add(listener);
-      return () => {
-        listeners.delete(listener);
-      };
-    },
-    init,
-    destroy,
-    getSnapshot: () => state,
-    getControls: () => controls,
-  };
+  function subscribe(listener: () => void) {
+    listeners.add(listener);
+    return () => {
+      listeners.delete(listener);
+    };
+  }
+
+  const controls = { play, pause, toggle, seek };
+
+  return { subscribe, init, destroy, getSnapshot: () => state, getControls: () => controls };
 }
