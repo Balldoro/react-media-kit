@@ -1,4 +1,4 @@
-import type { HTMLAttributes } from "react";
+import type { CSSProperties, HTMLAttributes } from "react";
 
 export interface SeekbarProgressProps extends HTMLAttributes<HTMLDivElement> {}
 
@@ -10,11 +10,11 @@ export function SeekbarProgress({ style, ...props }: SeekbarProgressProps) {
   );
 }
 
-const defaultStyle = {
+const defaultStyle: CSSProperties = {
   width: "100%",
   height: "100%",
   position: "absolute",
   transform: `scaleX(calc(var(--elapsed-percent, 0) / 100))`,
   transformOrigin: "left",
   willChange: "transform",
-} as const;
+};

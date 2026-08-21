@@ -7,5 +7,5 @@ interface VideoPlayerProps extends HTMLAttributes<HTMLVideoElement> {
 
 export function VideoPlayer(props: VideoPlayerProps) {
   const { videoEl } = usePlayerCtx();
-  return <video ref={videoEl} {...props} />;
+  return <video ref={videoEl} style={{ width: "100%", height: "100%" }} {...props} />;
 }

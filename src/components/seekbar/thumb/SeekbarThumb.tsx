@@ -1,4 +1,4 @@
-import type { HTMLAttributes } from "react";
+import type { CSSProperties, HTMLAttributes } from "react";
 
 export interface SeekbarThumbProps extends HTMLAttributes<HTMLDivElement> {}
 
@@ -12,17 +12,17 @@ export function SeekbarThumb(props: SeekbarThumbProps) {
   );
 }
 
-const defaultContainerStyle = {
+const defaultContainerStyle: CSSProperties = {
   width: "100%",
   height: "100%",
   position: "absolute",
   transform: `translateX(calc(var(--elapsed-percent, 0) * 1%))`,
   willChange: "transform",
   left: 0,
-} as const;
+};
 
-const defaultStyle = {
+const defaultStyle: CSSProperties = {
   position: "absolute",
   top: "50%",
   transform: "translate(-50%, -50%)",
-} as const;
+};
