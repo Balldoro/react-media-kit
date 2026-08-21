@@ -11,7 +11,8 @@
     "react/exhaustive-deps": "warn",
     "typescript/no-explicit-any": "warn",
     "typescript/consistent-type-imports": "error",
-    "react/react-in-jsx-scope": "off"
+    "react/react-in-jsx-scope": "off",
+    "no-shadow": "off"
   },
   "env": {
     "browser": true,
