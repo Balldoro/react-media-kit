@@ -2,13 +2,20 @@ export type Selector<T> = (state: PlayerState) => T;
 
 export interface PlayerState {
   isPlaying: boolean;
+  isFullscreen: boolean;
   durationInSec: number;
   currentTimeInSec: number;
   optimisticTimeInSec: number | null;
 }
 
 export type PlayerAction =
-  PlayAction | PauseAction | ToggleAction | InitAction | TimeUpdateAction | SeekingAction;
+  | PlayAction
+  | PauseAction
+  | ToggleAction
+  | InitAction
+  | TimeUpdateAction
+  | SeekingAction
+  | FullscreenAction;
 
 export interface PlayAction {
   type: "PLAY";
@@ -35,4 +42,9 @@ export interface TimeUpdateAction {
 export interface SeekingAction {
   type: "SEEKING";
   payload: { value: number };
+}
+
+export interface FullscreenAction {
+  type: "FULLSCREEN";
+  payload: { value: boolean };
 }

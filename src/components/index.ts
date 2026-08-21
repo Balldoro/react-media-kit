@@ -1,1 +1,2 @@
-export { Seekbar, useSeekbar } from "./seekbar";
+export { Seekbar } from "./seekbar";
+export { Video } from "./video";

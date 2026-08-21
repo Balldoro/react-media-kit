@@ -7,6 +7,7 @@ export type PlayerStore = ReturnType<typeof createPlayerStore>;
 export function createPlayerStore() {
   let state: PlayerState = {
     isPlaying: false,
+    isFullscreen: false,
     durationInSec: 0,
     currentTimeInSec: 0,
     optimisticTimeInSec: null,
@@ -17,6 +18,7 @@ export function createPlayerStore() {
 
   let abortController = new AbortController();
   let video: HTMLVideoElement | null = null;
+  let container: HTMLDivElement | null = null;
 
   const dispatch = (action: PlayerAction) => {
     state = playerReducer(state, action);
@@ -32,6 +34,9 @@ export function createPlayerStore() {
   const pause = () => video?.pause();
 
   const toggle = () => (state.isPlaying ? pause() : play());
+
+  const toggleFullscreen = () =>
+    state.isFullscreen ? document.exitFullscreen() : container?.requestFullscreen();
 
   function skip(delta: number) {
     if (!video) return;
@@ -72,15 +77,24 @@ export function createPlayerStore() {
     dispatch({ type: "INIT", payload: { durationInSec: duration } });
   }
 
-  function init(videoEl: HTMLVideoElement) {
-    video = videoEl;
+  function handleFullscreen(this: HTMLVideoElement) {
+    dispatch({ type: "FULLSCREEN", payload: { value: document.fullscreenElement === container } });
+  }
 
-    videoEl.addEventListener("loadedmetadata", handleInit, { signal: abortController.signal });
-    videoEl.addEventListener("play", handlePlay, { signal: abortController.signal });
-    videoEl.addEventListener("pause", handlePause, { signal: abortController.signal });
-    videoEl.addEventListener("seeking", handleSeeking, { signal: abortController.signal });
-    videoEl.addEventListener("timeupdate", handleTimeUpdate, { signal: abortController.signal });
-    videoEl.addEventListener("seeked", handleSeeked, { signal: abortController.signal });
+  function init(videoEl: HTMLVideoElement, containerEl: HTMLDivElement) {
+    video = videoEl;
+    container = containerEl;
+
+    const signalConfig = { signal: abortController.signal };
+
+    videoEl.addEventListener("loadedmetadata", handleInit, signalConfig);
+    videoEl.addEventListener("play", handlePlay, signalConfig);
+    videoEl.addEventListener("pause", handlePause, signalConfig);
+    videoEl.addEventListener("seeking", handleSeeking, signalConfig);
+    videoEl.addEventListener("timeupdate", handleTimeUpdate, signalConfig);
+    videoEl.addEventListener("seeked", handleSeeked, signalConfig);
+
+    containerEl.addEventListener("fullscreenchange", handleFullscreen, signalConfig);
   }
 
   function destroy() {
@@ -96,7 +110,7 @@ export function createPlayerStore() {
     };
   }
 
-  const controls = { play, pause, toggle, seek, skip };
+  const controls = { play, pause, toggle, seek, skip, toggleFullscreen };
 
   return { subscribe, init, destroy, getSnapshot: () => state, getControls: () => controls };
 }

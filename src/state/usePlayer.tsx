@@ -6,6 +6,7 @@ import {
   useRef,
   useState,
   useSyncExternalStore,
+  type HTMLAttributes,
   type ReactNode,
   type RefObject,
 } from "react";
@@ -13,31 +14,42 @@ import { createPlayerStore, type PlayerStore } from "@/state/store";
 import type { Selector } from "@/types";
 
 interface PlayerContextValue extends PlayerStore {
+  containerEl: RefObject<HTMLDivElement | null>;
   videoEl: RefObject<HTMLVideoElement | null>;
   lang?: Intl.LocalesArgument;
 }
 
 export const PlayerContext = createContext<PlayerContextValue | null>(null);
 
-interface PlayerProviderProps {
+interface PlayerProviderProps extends Omit<HTMLAttributes<HTMLDivElement>, "lang"> {
   lang?: Intl.LocalesArgument;
   children: ReactNode;
 }
 
-export const Player = ({ children, lang }: PlayerProviderProps) => {
+export const Player = ({ children, lang, style, ...props }: PlayerProviderProps) => {
   const [state] = useState<PlayerStore>(createPlayerStore);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (!videoRef.current) return;
+    if (!videoRef.current || !containerRef.current) return;
 
-    state.init(videoRef.current);
+    state.init(videoRef.current, containerRef.current);
     return state.destroy;
   }, [state]);
 
-  const value = useMemo(() => ({ ...state, videoEl: videoRef, lang }), [state, lang]);
+  const value = useMemo(
+    () => ({ ...state, videoEl: videoRef, containerEl: containerRef, lang }),
+    [state, lang],
+  );
 
-  return <PlayerContext value={value}>{children}</PlayerContext>;
+  return (
+    <PlayerContext value={value}>
+      <div ref={containerRef} style={{ position: "relative", ...style }} {...props}>
+        {children}
+      </div>
+    </PlayerContext>
+  );
 };
 
 export const usePlayerSubscription = () => {
@@ -57,8 +69,8 @@ export const usePlayerCtx = () => {
     throw new Error("usePlayerCtx used outside of the PlayerProvider!");
   }
 
-  const { lang, videoEl } = ctx;
-  return { lang, videoEl };
+  const { lang, videoEl, containerEl } = ctx;
+  return { lang, videoEl, containerEl };
 };
 
 export function usePlayer<T>(selector: Selector<T>) {

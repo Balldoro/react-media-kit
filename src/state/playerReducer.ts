@@ -21,5 +21,9 @@ export function playerReducer(state: PlayerState, action: PlayerAction): PlayerS
       const { value } = action.payload;
       return { ...state, optimisticTimeInSec: normalizeTime(value) };
     }
+    case "FULLSCREEN": {
+      const { value } = action.payload;
+      return { ...state, isFullscreen: value };
+    }
   }
 }
