@@ -1,7 +1,7 @@
 function getTimeParts(duration: number) {
   const timeParts = { hours: 0, minutes: 0, seconds: 0 };
 
-  if (!Number.isFinite(duration)) return timeParts;
+  if (!Number.isFinite(duration) || duration < 0) return timeParts;
 
   timeParts.hours = Math.floor(duration / 3600);
   duration %= 3600;
@@ -18,6 +18,11 @@ export function getTimeFormat(time: number) {
   const { hours, minutes, seconds } = getTimeParts(time);
   const value = hours ? [hours, minutes, seconds] : [minutes, seconds];
   return value.map((v, idx) => (idx === 0 ? String(v) : padZeros(v))).join(":");
+}
+
+export function getDurationTimeFormat(time: number) {
+  const { hours, minutes, seconds } = getTimeParts(time);
+  return `PT${hours}H${minutes}M${seconds}S`;
 }
 
 export function createTimeLabelFormatter(locale?: Intl.LocalesArgument) {

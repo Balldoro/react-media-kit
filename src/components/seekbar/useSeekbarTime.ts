@@ -1,16 +1,20 @@
-import { usePlayerCtx, usePlayerSubscription } from "@/state/usePlayer";
+import { useAnimate } from "@/hooks/useAnimate";
+import { usePlayer, usePlayerCtx, usePlayerSubscription } from "@/state/usePlayer";
 import { createTimeLabelFormatter } from "@/utils/time";
-import { useCallback, useEffect, useMemo, type RefObject } from "react";
+import { useMemo, type RefObject } from "react";
 
 const UPDATE_INTERVAL_MS = 25;
 
 export function useSeekbarTime(sliderEl: RefObject<HTMLDivElement | null>) {
   const { lang, videoEl } = usePlayerCtx();
-  const { subscribe, getSnapshot } = usePlayerSubscription();
+  const { getSnapshot } = usePlayerSubscription();
+
+  const isPlaying = usePlayer((s) => s.isPlaying);
+  useAnimate({ draw, intervalMs: UPDATE_INTERVAL_MS, isActive: isPlaying });
 
   const getTimeLabel = useMemo(() => createTimeLabelFormatter(lang), [lang]);
 
-  const draw = useCallback(() => {
+  function draw() {
     if (!videoEl.current || !sliderEl.current) return;
 
     const { optimisticTimeInSec, durationInSec } = getSnapshot();
@@ -22,47 +26,5 @@ export function useSeekbarTime(sliderEl: RefObject<HTMLDivElement | null>) {
     sliderEl.current.style.setProperty("--elapsed-percent", elapsed.toFixed(2));
     sliderEl.current.setAttribute("aria-valuetext", totalElapsedTimeLabel);
     sliderEl.current.setAttribute("aria-valuenow", String(Math.floor(time)));
-  }, [videoEl, sliderEl, getTimeLabel, getSnapshot]);
-
-  useEffect(() => {
-    let animateFrame: number | null = null;
-    let prevTime = 0;
-
-    const animate = (time: number) => {
-      const deltaTime = time - prevTime;
-      if (deltaTime >= UPDATE_INTERVAL_MS) {
-        draw();
-        prevTime = time;
-      }
-      animateFrame = requestAnimationFrame(animate);
-    };
-
-    const startLoop = () => {
-      if (animateFrame !== null) return;
-      prevTime = 0;
-      animateFrame = requestAnimationFrame(animate);
-    };
-
-    const stopLoop = () => {
-      if (animateFrame === null) return;
-      cancelAnimationFrame(animateFrame);
-      animateFrame = null;
-    };
-
-    const unsubscribe = subscribe(() => {
-      if (getSnapshot().isPlaying) {
-        startLoop();
-      } else {
-        stopLoop();
-        draw();
-      }
-    });
-
-    if (getSnapshot().isPlaying) startLoop();
-
-    return () => {
-      unsubscribe();
-      stopLoop();
-    };
-  }, [draw, subscribe, getSnapshot]);
+  }
 }

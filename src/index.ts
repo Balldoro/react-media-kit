@@ -1,2 +1,2 @@
 export { Player } from "@/state/usePlayer";
-export { Seekbar, Video } from "@/components";
+export { TimeDisplay, Seekbar, Video } from "@/components";
