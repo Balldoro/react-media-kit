@@ -1,11 +1,12 @@
-import type { CSSProperties, HTMLAttributes } from "react";
+import type { CSSProperties } from "react";
 import {
   useOverlayInteractivity,
   type OverlayInteractivityOptions,
 } from "./useOverlayInteractivity";
 import { composeHandlers } from "@/utils/handlers";
+import type { ButtonAttributes } from "@/types";
 
-interface VideoOverlayRootProps extends Omit<HTMLAttributes<HTMLButtonElement>, "onDoubleClick"> {
+interface VideoOverlayRootProps extends Omit<ButtonAttributes, "onDoubleClick"> {
   label: string;
   onDoubleClick?: OverlayInteractivityOptions["onDoubleClick"];
   onDoubleTouch?: OverlayInteractivityOptions["onDoubleTouch"];

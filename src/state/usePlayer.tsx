@@ -11,7 +11,7 @@ import {
   type RefObject,
 } from "react";
 import { createPlayerStore, type PlayerStore } from "@/state/store";
-import type { Selector } from "@/types";
+import type { Selector } from "./types";
 
 interface PlayerContextValue extends PlayerStore {
   containerEl: RefObject<HTMLDivElement | null>;

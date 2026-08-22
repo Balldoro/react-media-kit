@@ -1,7 +1,8 @@
 import type { HTMLAttributes } from "react";
+import { useMediaReadyProps } from "@/hooks/dataProps";
 
 interface VideoRootProps extends HTMLAttributes<HTMLDivElement> {}
 
 export function VideoRoot({ style, ...props }: VideoRootProps) {
-  return <div style={{ position: "relative", ...style }} {...props} />;
+  return <div style={{ position: "relative", ...style }} {...props} {...useMediaReadyProps()} />;
 }

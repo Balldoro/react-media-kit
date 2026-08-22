@@ -1,4 +1,4 @@
-import type { PlayerAction, PlayerState } from "@/types";
+import type { PlayerAction, PlayerState } from "./types";
 import { normalizeTime } from "@/utils/time";
 
 export function playerReducer(state: PlayerState, action: PlayerAction): PlayerState {
@@ -11,27 +11,27 @@ export function playerReducer(state: PlayerState, action: PlayerAction): PlayerS
       return { ...state, isPlaying: !state.isPlaying };
     case "INIT": {
       const { durationInSec, volume } = action.payload;
-      return { ...state, durationInSec: normalizeTime(durationInSec), volume };
+      return { ...state, durationInSec: normalizeTime(durationInSec), volume, isReady: true };
     }
     case "TIME_UPDATE": {
-      const { value } = action.payload;
-      return { ...state, currentTimeInSec: normalizeTime(value), optimisticTimeInSec: null };
+      const { time } = action.payload;
+      return { ...state, currentTimeInSec: normalizeTime(time), optimisticTimeInSec: null };
     }
     case "SEEKING": {
-      const { value } = action.payload;
-      return { ...state, optimisticTimeInSec: normalizeTime(value) };
+      const { time } = action.payload;
+      return { ...state, optimisticTimeInSec: normalizeTime(time) };
     }
     case "FULLSCREEN": {
-      const { value } = action.payload;
-      return { ...state, isFullscreen: value };
+      const { enabled } = action.payload;
+      return { ...state, isFullscreen: enabled };
     }
     case "MUTE": {
-      const { value } = action.payload;
-      return { ...state, isMuted: value };
+      const { muted } = action.payload;
+      return { ...state, isMuted: muted };
     }
     case "VOLUME_CHANGE": {
-      const { value } = action.payload;
-      return { ...state, volume: value };
+      const { volume } = action.payload;
+      return { ...state, volume: volume };
     }
   }
 }

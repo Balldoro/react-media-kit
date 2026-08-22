@@ -1,5 +1,6 @@
 import { useRef, type CSSProperties, type HTMLAttributes } from "react";
 import { usePlayer } from "@/state/usePlayer";
+import { useMediaReadyProps } from "@/hooks/dataProps";
 import { SKIP_INTERVAL } from "@/constants";
 import { useSeekbarTime } from "../useSeekbarTime";
 import { useSeekbarInteractivity } from "../useSeekbarInteractivity";
@@ -38,6 +39,7 @@ export function SeekbarRoot({
       onKeyDown={composeHandlers(onKeyDown, handleKeyDown)}
       aria-valuemin={0}
       aria-valuemax={Math.floor(duration)}
+      {...useMediaReadyProps()}
     />
   );
 }

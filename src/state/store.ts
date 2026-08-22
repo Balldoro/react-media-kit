@@ -1,4 +1,4 @@
-import type { PlayerAction, PlayerState } from "@/types";
+import type { PlayerAction, PlayerState } from "./types";
 import { playerReducer } from "@/state/playerReducer";
 import { createSeekQueue } from "./seekQueue";
 import { clampVolume } from "@/utils/volume";
@@ -7,6 +7,7 @@ export type PlayerStore = ReturnType<typeof createPlayerStore>;
 
 export function createPlayerStore() {
   let state: PlayerState = {
+    isReady: false,
     isPlaying: false,
     isMuted: false,
     isFullscreen: false,
@@ -66,8 +67,7 @@ export function createPlayerStore() {
   }
 
   function handleTimeUpdate(this: HTMLVideoElement) {
-    const { currentTime } = this;
-    dispatch({ type: "TIME_UPDATE", payload: { value: currentTime } });
+    dispatch({ type: "TIME_UPDATE", payload: { time: this.currentTime } });
   }
 
   function seek(time: number) {
@@ -78,12 +78,12 @@ export function createPlayerStore() {
     } else {
       video.currentTime = time;
     }
-    dispatch({ type: "SEEKING", payload: { value: time } });
+    dispatch({ type: "SEEKING", payload: { time } });
   }
 
   function handleSeeking(this: HTMLVideoElement) {
     if (seekQueue.get().isPending) return;
-    dispatch({ type: "SEEKING", payload: { value: this.currentTime } });
+    dispatch({ type: "SEEKING", payload: { time: this.currentTime } });
   }
 
   function handleSeeked() {
@@ -99,15 +99,18 @@ export function createPlayerStore() {
   }
 
   function handleFullscreen(this: HTMLVideoElement) {
-    dispatch({ type: "FULLSCREEN", payload: { value: document.fullscreenElement === container } });
+    dispatch({
+      type: "FULLSCREEN",
+      payload: { enabled: document.fullscreenElement === container },
+    });
   }
 
   function handleVolumeChange(this: HTMLVideoElement) {
     if (state.isMuted !== this.muted) {
-      dispatch({ type: "MUTE", payload: { value: this.muted } });
+      dispatch({ type: "MUTE", payload: { muted: this.muted } });
     }
     if (state.volume !== this.volume) {
-      dispatch({ type: "VOLUME_CHANGE", payload: { value: this.volume } });
+      dispatch({ type: "VOLUME_CHANGE", payload: { volume: this.volume } });
     }
   }
 
