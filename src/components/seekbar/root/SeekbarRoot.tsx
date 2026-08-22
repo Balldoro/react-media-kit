@@ -45,7 +45,6 @@ export function SeekbarRoot({
 }
 
 const defaultStyle: CSSProperties = {
-  overflow: "hidden",
   // TODO: Those are hardcoded sane values that prevent Thumb from overflowing. This would make use of ResizeObserver attached
   // to the Thumb element to dynamically calculate it, as consumer applies his own, custom width
   paddingLeft: 6,

@@ -5,7 +5,7 @@ export interface SliderProps extends HTMLAttributes<HTMLDivElement> {}
 export const Slider = forwardRef<HTMLDivElement, SliderProps>(
   ({ style, ...props }: SliderProps, ref) => {
     return (
-      <div ref={ref} style={{ ...defaultStyle, ...style }} {...props} role="slider" tabIndex={0} />
+      <div ref={ref} style={{ ...style, ...defaultStyle }} {...props} role="slider" tabIndex={0} />
     );
   },
 );
@@ -13,6 +13,4 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(
 const defaultStyle: CSSProperties = {
   touchAction: "none",
   position: "relative",
-  cursor: "pointer",
-  width: "100%",
 };

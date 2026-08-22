@@ -1,9 +1,7 @@
-import type { CSSProperties, HTMLAttributes } from "react";
+import type { HTMLAttributes } from "react";
 
 export interface TrackProps extends HTMLAttributes<HTMLDivElement> {}
 
 export function Track({ style, ...props }: TrackProps) {
-  return <div style={{ ...defaultStyle, ...style }} {...props} />;
+  return <div style={{ ...style, position: "relative" }} {...props} />;
 }
-
-const defaultStyle: CSSProperties = { position: "relative", width: "100%" };

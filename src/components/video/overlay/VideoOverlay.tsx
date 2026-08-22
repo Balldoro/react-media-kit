@@ -39,7 +39,7 @@ export function VideoOverlayRoot({
     <button
       type="button"
       aria-label={label}
-      style={{ ...defaultStyle, ...style }}
+      style={{ ...adjustableStyle, ...style, ...requiredStyle }}
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
       onKeyDown={composeHandlers(onKeyDown, handleKeyDown)}
@@ -50,13 +50,13 @@ export function VideoOverlayRoot({
   );
 }
 
-const defaultStyle: CSSProperties = {
-  position: "absolute",
-  padding: 0,
-  inset: 0,
-  zIndex: 10,
+const adjustableStyle: CSSProperties = {
   background: "transparent",
   border: "none",
+};
+
+const requiredStyle: CSSProperties = {
+  position: "absolute",
+  inset: 0,
   touchAction: "manipulation",
-  userSelect: "none",
 };
