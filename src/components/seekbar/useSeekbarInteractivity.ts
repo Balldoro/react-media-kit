@@ -1,4 +1,5 @@
 import { usePlayer, usePlayerControls } from "@/state/usePlayer";
+import { handleNavKeyDown } from "@/utils/handlers";
 import { useRef, type KeyboardEventHandler, type PointerEventHandler, type RefObject } from "react";
 
 interface Config {
@@ -35,28 +36,13 @@ export function useSeekbarInteractivity(
     updateVideoTime(e.clientX);
   };
 
-  const handleKeyDown: KeyboardEventHandler<HTMLDivElement> = (e) => {
-    let isMatched = true;
-    switch (e.key) {
-      case "ArrowLeft":
-      case "ArrowDown":
-        skip(-skipInterval);
-        break;
-      case "ArrowRight":
-      case "ArrowUp":
-        skip(skipInterval);
-        break;
-      case "Home":
-        seek(0);
-        break;
-      case "End":
-        seek(duration);
-        break;
-      default:
-        isMatched = false;
-    }
-    if (isMatched) e.preventDefault();
-  };
+  const handleKeyDown: KeyboardEventHandler<HTMLDivElement> = (e) =>
+    handleNavKeyDown(e, {
+      onNext: () => skip(skipInterval),
+      onBack: () => skip(-skipInterval),
+      onStart: () => seek(0),
+      onEnd: () => seek(duration),
+    });
 
   return { handlePointerDown, handlePointerMove, handleKeyDown };
 }

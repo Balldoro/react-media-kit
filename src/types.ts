@@ -2,10 +2,12 @@ export type Selector<T> = (state: PlayerState) => T;
 
 export interface PlayerState {
   isPlaying: boolean;
+  isMuted: boolean;
   isFullscreen: boolean;
   durationInSec: number;
   currentTimeInSec: number;
   optimisticTimeInSec: number | null;
+  volume: number;
 }
 
 export type PlayerAction =
@@ -15,7 +17,9 @@ export type PlayerAction =
   | InitAction
   | TimeUpdateAction
   | SeekingAction
-  | FullscreenAction;
+  | FullscreenAction
+  | MuteAction
+  | VolumeChangeAction;
 
 export interface PlayAction {
   type: "PLAY";
@@ -31,7 +35,7 @@ export interface ToggleAction {
 
 export interface InitAction {
   type: "INIT";
-  payload: { durationInSec: number };
+  payload: { durationInSec: number; volume: number };
 }
 
 export interface TimeUpdateAction {
@@ -48,3 +52,15 @@ export interface FullscreenAction {
   type: "FULLSCREEN";
   payload: { value: boolean };
 }
+
+export interface MuteAction {
+  type: "MUTE";
+  payload: { value: boolean };
+}
+
+export interface VolumeChangeAction {
+  type: "VOLUME_CHANGE";
+  payload: { value: number };
+}
+
+export type VoidFunc = () => void;

@@ -1,16 +1,19 @@
 import type { PlayerAction, PlayerState } from "@/types";
 import { playerReducer } from "@/state/playerReducer";
 import { createSeekQueue } from "./seekQueue";
+import { clampVolume } from "@/utils/volume";
 
 export type PlayerStore = ReturnType<typeof createPlayerStore>;
 
 export function createPlayerStore() {
   let state: PlayerState = {
     isPlaying: false,
+    isMuted: false,
     isFullscreen: false,
     durationInSec: 0,
     currentTimeInSec: 0,
     optimisticTimeInSec: null,
+    volume: 0.5,
   };
 
   const seekQueue = createSeekQueue();
@@ -34,6 +37,24 @@ export function createPlayerStore() {
   const pause = () => video?.pause();
 
   const toggle = () => (state.isPlaying ? pause() : play());
+
+  const mute = () => video && (video.muted = true);
+  const unmute = () => video && (video.muted = false);
+  const toggleMute = () => (state.isMuted ? unmute() : mute());
+
+  const stepVolume = (delta: number) => {
+    if (!video) return;
+    const newValue = clampVolume(video.volume + delta);
+    video.volume = newValue;
+    video.muted = false;
+  };
+
+  const setVolume = (volume: number) => {
+    if (!video) return;
+    const newValue = clampVolume(volume);
+    video.volume = newValue;
+    video.muted = false;
+  };
 
   const toggleFullscreen = () =>
     state.isFullscreen ? document.exitFullscreen() : container?.requestFullscreen();
@@ -73,12 +94,28 @@ export function createPlayerStore() {
   }
 
   function handleInit(this: HTMLVideoElement) {
-    const { duration } = this;
-    dispatch({ type: "INIT", payload: { durationInSec: duration } });
+    const { duration, volume } = this;
+    dispatch({ type: "INIT", payload: { durationInSec: duration, volume } });
   }
 
   function handleFullscreen(this: HTMLVideoElement) {
     dispatch({ type: "FULLSCREEN", payload: { value: document.fullscreenElement === container } });
+  }
+
+  function handleVolumeChange(this: HTMLVideoElement) {
+    if (state.isMuted !== this.muted) {
+      dispatch({ type: "MUTE", payload: { value: this.muted } });
+    }
+    if (state.volume !== this.volume) {
+      dispatch({ type: "VOLUME_CHANGE", payload: { value: this.volume } });
+    }
+  }
+
+  function handleKeyDown(e: KeyboardEvent) {
+    switch (e.key.toUpperCase()) {
+      case "M":
+        return toggleMute();
+    }
   }
 
   function init(videoEl: HTMLVideoElement, containerEl: HTMLDivElement) {
@@ -93,8 +130,10 @@ export function createPlayerStore() {
     videoEl.addEventListener("seeking", handleSeeking, signalConfig);
     videoEl.addEventListener("timeupdate", handleTimeUpdate, signalConfig);
     videoEl.addEventListener("seeked", handleSeeked, signalConfig);
+    videoEl.addEventListener("volumechange", handleVolumeChange, signalConfig);
 
     containerEl.addEventListener("fullscreenchange", handleFullscreen, signalConfig);
+    containerEl.addEventListener("keydown", handleKeyDown, signalConfig);
   }
 
   function destroy() {
@@ -110,7 +149,19 @@ export function createPlayerStore() {
     };
   }
 
-  const controls = { play, pause, toggle, seek, skip, toggleFullscreen };
+  const controls = {
+    play,
+    pause,
+    toggle,
+    seek,
+    skip,
+    toggleFullscreen,
+    toggleMute,
+    mute,
+    unmute,
+    stepVolume,
+    setVolume,
+  };
 
   return { subscribe, init, destroy, getSnapshot: () => state, getControls: () => controls };
 }

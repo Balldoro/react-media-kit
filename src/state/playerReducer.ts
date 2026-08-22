@@ -10,8 +10,8 @@ export function playerReducer(state: PlayerState, action: PlayerAction): PlayerS
     case "TOGGLE":
       return { ...state, isPlaying: !state.isPlaying };
     case "INIT": {
-      const { durationInSec } = action.payload;
-      return { ...state, durationInSec: normalizeTime(durationInSec) };
+      const { durationInSec, volume } = action.payload;
+      return { ...state, durationInSec: normalizeTime(durationInSec), volume };
     }
     case "TIME_UPDATE": {
       const { value } = action.payload;
@@ -24,6 +24,14 @@ export function playerReducer(state: PlayerState, action: PlayerAction): PlayerS
     case "FULLSCREEN": {
       const { value } = action.payload;
       return { ...state, isFullscreen: value };
+    }
+    case "MUTE": {
+      const { value } = action.payload;
+      return { ...state, isMuted: value };
+    }
+    case "VOLUME_CHANGE": {
+      const { value } = action.payload;
+      return { ...state, volume: value };
     }
   }
 }
