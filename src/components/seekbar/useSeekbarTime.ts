@@ -23,7 +23,7 @@ export function useSeekbarTime(sliderEl: RefObject<HTMLDivElement | null>) {
     const elapsed = durationInSec > 0 ? (time / durationInSec) * 100 : 0;
     const totalElapsedTimeLabel = `${getTimeLabel(time)} / ${getTimeLabel(durationInSec)}`;
 
-    sliderEl.current.style.setProperty("--elapsed-percent", elapsed.toFixed(2));
+    sliderEl.current.style.setProperty("--progress-percent", elapsed.toFixed(2));
     sliderEl.current.setAttribute("aria-valuetext", totalElapsedTimeLabel);
     sliderEl.current.setAttribute("aria-valuenow", String(Math.floor(time)));
   }

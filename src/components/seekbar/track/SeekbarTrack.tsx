@@ -1,7 +1,8 @@
+import { Track } from "@/components/common/Track";
 import type { HTMLAttributes } from "react";
 
 export interface SeekbarTrackProps extends HTMLAttributes<HTMLDivElement> {}
 
-export function SeekbarTrack({ style, ...props }: SeekbarTrackProps) {
-  return <div style={{ position: "relative", width: "100%", ...style }} {...props} />;
+export function SeekbarTrack(props: SeekbarTrackProps) {
+  return <Track {...props} />;
 }
