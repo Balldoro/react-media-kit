@@ -11,7 +11,13 @@ export function playerReducer(state: PlayerState, action: PlayerAction): PlayerS
       return { ...state, isPlaying: !state.isPlaying };
     case "INIT": {
       const { durationInSec, volume } = action.payload;
-      return { ...state, durationInSec: normalizeTime(durationInSec), volume, isReady: true };
+      return {
+        ...state,
+        durationInSec: normalizeTime(durationInSec),
+        volume,
+        isReady: true,
+        isError: false,
+      };
     }
     case "TIME_UPDATE": {
       const { time } = action.payload;
@@ -32,6 +38,9 @@ export function playerReducer(state: PlayerState, action: PlayerAction): PlayerS
     case "VOLUME_CHANGE": {
       const { volume } = action.payload;
       return { ...state, volume: volume };
+    }
+    case "ERROR": {
+      return { ...state, isError: true };
     }
   }
 }

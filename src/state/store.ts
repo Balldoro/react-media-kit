@@ -8,6 +8,7 @@ export type PlayerStore = ReturnType<typeof createPlayerStore>;
 export function createPlayerStore() {
   let state: PlayerState = {
     isReady: false,
+    isError: false,
     isPlaying: false,
     isMuted: false,
     isFullscreen: false,
@@ -114,13 +115,8 @@ export function createPlayerStore() {
     }
   }
 
-  function handleKeyDown(e: KeyboardEvent) {
-    switch (e.key.toUpperCase()) {
-      case "M":
-        return toggleMute();
-      case "F":
-        return toggleFullscreen();
-    }
+  function handleError() {
+    dispatch({ type: "ERROR" });
   }
 
   function init(videoEl: HTMLVideoElement, containerEl: HTMLDivElement) {
@@ -129,6 +125,7 @@ export function createPlayerStore() {
 
     const signalConfig = { signal: abortController.signal };
 
+    videoEl.addEventListener("error", handleError, signalConfig);
     videoEl.addEventListener("loadedmetadata", handleInit, signalConfig);
     videoEl.addEventListener("play", handlePlay, signalConfig);
     videoEl.addEventListener("pause", handlePause, signalConfig);
@@ -138,7 +135,6 @@ export function createPlayerStore() {
     videoEl.addEventListener("volumechange", handleVolumeChange, signalConfig);
 
     containerEl.addEventListener("fullscreenchange", handleFullscreen, signalConfig);
-    containerEl.addEventListener("keydown", handleKeyDown, signalConfig);
   }
 
   function destroy() {

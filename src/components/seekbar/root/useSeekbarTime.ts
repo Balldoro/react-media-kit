@@ -1,5 +1,5 @@
 import { useAnimate } from "@/hooks/useAnimate";
-import { usePlayer, usePlayerCtx, usePlayerSubscription } from "@/state/usePlayer";
+import { usePlayer, usePlayerCtx, usePlayerSubscription } from "@/state/PlayerContext";
 import { createTimeLabelFormatter } from "@/utils/time";
 import { useMemo, type RefObject } from "react";
 

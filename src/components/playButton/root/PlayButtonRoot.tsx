@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import { usePlayer, usePlayerControls } from "@/state/usePlayer";
-import { useMediaReadyProps } from "@/hooks/dataProps";
+import { usePlayer, usePlayerControls } from "@/state/PlayerContext";
+import { useMediaGlobalProps } from "@/hooks/dataProps";
 import { composeHandlers } from "@/utils/handlers";
 import type { ButtonAttributes } from "@/types";
 
@@ -19,7 +19,7 @@ export function PlayButtonRoot({ onClick, children, ...props }: PlayButtonRootPr
       type="button"
       onClick={composeHandlers(onClick, toggle)}
       data-isplaying={isPlaying}
-      {...useMediaReadyProps()}
+      {...useMediaGlobalProps()}
     >
       {typeof children === "function" ? children({ isPlaying }) : children}
     </button>

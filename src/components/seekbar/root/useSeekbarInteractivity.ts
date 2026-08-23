@@ -1,4 +1,4 @@
-import { usePlayer, usePlayerControls } from "@/state/usePlayer";
+import { usePlayer, usePlayerControls } from "@/state/PlayerContext";
 import { handleNavKeyDown } from "@/utils/handlers";
 import { useRef, type KeyboardEventHandler, type PointerEventHandler, type RefObject } from "react";
 

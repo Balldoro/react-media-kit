@@ -1,4 +1,4 @@
-import { usePlayerSubscription } from "@/state/usePlayer";
+import { usePlayerSubscription } from "@/state/PlayerContext";
 import { useEffect, useEffectEvent } from "react";
 
 interface Config {

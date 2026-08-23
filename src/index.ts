@@ -1,8 +1,8 @@
-export { Player } from "@/state/usePlayer";
 export {
   Controls,
   FullscreenButton,
   PlayButton,
+  Player,
   Seekbar,
   SkipButton,
   TimeDisplay,

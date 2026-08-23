@@ -1,5 +1,5 @@
-import { usePlayer } from "@/state/usePlayer";
-import { useMediaReadyProps } from "@/hooks/dataProps";
+import { usePlayer } from "@/state/PlayerContext";
+import { useMediaGlobalProps } from "@/hooks/dataProps";
 import { getDurationTimeFormat, getTimeFormat } from "@/utils/time";
 import type { HTMLAttributes } from "react";
 
@@ -9,7 +9,7 @@ export function TimeDisplayDuration(props: TimeDisplayDurationProps) {
   const duration = usePlayer((s) => s.durationInSec);
 
   return (
-    <time {...props} dateTime={getDurationTimeFormat(duration)} {...useMediaReadyProps()}>
+    <time {...props} dateTime={getDurationTimeFormat(duration)} {...useMediaGlobalProps()}>
       {getTimeFormat(duration)}
     </time>
   );

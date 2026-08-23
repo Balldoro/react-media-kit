@@ -1,4 +1,4 @@
-import { usePlayerCtx } from "@/state/usePlayer";
+import { usePlayerCtx } from "@/state/PlayerContext";
 import type { HTMLAttributes } from "react";
 
 interface VideoPlayerProps extends HTMLAttributes<HTMLVideoElement> {

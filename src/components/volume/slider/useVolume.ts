@@ -1,5 +1,5 @@
 import { MAX_VOLUME, MIN_VOLUME } from "@/constants";
-import { usePlayer, usePlayerControls } from "@/state/usePlayer";
+import { usePlayer, usePlayerControls } from "@/state/PlayerContext";
 import { handleNavKeyDown } from "@/utils/handlers";
 import { clampVolume } from "@/utils/volume";
 import {

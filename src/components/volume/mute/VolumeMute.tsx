@@ -1,5 +1,5 @@
-import { usePlayer, usePlayerControls } from "@/state/usePlayer";
-import { useMediaReadyProps } from "@/hooks/dataProps";
+import { usePlayer, usePlayerControls } from "@/state/PlayerContext";
+import { useMediaGlobalProps } from "@/hooks/dataProps";
 import { composeHandlers } from "@/utils/handlers";
 import type { ReactNode } from "react";
 import type { ButtonAttributes } from "@/types";
@@ -19,7 +19,7 @@ export function VolumeMute({ onClick, children, ...props }: VolumeMuteProps) {
       {...props}
       type="button"
       onClick={composeHandlers(onClick, toggleMute)}
-      {...useMediaReadyProps()}
+      {...useMediaGlobalProps()}
     >
       {typeof children === "function" ? children({ isMuted, volume }) : children}
     </button>

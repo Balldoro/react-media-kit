@@ -1,5 +1,5 @@
 import { DOUBLE_CLICK_DELTA_MS, SKIP_INTERVAL } from "@/constants";
-import { usePlayerControls, usePlayerCtx } from "@/state/usePlayer";
+import { usePlayerControls, usePlayerCtx } from "@/state/PlayerContext";
 import {
   useEffect,
   useRef,

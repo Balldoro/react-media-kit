@@ -3,7 +3,7 @@ import { useVolume } from "./useVolume";
 import { composeHandlers } from "@/utils/handlers";
 import { Slider } from "@/components/common/Slider";
 import { MAX_VOLUME, MIN_VOLUME, VOLUME_INTERVAL } from "@/constants";
-import { useMediaReadyProps } from "@/hooks/dataProps";
+import { useMediaGlobalProps } from "@/hooks/dataProps";
 
 export interface VolumeSliderRootProps extends HTMLAttributes<HTMLDivElement> {
   volumeInterval?: number;
@@ -38,7 +38,7 @@ export function VolumeSlider({
       onPointerDown={composeHandlers(onPointerDown, handlePointerDown)}
       onKeyDown={composeHandlers(onKeyDown, handleKeyDown)}
       data-ismuted={isMuted}
-      {...useMediaReadyProps()}
+      {...useMediaGlobalProps()}
     />
   );
 }

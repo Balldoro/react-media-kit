@@ -2,6 +2,7 @@ export type Selector<T> = (state: PlayerState) => T;
 
 export interface PlayerState {
   isReady: boolean;
+  isError: boolean;
   isPlaying: boolean;
   isMuted: boolean;
   isFullscreen: boolean;
@@ -20,7 +21,8 @@ export type PlayerAction =
   | SeekingAction
   | FullscreenAction
   | MuteAction
-  | VolumeChangeAction;
+  | VolumeChangeAction
+  | ErrorAction;
 
 export interface PlayAction {
   type: "PLAY";
@@ -32,6 +34,10 @@ export interface PauseAction {
 
 export interface ToggleAction {
   type: "TOGGLE";
+}
+
+export interface ErrorAction {
+  type: "ERROR";
 }
 
 export interface InitAction {

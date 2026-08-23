@@ -1,4 +1,4 @@
-import { usePlayer, usePlayerCtx, usePlayerSubscription } from "@/state/usePlayer";
+import { usePlayer, usePlayerCtx, usePlayerSubscription } from "@/state/PlayerContext";
 import { getDurationTimeFormat, getTimeFormat } from "@/utils/time";
 import { useCallback, useEffect, type RefObject } from "react";
 import { useTimeDisplay } from "../TimeDisplayContext";

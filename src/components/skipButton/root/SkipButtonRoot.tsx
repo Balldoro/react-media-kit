@@ -1,5 +1,5 @@
-import { usePlayerControls } from "@/state/usePlayer";
-import { useMediaReadyProps } from "@/hooks/dataProps";
+import { usePlayerControls } from "@/state/PlayerContext";
+import { useMediaGlobalProps } from "@/hooks/dataProps";
 import { composeHandlers } from "@/utils/handlers";
 import { SKIP_INTERVAL } from "@/constants";
 import type { ButtonAttributes } from "@/types";
@@ -32,7 +32,7 @@ export function SkipButtonRoot({
       type="button"
       onClick={composeHandlers(onClick, handleSkip)}
       data-direction={direction}
-      {...useMediaReadyProps()}
+      {...useMediaGlobalProps()}
     />
   );
 }
