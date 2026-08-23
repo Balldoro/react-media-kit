@@ -4,3 +4,4 @@ export { TimeDisplay } from "./timeDisplay";
 export { PlayButton } from "./playButton";
 export { Volume } from "./volume";
 export { Controls } from "./controls";
+export { SkipButton } from "./skipButton";
