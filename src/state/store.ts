@@ -118,6 +118,8 @@ export function createPlayerStore() {
     switch (e.key.toUpperCase()) {
       case "M":
         return toggleMute();
+      case "F":
+        return toggleFullscreen();
     }
   }
 

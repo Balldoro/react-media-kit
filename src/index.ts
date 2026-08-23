@@ -1,10 +1,11 @@
 export { Player } from "@/state/usePlayer";
 export {
-  TimeDisplay,
-  Seekbar,
-  Video,
-  PlayButton,
-  Volume,
   Controls,
+  FullscreenButton,
+  PlayButton,
+  Seekbar,
   SkipButton,
+  TimeDisplay,
+  Video,
+  Volume,
 } from "@/components";
