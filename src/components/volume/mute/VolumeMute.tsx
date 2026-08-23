@@ -15,9 +15,9 @@ export function VolumeMute({ onClick, children, ...props }: VolumeMuteProps) {
 
   return (
     <button
+      aria-label={isMuted ? "Unmute video" : "Mute video"}
       {...props}
       type="button"
-      aria-pressed={isMuted}
       onClick={composeHandlers(onClick, toggleMute)}
       {...useMediaReadyProps()}
     >

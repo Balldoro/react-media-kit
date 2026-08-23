@@ -25,7 +25,7 @@ export function getDurationTimeFormat(time: number) {
   return `PT${hours}H${minutes}M${seconds}S`;
 }
 
-export function createTimeLabelFormatter(locale?: Intl.LocalesArgument) {
+export function createTimeLabelFormatter(locale?: string) {
   const createNumberFormatter = (unit: "hour" | "minute" | "second") =>
     new Intl.NumberFormat(locale, { style: "unit", unit, unitDisplay: "long" });
 

@@ -9,9 +9,9 @@ export function TimeDisplayToggle({ onClick, ...props }: TimeDisplayToggleProps)
 
   return (
     <button
+      aria-label={`See ${isElapsedMode ? "remaining" : "elapsed"} time`}
       {...props}
       type="button"
-      aria-pressed={isElapsedMode}
       onClick={composeHandlers(onClick, toggleMode)}
     />
   );

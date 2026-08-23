@@ -4,16 +4,17 @@ import { useMediaReadyProps } from "@/hooks/dataProps";
 import { composeHandlers } from "@/utils/handlers";
 import type { ButtonAttributes } from "@/types";
 
-interface PlayRootProps extends Omit<ButtonAttributes, "children"> {
+interface PlayButtonRootProps extends Omit<ButtonAttributes, "children"> {
   children: ReactNode | ((props: { isPlaying: boolean }) => ReactNode);
 }
 
-export function PlayRoot({ onClick, children, ...props }: PlayRootProps) {
+export function PlayButtonRoot({ onClick, children, ...props }: PlayButtonRootProps) {
   const { toggle } = usePlayerControls();
   const isPlaying = usePlayer((s) => s.isPlaying);
 
   return (
     <button
+      aria-label={isPlaying ? "Pause video" : "Play video"}
       {...props}
       type="button"
       onClick={composeHandlers(onClick, toggle)}

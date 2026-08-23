@@ -16,13 +16,12 @@ import type { Selector } from "./types";
 interface PlayerContextValue extends PlayerStore {
   containerEl: RefObject<HTMLDivElement | null>;
   videoEl: RefObject<HTMLVideoElement | null>;
-  lang?: Intl.LocalesArgument;
+  lang?: string;
 }
 
 export const PlayerContext = createContext<PlayerContextValue | null>(null);
 
-interface PlayerProviderProps extends Omit<HTMLAttributes<HTMLDivElement>, "lang"> {
-  lang?: Intl.LocalesArgument;
+interface PlayerProviderProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
 }
 
@@ -45,7 +44,7 @@ export const Player = ({ children, lang, style, ...props }: PlayerProviderProps)
 
   return (
     <PlayerContext value={value}>
-      <div ref={containerRef} style={{ position: "relative", ...style }} {...props}>
+      <div ref={containerRef} style={{ position: "relative", ...style }} lang={lang} {...props}>
         {children}
       </div>
     </PlayerContext>
