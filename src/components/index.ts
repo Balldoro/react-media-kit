@@ -1,5 +1,7 @@
 export { Controls } from "./controls";
 export { FullscreenButton } from "./fullscreenButton";
+export { PipButton } from "./pipButton";
+export { PlaybackRateButton } from "./playbackRateButton";
 export { PlayButton } from "./playButton";
 export { Player } from "./player";
 export { Seekbar } from "./seekbar";

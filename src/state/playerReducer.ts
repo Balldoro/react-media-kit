@@ -10,11 +10,12 @@ export function playerReducer(state: PlayerState, action: PlayerAction): PlayerS
     case "TOGGLE":
       return { ...state, isPlaying: !state.isPlaying };
     case "INIT": {
-      const { durationInSec, volume } = action.payload;
+      const { durationInSec, volume, playbackRate } = action.payload;
       return {
         ...state,
         durationInSec: normalizeTime(durationInSec),
         volume,
+        playbackRate,
         isReady: true,
         isError: false,
       };
@@ -31,6 +32,10 @@ export function playerReducer(state: PlayerState, action: PlayerAction): PlayerS
       const { enabled } = action.payload;
       return { ...state, isFullscreen: enabled };
     }
+    case "PIP": {
+      const { enabled } = action.payload;
+      return { ...state, isPictureInPicture: enabled };
+    }
     case "MUTE": {
       const { muted } = action.payload;
       return { ...state, isMuted: muted };
@@ -38,6 +43,10 @@ export function playerReducer(state: PlayerState, action: PlayerAction): PlayerS
     case "VOLUME_CHANGE": {
       const { volume } = action.payload;
       return { ...state, volume: volume };
+    }
+    case "PLAYBACK_RATE_CHANGE": {
+      const { playbackRate } = action.payload;
+      return { ...state, playbackRate };
     }
     case "ERROR": {
       return { ...state, isError: true };

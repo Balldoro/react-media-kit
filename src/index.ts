@@ -1,6 +1,8 @@
 export {
   Controls,
   FullscreenButton,
+  PipButton,
+  PlaybackRateButton,
   PlayButton,
   Player,
   Seekbar,

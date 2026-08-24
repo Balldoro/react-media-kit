@@ -2,6 +2,7 @@ import type { PlayerAction, PlayerState } from "./types";
 import { playerReducer } from "@/state/playerReducer";
 import { createSeekQueue } from "./seekQueue";
 import { clampVolume } from "@/utils/volume";
+import { clampPlaybackRate } from "@/utils/playbackRate";
 
 export type PlayerStore = ReturnType<typeof createPlayerStore>;
 
@@ -12,10 +13,12 @@ export function createPlayerStore() {
     isPlaying: false,
     isMuted: false,
     isFullscreen: false,
+    isPictureInPicture: false,
     durationInSec: 0,
     currentTimeInSec: 0,
     optimisticTimeInSec: null,
     volume: 0.5,
+    playbackRate: 1,
   };
 
   const seekQueue = createSeekQueue();
@@ -61,6 +64,19 @@ export function createPlayerStore() {
   const toggleFullscreen = () =>
     state.isFullscreen ? document.exitFullscreen() : container?.requestFullscreen();
 
+  const togglePip = () =>
+    state.isPictureInPicture ? document.exitPictureInPicture() : video?.requestPictureInPicture();
+
+  const stepPlaybackRate = (delta: number) => {
+    if (!video) return;
+    video.playbackRate = clampPlaybackRate(video.playbackRate + delta);
+  };
+
+  const setPlaybackRate = (rate: number) => {
+    if (!video) return;
+    video.playbackRate = clampPlaybackRate(rate);
+  };
+
   function skip(delta: number) {
     if (!video) return;
     const newValue = Math.max(Math.min(video.currentTime + delta, state.durationInSec), 0);
@@ -95,8 +111,8 @@ export function createPlayerStore() {
   }
 
   function handleInit(this: HTMLVideoElement) {
-    const { duration, volume } = this;
-    dispatch({ type: "INIT", payload: { durationInSec: duration, volume } });
+    const { duration, volume, playbackRate } = this;
+    dispatch({ type: "INIT", payload: { durationInSec: duration, volume, playbackRate } });
   }
 
   function handleFullscreen(this: HTMLVideoElement) {
@@ -106,12 +122,26 @@ export function createPlayerStore() {
     });
   }
 
+  function handlePipEnter() {
+    dispatch({ type: "PIP", payload: { enabled: true } });
+  }
+
+  function handlePipLeave() {
+    dispatch({ type: "PIP", payload: { enabled: false } });
+  }
+
   function handleVolumeChange(this: HTMLVideoElement) {
     if (state.isMuted !== this.muted) {
       dispatch({ type: "MUTE", payload: { muted: this.muted } });
     }
     if (state.volume !== this.volume) {
       dispatch({ type: "VOLUME_CHANGE", payload: { volume: this.volume } });
+    }
+  }
+
+  function handleRateChange(this: HTMLVideoElement) {
+    if (state.playbackRate !== this.playbackRate) {
+      dispatch({ type: "PLAYBACK_RATE_CHANGE", payload: { playbackRate: this.playbackRate } });
     }
   }
 
@@ -125,13 +155,16 @@ export function createPlayerStore() {
 
     const signalConfig = { signal: abortController.signal };
 
-    videoEl.addEventListener("error", handleError, signalConfig);
     videoEl.addEventListener("loadedmetadata", handleInit, signalConfig);
+    videoEl.addEventListener("error", handleError, signalConfig);
+    videoEl.addEventListener("enterpictureinpicture", handlePipEnter, signalConfig);
+    videoEl.addEventListener("leavepictureinpicture", handlePipLeave, signalConfig);
     videoEl.addEventListener("play", handlePlay, signalConfig);
     videoEl.addEventListener("pause", handlePause, signalConfig);
+    videoEl.addEventListener("ratechange", handleRateChange, signalConfig);
     videoEl.addEventListener("seeking", handleSeeking, signalConfig);
-    videoEl.addEventListener("timeupdate", handleTimeUpdate, signalConfig);
     videoEl.addEventListener("seeked", handleSeeked, signalConfig);
+    videoEl.addEventListener("timeupdate", handleTimeUpdate, signalConfig);
     videoEl.addEventListener("volumechange", handleVolumeChange, signalConfig);
 
     containerEl.addEventListener("fullscreenchange", handleFullscreen, signalConfig);
@@ -157,11 +190,14 @@ export function createPlayerStore() {
     seek,
     skip,
     toggleFullscreen,
+    togglePip,
     toggleMute,
     mute,
     unmute,
     stepVolume,
     setVolume,
+    stepPlaybackRate,
+    setPlaybackRate,
   };
 
   return { subscribe, init, destroy, getSnapshot: () => state, getControls: () => controls };

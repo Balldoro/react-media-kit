@@ -6,10 +6,12 @@ export interface PlayerState {
   isPlaying: boolean;
   isMuted: boolean;
   isFullscreen: boolean;
+  isPictureInPicture: boolean;
   durationInSec: number;
   currentTimeInSec: number;
   optimisticTimeInSec: number | null;
   volume: number;
+  playbackRate: number;
 }
 
 export type PlayerAction =
@@ -20,8 +22,10 @@ export type PlayerAction =
   | TimeUpdateAction
   | SeekingAction
   | FullscreenAction
+  | PipAction
   | MuteAction
   | VolumeChangeAction
+  | PlaybackRateChangeAction
   | ErrorAction;
 
 export interface PlayAction {
@@ -42,7 +46,7 @@ export interface ErrorAction {
 
 export interface InitAction {
   type: "INIT";
-  payload: { durationInSec: number; volume: number };
+  payload: { durationInSec: number; volume: number; playbackRate: number };
 }
 
 export interface TimeUpdateAction {
@@ -60,6 +64,11 @@ export interface FullscreenAction {
   payload: { enabled: boolean };
 }
 
+export interface PipAction {
+  type: "PIP";
+  payload: { enabled: boolean };
+}
+
 export interface MuteAction {
   type: "MUTE";
   payload: { muted: boolean };
@@ -68,4 +77,9 @@ export interface MuteAction {
 export interface VolumeChangeAction {
   type: "VOLUME_CHANGE";
   payload: { volume: number };
+}
+
+export interface PlaybackRateChangeAction {
+  type: "PLAYBACK_RATE_CHANGE";
+  payload: { playbackRate: number };
 }

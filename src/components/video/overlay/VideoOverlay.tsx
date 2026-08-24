@@ -53,6 +53,7 @@ export function VideoOverlayRoot({
 const adjustableStyle: CSSProperties = {
   background: "transparent",
   border: "none",
+  zIndex: 5,
 };
 
 const requiredStyle: CSSProperties = {
