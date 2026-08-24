@@ -1,8 +1,11 @@
 import { MAX_VOLUME, MIN_VOLUME } from "@/constants";
-import { usePlayer, usePlayerControls } from "@/state/PlayerContext";
+import { useRectPosition } from "@/hooks/useRectPosition";
+import { usePlayerControls, usePlayerSubscription } from "@/state/PlayerContext";
+import { shallowEqual, toPercent } from "@/utils";
 import { handleNavKeyDown } from "@/utils/handlers";
 import { clampVolume } from "@/utils/volume";
 import {
+  useCallback,
   useEffect,
   useRef,
   type KeyboardEventHandler,
@@ -12,36 +15,62 @@ import {
 
 interface Config {
   volumeInterval: number;
+  computeAriaValueText?: ({ volume, isMuted }: { volume: number; isMuted: boolean }) => string;
 }
 
-export function useVolume(sliderEl: RefObject<HTMLDivElement | null>, { volumeInterval }: Config) {
-  const volume = usePlayer((s) => s.volume);
-  const isMuted = usePlayer((s) => s.isMuted);
+export function useVolume(
+  sliderEl: RefObject<HTMLDivElement | null>,
+  { volumeInterval, computeAriaValueText }: Config,
+) {
+  const computeAriaValueTextStable = useRef(computeAriaValueText);
 
-  const sliderRect = useRef<DOMRect>(null);
+  const { setRect: setSliderRect, calcRectPositionX } = useRectPosition();
+  const { subscribeWithSelector, getSnapshot } = usePlayerSubscription();
   const { stepVolume, setVolume } = usePlayerControls();
 
-  useEffect(() => {
+  const updateSliderEl = useCallback(() => {
     if (!sliderEl.current) return;
 
-    const currentVolumePercentage = isMuted ? 0 : volume * 100;
-    sliderEl.current.style.setProperty("--progress-percent", String(currentVolumePercentage));
-  }, [sliderEl, volume, isMuted]);
+    const { volume, isMuted } = getSnapshot();
+    const currentVolume = isMuted ? 0 : volume;
+    const currentVolumePercent = toPercent(currentVolume).toFixed(2);
+
+    sliderEl.current.style.setProperty("--progress-percent", String(currentVolumePercent));
+    sliderEl.current.setAttribute("aria-valuenow", String(currentVolume));
+    sliderEl.current.setAttribute(
+      "aria-valuetext",
+      computeAriaValueTextStable.current?.({ volume, isMuted }) ?? `${currentVolumePercent}%`,
+    );
+    sliderEl.current.setAttribute("data-ismuted", String(isMuted));
+  }, [getSnapshot, sliderEl]);
+
+  useEffect(() => {
+    computeAriaValueTextStable.current = computeAriaValueText;
+  }, [computeAriaValueText]);
+
+  useEffect(() => {
+    const unsubscribe = subscribeWithSelector(
+      shallowEqual((s) => ({ volume: s.volume, isMuted: s.isMuted })),
+      updateSliderEl,
+    );
+
+    updateSliderEl();
+
+    return unsubscribe;
+  }, [subscribeWithSelector, updateSliderEl, sliderEl]);
 
   function updateVolume(clickX: number) {
-    if (!sliderRect.current) return;
+    const calculatedPosition = calcRectPositionX(clickX);
+    if (calculatedPosition == null) return;
 
-    const { left, width } = sliderRect.current;
-    const containerPos = clampVolume((clickX - left) / width);
-
-    sliderEl.current?.style.setProperty("--progress-percent", String(containerPos * 100));
-    setVolume(containerPos);
+    setVolume(clampVolume(calculatedPosition));
+    updateSliderEl();
   }
 
   const handlePointerDown: PointerEventHandler<HTMLDivElement> = (e) => {
     if (!sliderEl.current) return;
 
-    sliderRect.current = sliderEl.current.getBoundingClientRect();
+    setSliderRect(sliderEl.current.getBoundingClientRect());
     sliderEl.current.setPointerCapture(e.pointerId);
     updateVolume(e.clientX);
   };
@@ -60,5 +89,5 @@ export function useVolume(sliderEl: RefObject<HTMLDivElement | null>, { volumeIn
       onEnd: () => setVolume(MAX_VOLUME),
     });
 
-  return { volume, isMuted, handlePointerDown, handlePointerMove, handleKeyDown };
+  return { handlePointerDown, handlePointerMove, handleKeyDown };
 }

@@ -9,25 +9,24 @@ import { useMergeRefs } from "@/hooks/useMergeRefs";
 export interface VolumeSliderRootProps extends HTMLAttributes<HTMLDivElement> {
   volumeInterval?: number;
   ref?: Ref<HTMLDivElement>;
+  computeAriaValueText?: ({ volume, isMuted }: { volume: number; isMuted: boolean }) => string;
 }
 
 export function VolumeSlider({
+  volumeInterval = VOLUME_INTERVAL,
+  ref,
   onPointerMove,
   onPointerDown,
   onKeyDown,
-  volumeInterval = VOLUME_INTERVAL,
-  ref,
+  computeAriaValueText,
   ...props
 }: VolumeSliderRootProps) {
   const sliderEl = useRef<HTMLDivElement>(null);
   const mergedRef = useMergeRefs(sliderEl, ref);
-  const { volume, isMuted, handleKeyDown, handlePointerDown, handlePointerMove } = useVolume(
-    sliderEl,
-    { volumeInterval },
-  );
-
-  const currentVolume = isMuted ? 0 : volume;
-  const currentVolumePercent = Math.round(currentVolume * 100);
+  const { handleKeyDown, handlePointerDown, handlePointerMove } = useVolume(sliderEl, {
+    volumeInterval,
+    computeAriaValueText,
+  });
 
   return (
     <Slider
@@ -36,12 +35,9 @@ export function VolumeSlider({
       {...props}
       aria-valuemin={MIN_VOLUME}
       aria-valuemax={MAX_VOLUME}
-      aria-valuetext={`${currentVolumePercent}%`}
-      aria-valuenow={currentVolume}
       onPointerMove={composeHandlers(onPointerMove, handlePointerMove)}
       onPointerDown={composeHandlers(onPointerDown, handlePointerDown)}
       onKeyDown={composeHandlers(onKeyDown, handleKeyDown)}
-      data-ismuted={isMuted}
       {...useMediaGlobalProps()}
     />
   );

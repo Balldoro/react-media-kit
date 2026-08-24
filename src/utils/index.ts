@@ -19,3 +19,5 @@ export function shallowEqual<T extends {}>(selector: Selector<T>) {
     return next;
   };
 }
+
+export const toPercent = (value: number) => value * 100;

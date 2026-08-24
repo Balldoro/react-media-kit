@@ -1,6 +1,7 @@
+import { useRectPosition } from "@/hooks/useRectPosition";
 import { usePlayer, usePlayerControls } from "@/state/PlayerContext";
 import { handleNavKeyDown } from "@/utils/handlers";
-import { useRef, type KeyboardEventHandler, type PointerEventHandler, type RefObject } from "react";
+import { type KeyboardEventHandler, type PointerEventHandler, type RefObject } from "react";
 
 interface Config {
   skipInterval: number;
@@ -10,22 +11,22 @@ export function useSeekbarInteractivity(
   sliderEl: RefObject<HTMLDivElement | null>,
   { skipInterval }: Config,
 ) {
-  const sliderRect = useRef<DOMRect>(null);
   const duration = usePlayer((s) => s.durationInSec);
   const { seek, skip } = usePlayerControls();
+  const { setRect: setSliderRect, calcRectPositionX } = useRectPosition();
 
   function updateVideoTime(clickX: number) {
-    if (!sliderRect.current) return;
+    const calculatedPosition = calcRectPositionX(clickX);
+    if (calculatedPosition == null) return;
 
-    const { left, width } = sliderRect.current;
-    const containerPos = Math.min(Math.max((clickX - left) / width, 0), 1);
+    const containerPos = Math.min(Math.max(calculatedPosition, 0), 1);
     seek(containerPos * duration);
   }
 
   const handlePointerDown: PointerEventHandler<HTMLDivElement> = (e) => {
     if (!sliderEl.current) return;
 
-    sliderRect.current = sliderEl.current.getBoundingClientRect();
+    setSliderRect(sliderEl.current.getBoundingClientRect());
     sliderEl.current.setPointerCapture(e.pointerId);
     updateVideoTime(e.clientX);
   };
