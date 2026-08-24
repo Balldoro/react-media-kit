@@ -4,12 +4,10 @@ import { useEffect, useEffectEvent } from "react";
 interface Config {
   draw: () => void;
   intervalMs: number;
-  isActive: boolean;
 }
 
-export function useAnimate({ draw: onDraw, isActive, intervalMs }: Config) {
-  const { subscribe } = usePlayerSubscription();
-
+export function useAnimateOnPlay({ draw: onDraw, intervalMs }: Config) {
+  const { subscribe, subscribeWithSelector, getSnapshot } = usePlayerSubscription();
   const draw = useEffectEvent(onDraw);
 
   useEffect(() => {
@@ -26,7 +24,6 @@ export function useAnimate({ draw: onDraw, isActive, intervalMs }: Config) {
     };
 
     const startLoop = () => {
-      if (animateFrame !== null) return;
       prevTime = 0;
       animateFrame = requestAnimationFrame(animate);
     };
@@ -37,20 +34,27 @@ export function useAnimate({ draw: onDraw, isActive, intervalMs }: Config) {
       animateFrame = null;
     };
 
-    const unsubscribe = subscribe(() => {
-      if (isActive) {
-        startLoop();
-      } else {
-        stopLoop();
-        draw();
-      }
-    });
+    const unsubscribe = subscribeWithSelector(
+      (s) => s.isPlaying,
+      (isPlaying) => {
+        if (isPlaying) startLoop();
+        else {
+          stopLoop();
+          draw();
+        }
+      },
+    );
 
-    if (isActive) startLoop();
+    // Subscribe to each event as well with draw function so that it fires on seeking as well
+    const unsubscribeAny = subscribe(() => !getSnapshot().isPlaying && draw());
+
+    if (getSnapshot().isPlaying) startLoop();
+    else draw();
 
     return () => {
       unsubscribe();
+      unsubscribeAny();
       stopLoop();
     };
-  }, [intervalMs, isActive, subscribe]);
+  }, [intervalMs, getSnapshot, subscribe, subscribeWithSelector]);
 }

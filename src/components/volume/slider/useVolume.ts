@@ -1,12 +1,13 @@
 import { MAX_VOLUME, MIN_VOLUME } from "@/constants";
 import { useRectPosition } from "@/hooks/useRectPosition";
 import { usePlayerControls, usePlayerSubscription } from "@/state/PlayerContext";
-import { shallowEqual, toPercent } from "@/utils";
+import { shallow, toPercent } from "@/utils";
 import { handleNavKeyDown } from "@/utils/handlers";
 import { clampVolume } from "@/utils/volume";
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
   type KeyboardEventHandler,
   type PointerEventHandler,
@@ -48,9 +49,9 @@ export function useVolume(
     computeAriaValueTextStable.current = computeAriaValueText;
   }, [computeAriaValueText]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const unsubscribe = subscribeWithSelector(
-      shallowEqual((s) => ({ volume: s.volume, isMuted: s.isMuted })),
+      shallow((s) => ({ volume: s.volume, isMuted: s.isMuted })),
       updateSliderEl,
     );
 

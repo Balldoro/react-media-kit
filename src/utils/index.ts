@@ -10,7 +10,7 @@ export const isEqual = (a: unknown, b: unknown) => {
   return entriesA.every(([k, v]) => Object.is(v, (b as Record<string, unknown>)[k]));
 };
 
-export function shallowEqual<T extends {}>(selector: Selector<T>) {
+export function shallow<T extends {}>(selector: Selector<T>) {
   let prev: T | null = null;
   return (state: PlayerState) => {
     const next = selector(state);

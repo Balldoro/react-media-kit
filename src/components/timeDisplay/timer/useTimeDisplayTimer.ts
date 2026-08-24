@@ -1,15 +1,14 @@
-import { usePlayer, usePlayerCtx, usePlayerSubscription } from "@/state/PlayerContext";
+import { usePlayerCtx, usePlayerSubscription } from "@/state/PlayerContext";
 import { getDurationTimeFormat, getTimeFormat } from "@/utils/time";
-import { useCallback, useEffect, type RefObject } from "react";
+import { useCallback, useLayoutEffect, type RefObject } from "react";
 import { useTimeDisplay } from "../TimeDisplayContext";
-import { useAnimate } from "@/hooks/useAnimate";
+import { useAnimateOnPlay } from "@/hooks/useAnimateOnPlay";
 
 const UPDATE_INTERVAL_MS = 250;
 
 export function useTimeDisplayTimer(timerRef: RefObject<HTMLTimeElement | null>) {
   const { isElapsedMode } = useTimeDisplay();
   const { videoEl } = usePlayerCtx();
-  const isPlaying = usePlayer((s) => s.isPlaying);
   const { getSnapshot } = usePlayerSubscription();
 
   const draw = useCallback(() => {
@@ -17,7 +16,6 @@ export function useTimeDisplayTimer(timerRef: RefObject<HTMLTimeElement | null>)
 
     const { optimisticTimeInSec, durationInSec } = getSnapshot();
     const time = optimisticTimeInSec ?? videoEl.current.currentTime;
-
     const remainingTime = durationInSec - time;
     const displayTime = isElapsedMode ? time : remainingTime;
 
@@ -25,9 +23,9 @@ export function useTimeDisplayTimer(timerRef: RefObject<HTMLTimeElement | null>)
     timerRef.current.dateTime = getDurationTimeFormat(displayTime);
   }, [isElapsedMode, videoEl, timerRef, getSnapshot]);
 
-  useAnimate({ draw, intervalMs: UPDATE_INTERVAL_MS, isActive: isPlaying });
+  useAnimateOnPlay({ draw, intervalMs: UPDATE_INTERVAL_MS });
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     draw();
   }, [isElapsedMode, draw]);
 }
