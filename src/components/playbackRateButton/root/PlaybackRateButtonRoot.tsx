@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ReactNode, Ref } from "react";
 import { usePlayerControls } from "@/state/PlayerContext";
 import { useMediaGlobalProps } from "@/hooks/dataProps";
 import { composeHandlers } from "@/utils/handlers";
@@ -7,6 +7,7 @@ import type { ButtonAttributes } from "@/types";
 interface PlaybackRateButtonRootProps extends Omit<ButtonAttributes, "children"> {
   playbackRate: number;
   children?: ReactNode | ((props: { playbackRate: number }) => ReactNode);
+  ref?: Ref<HTMLButtonElement>;
 }
 
 export function PlaybackRateButtonRoot({

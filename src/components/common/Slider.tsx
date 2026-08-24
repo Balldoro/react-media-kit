@@ -1,14 +1,12 @@
-import { forwardRef, type CSSProperties, type HTMLAttributes } from "react";
+import type { CSSProperties, HTMLAttributes, Ref } from "react";
 
-export interface SliderProps extends HTMLAttributes<HTMLDivElement> {}
+export interface SliderProps extends HTMLAttributes<HTMLDivElement> {
+  ref?: Ref<HTMLDivElement>;
+}
 
-export const Slider = forwardRef<HTMLDivElement, SliderProps>(
-  ({ style, ...props }: SliderProps, ref) => {
-    return (
-      <div ref={ref} style={{ ...style, ...defaultStyle }} {...props} role="slider" tabIndex={0} />
-    );
-  },
-);
+export function Slider({ style, ...props }: SliderProps) {
+  return <div style={{ ...style, ...defaultStyle }} {...props} role="slider" tabIndex={0} />;
+}
 
 const defaultStyle: CSSProperties = {
   touchAction: "none",

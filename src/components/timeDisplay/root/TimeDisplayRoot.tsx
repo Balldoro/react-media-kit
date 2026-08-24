@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, type HTMLAttributes } from "react";
+import { useCallback, useMemo, useState, type HTMLAttributes, type Ref } from "react";
 import {
   TimeDisplayContext,
   type TimeDisplayContextValue,
@@ -7,6 +7,7 @@ import {
 
 interface TimeDisplayRootProps extends HTMLAttributes<HTMLDivElement> {
   initialMode?: "elapsed" | "remaining";
+  ref?: Ref<HTMLDivElement>;
 }
 
 export function TimeDisplayRoot({ initialMode = "elapsed", ...props }: TimeDisplayRootProps) {

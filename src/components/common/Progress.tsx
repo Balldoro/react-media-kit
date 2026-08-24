@@ -1,6 +1,8 @@
-import type { CSSProperties, HTMLAttributes } from "react";
+import type { CSSProperties, HTMLAttributes, Ref } from "react";
 
-export interface ProgressProps extends HTMLAttributes<HTMLDivElement> {}
+export interface ProgressProps extends HTMLAttributes<HTMLDivElement> {
+  ref?: Ref<HTMLDivElement>;
+}
 
 export function Progress(props: ProgressProps) {
   return (

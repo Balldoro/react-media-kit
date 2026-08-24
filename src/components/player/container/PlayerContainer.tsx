@@ -1,13 +1,22 @@
-import type { HTMLAttributes, KeyboardEvent, ReactNode } from "react";
+import type { HTMLAttributes, KeyboardEvent, ReactNode, Ref } from "react";
 import { usePlayerControls, usePlayerCtx } from "@/state/PlayerContext";
 import { composeHandlers } from "@/utils/handlers";
+import { useMergeRefs } from "@/hooks/useMergeRefs";
 
 interface PlayerContainerProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
+  ref?: Ref<HTMLDivElement>;
 }
 
-export function PlayerContainer({ onKeyDown, children, style, ...props }: PlayerContainerProps) {
+export function PlayerContainer({
+  onKeyDown,
+  children,
+  style,
+  ref,
+  ...props
+}: PlayerContainerProps) {
   const { containerEl } = usePlayerCtx();
+  const mergedRef = useMergeRefs(containerEl, ref);
   const { toggleMute, toggleFullscreen } = usePlayerControls();
 
   const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
@@ -21,7 +30,7 @@ export function PlayerContainer({ onKeyDown, children, style, ...props }: Player
 
   return (
     <div
-      ref={containerEl}
+      ref={mergedRef}
       style={{ ...style, position: "relative" }}
       {...props}
       onKeyDown={composeHandlers(onKeyDown, handleKeyDown)}

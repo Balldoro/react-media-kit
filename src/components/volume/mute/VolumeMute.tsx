@@ -1,11 +1,12 @@
 import { usePlayer, usePlayerControls } from "@/state/PlayerContext";
 import { useMediaGlobalProps } from "@/hooks/dataProps";
 import { composeHandlers } from "@/utils/handlers";
-import type { ReactNode } from "react";
+import type { ReactNode, Ref } from "react";
 import type { ButtonAttributes } from "@/types";
 
 interface VolumeMuteProps extends Omit<ButtonAttributes, "children"> {
   children: ReactNode | ((props: { isMuted: boolean; volume: number }) => ReactNode);
+  ref?: Ref<HTMLButtonElement>;
 }
 
 export function VolumeMute({ onClick, children, ...props }: VolumeMuteProps) {

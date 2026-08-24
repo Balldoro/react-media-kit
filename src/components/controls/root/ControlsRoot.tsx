@@ -1,8 +1,9 @@
-import type { CSSProperties, HTMLAttributes } from "react";
+import type { CSSProperties, HTMLAttributes, Ref } from "react";
 import { useMediaGlobalProps } from "@/hooks/dataProps";
 
 interface ControlsRootProps extends HTMLAttributes<HTMLDivElement> {
   overlay?: boolean;
+  ref?: Ref<HTMLDivElement>;
 }
 
 export function ControlsRoot({ overlay = true, style, ...props }: ControlsRootProps) {

@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import type { CSSProperties, Ref } from "react";
 import {
   useOverlayInteractivity,
   type OverlayInteractivityOptions,
@@ -12,6 +12,7 @@ interface VideoOverlayRootProps extends Omit<ButtonAttributes, "onDoubleClick"> 
   onDoubleTouch?: OverlayInteractivityOptions["onDoubleTouch"];
   skipInterval?: number;
   doubleClickInterval?: number;
+  ref?: Ref<HTMLButtonElement>;
 }
 
 export function VideoOverlayRoot({

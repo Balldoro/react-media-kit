@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ReactNode, Ref } from "react";
 import { usePlayer, usePlayerControls } from "@/state/PlayerContext";
 import { useMediaGlobalProps } from "@/hooks/dataProps";
 import { composeHandlers } from "@/utils/handlers";
@@ -6,6 +6,7 @@ import type { ButtonAttributes } from "@/types";
 
 interface PipButtonRootProps extends Omit<ButtonAttributes, "children"> {
   children?: ReactNode | ((props: { isPictureInPicture: boolean }) => ReactNode);
+  ref?: Ref<HTMLButtonElement>;
 }
 
 export function PipButtonRoot({ onClick, children, ...props }: PipButtonRootProps) {

@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ReactNode, Ref } from "react";
 import { usePlayer, usePlayerControls } from "@/state/PlayerContext";
 import { useMediaGlobalProps } from "@/hooks/dataProps";
 import { composeHandlers } from "@/utils/handlers";
@@ -6,6 +6,7 @@ import type { ButtonAttributes } from "@/types";
 
 interface PlayButtonRootProps extends Omit<ButtonAttributes, "children"> {
   children: ReactNode | ((props: { isPlaying: boolean }) => ReactNode);
+  ref?: Ref<HTMLButtonElement>;
 }
 
 export function PlayButtonRoot({ onClick, children, ...props }: PlayButtonRootProps) {

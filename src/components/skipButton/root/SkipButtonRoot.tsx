@@ -1,3 +1,4 @@
+import type { Ref } from "react";
 import { usePlayerControls } from "@/state/PlayerContext";
 import { useMediaGlobalProps } from "@/hooks/dataProps";
 import { composeHandlers } from "@/utils/handlers";
@@ -10,6 +11,7 @@ export type SkipDirection = "back" | "forward";
 interface SkipButtonRootProps extends ButtonAttributes {
   direction: SkipDirection;
   skipInterval?: number;
+  ref?: Ref<HTMLButtonElement>;
 }
 
 const getTimeLabel = createTimeLabelFormatter("en");

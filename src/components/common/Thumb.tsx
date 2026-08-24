@@ -1,6 +1,8 @@
-import type { CSSProperties, HTMLAttributes } from "react";
+import type { CSSProperties, HTMLAttributes, Ref } from "react";
 
-export interface ThumbProps extends HTMLAttributes<HTMLDivElement> {}
+export interface ThumbProps extends HTMLAttributes<HTMLDivElement> {
+  ref?: Ref<HTMLDivElement>;
+}
 
 export function Thumb(props: ThumbProps) {
   return (

@@ -1,4 +1,4 @@
-import { useRef, type CSSProperties, type HTMLAttributes } from "react";
+import { useRef, type CSSProperties, type HTMLAttributes, type Ref } from "react";
 import { usePlayer } from "@/state/PlayerContext";
 import { useMediaGlobalProps } from "@/hooks/dataProps";
 import { SKIP_INTERVAL } from "@/constants";
@@ -6,14 +6,17 @@ import { useSeekbarTime } from "./useSeekbarTime";
 import { useSeekbarInteractivity } from "./useSeekbarInteractivity";
 import { composeHandlers } from "@/utils/handlers";
 import { Slider } from "@/components/common/Slider";
+import { useMergeRefs } from "@/hooks/useMergeRefs";
 
 export interface SeekbarRootProps extends HTMLAttributes<HTMLDivElement> {
   skipInterval?: number;
+  ref?: Ref<HTMLDivElement>;
 }
 
 export function SeekbarRoot({
   style,
   skipInterval = SKIP_INTERVAL,
+  ref,
   onKeyDown,
   onPointerMove,
   onPointerDown,
@@ -23,6 +26,7 @@ export function SeekbarRoot({
   const duration = usePlayer((s) => s.durationInSec);
 
   useSeekbarTime(sliderEl);
+  const mergedRef = useMergeRefs(sliderEl, ref);
   const { handlePointerDown, handlePointerMove, handleKeyDown } = useSeekbarInteractivity(
     sliderEl,
     { skipInterval },
@@ -30,7 +34,7 @@ export function SeekbarRoot({
 
   return (
     <Slider
-      ref={sliderEl}
+      ref={mergedRef}
       aria-label="Video player slider"
       style={{ ...defaultStyle, ...style }}
       {...props}
