@@ -1,15 +1,14 @@
-import type { ReactNode, Ref } from "react";
+import type { Ref } from "react";
 import { usePlayer, usePlayerControls } from "@/state/PlayerContext";
 import { useMediaGlobalProps } from "@/hooks/dataProps";
 import { composeHandlers } from "@/utils/handlers";
 import type { ButtonAttributes } from "@/types";
 
-interface FullscreenButtonRootProps extends Omit<ButtonAttributes, "children"> {
-  children?: ReactNode | ((props: { isFullscreen: boolean }) => ReactNode);
+interface FullscreenButtonRootProps extends ButtonAttributes {
   ref?: Ref<HTMLButtonElement>;
 }
 
-export function FullscreenButtonRoot({ onClick, children, ...props }: FullscreenButtonRootProps) {
+export function FullscreenButtonRoot({ onClick, ...props }: FullscreenButtonRootProps) {
   const { toggleFullscreen } = usePlayerControls();
   const isFullscreen = usePlayer((s) => s.isFullscreen);
 
@@ -21,8 +20,6 @@ export function FullscreenButtonRoot({ onClick, children, ...props }: Fullscreen
       onClick={composeHandlers(onClick, toggleFullscreen)}
       data-isfullscreen={isFullscreen}
       {...useMediaGlobalProps()}
-    >
-      {typeof children === "function" ? children({ isFullscreen }) : children}
-    </button>
+    />
   );
 }

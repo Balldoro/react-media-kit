@@ -1,5 +1,4 @@
 import { BACK_NAV_KEYS, END_NAV_KEYS, NEXT_NAV_KEYS, START_NAV_KEYS } from "@/constants";
-import type { VoidFunc } from "@/types";
 import type { KeyboardEvent } from "react";
 
 type EventHandler<E> = ((event: E) => void) | undefined;
@@ -14,10 +13,10 @@ export const composeHandlers = <E>(...handlers: EventHandler<E>[]) => {
 };
 
 interface NavKeyDownHandlers {
-  onNext: VoidFunc;
-  onBack: VoidFunc;
-  onStart?: VoidFunc;
-  onEnd?: VoidFunc;
+  onNext: VoidFunction;
+  onBack: VoidFunction;
+  onStart?: VoidFunction;
+  onEnd?: VoidFunction;
 }
 
 export const handleNavKeyDown = (

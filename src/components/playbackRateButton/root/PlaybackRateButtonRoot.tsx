@@ -1,19 +1,17 @@
-import type { ReactNode, Ref } from "react";
+import type { Ref } from "react";
 import { usePlayerControls } from "@/state/PlayerContext";
 import { useMediaGlobalProps } from "@/hooks/dataProps";
 import { composeHandlers } from "@/utils/handlers";
 import type { ButtonAttributes } from "@/types";
 
-interface PlaybackRateButtonRootProps extends Omit<ButtonAttributes, "children"> {
+interface PlaybackRateButtonRootProps extends ButtonAttributes {
   playbackRate: number;
-  children?: ReactNode | ((props: { playbackRate: number }) => ReactNode);
   ref?: Ref<HTMLButtonElement>;
 }
 
 export function PlaybackRateButtonRoot({
   playbackRate,
   onClick,
-  children,
   ...props
 }: PlaybackRateButtonRootProps) {
   const { setPlaybackRate } = usePlayerControls();
@@ -28,8 +26,6 @@ export function PlaybackRateButtonRoot({
       onClick={composeHandlers(onClick, handleClick)}
       data-playbackrate={playbackRate}
       {...useMediaGlobalProps()}
-    >
-      {typeof children === "function" ? children({ playbackRate }) : children}
-    </button>
+    />
   );
 }
