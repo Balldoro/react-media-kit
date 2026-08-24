@@ -37,6 +37,6 @@ export function usePlayer<T>(selector: Selector<T>) {
 }
 
 export function usePlayerControls() {
-  const { getControls } = usePlayerSubscription();
-  return getControls();
+  const { controls } = usePlayerSubscription();
+  return controls;
 }

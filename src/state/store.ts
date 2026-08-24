@@ -1,4 +1,4 @@
-import type { PlayerAction, PlayerState } from "./types";
+import type { PlayerAction, PlayerState, Selector } from "./types";
 import { playerReducer } from "@/state/playerReducer";
 import { createSeekQueue } from "./seekQueue";
 import { clampVolume } from "@/utils/volume";
@@ -183,6 +183,18 @@ export function createPlayerStore() {
     };
   }
 
+  const getSnapshot = () => state;
+
+  function subscribeWithSelector<T>(selector: Selector<T>, listener: (slice: T) => void) {
+    let prev = selector(getSnapshot());
+    return subscribe(() => {
+      const next = selector(getSnapshot());
+      if (Object.is(next, prev)) return;
+      prev = next;
+      listener(next);
+    });
+  }
+
   const controls = {
     play,
     pause,
@@ -200,5 +212,12 @@ export function createPlayerStore() {
     setPlaybackRate,
   };
 
-  return { subscribe, init, destroy, getSnapshot: () => state, getControls: () => controls };
+  return {
+    controls,
+    subscribe,
+    subscribeWithSelector,
+    init,
+    destroy,
+    getSnapshot,
+  };
 }
