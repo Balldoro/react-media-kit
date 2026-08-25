@@ -1,4 +1,4 @@
-function getTimeParts(duration: number) {
+export function getTimeParts(duration: number) {
   const timeParts = { hours: 0, minutes: 0, seconds: 0 };
 
   if (!Number.isFinite(duration) || duration < 0) return timeParts;

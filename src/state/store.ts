@@ -6,19 +6,21 @@ import type { OnErrorFunc, PlayerError } from "@/types";
 
 export type PlayerStore = ReturnType<typeof createPlayerStore>;
 
+export const initialState = Object.freeze({
+  state: "pending",
+  isPlaying: false,
+  isMuted: false,
+  isFullscreen: false,
+  isPictureInPicture: false,
+  durationInSec: 0,
+  currentTimeInSec: 0,
+  optimisticTimeInSec: null,
+  volume: 0.5,
+  playbackRate: 1,
+});
+
 export function createPlayerStore() {
-  let state: PlayerState = {
-    state: "pending",
-    isPlaying: false,
-    isMuted: false,
-    isFullscreen: false,
-    isPictureInPicture: false,
-    durationInSec: 0,
-    currentTimeInSec: 0,
-    optimisticTimeInSec: null,
-    volume: 0.5,
-    playbackRate: 1,
-  };
+  let state: PlayerState = { ...initialState };
 
   const seekQueue = createSeekQueue();
   const listeners = new Set<() => void>();

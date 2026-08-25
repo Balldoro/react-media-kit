@@ -63,13 +63,14 @@
     ]
   },
   "peerDependencies": {
-    "react": ">=18",
-    "react-dom": ">=18"
+    "react": ">=19",
+    "react-dom": ">=19"
   },
   "devDependencies": {
     "@size-limit/esbuild-why": "^13.0.3",
     "@size-limit/file": "^13.0.3",
     "@size-limit/preset-small-lib": "^13.0.3",
+    "@testing-library/react": "^16.3.2",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
     "husky": "^9.1.7",
