@@ -1,8 +1,9 @@
 export type Selector<T> = (state: PlayerState) => T;
 
+export type LifeCycleState = "pending" | "loading" | "ready" | "error";
+
 export interface PlayerState {
-  isReady: boolean;
-  isError: boolean;
+  state: LifeCycleState;
   isPlaying: boolean;
   isMuted: boolean;
   isFullscreen: boolean;
@@ -26,7 +27,8 @@ export type PlayerAction =
   | MuteAction
   | VolumeChangeAction
   | PlaybackRateChangeAction
-  | ErrorAction;
+  | ErrorAction
+  | LoadingAction;
 
 export interface PlayAction {
   type: "PLAY";
@@ -42,6 +44,10 @@ export interface ToggleAction {
 
 export interface ErrorAction {
   type: "ERROR";
+}
+
+export interface LoadingAction {
+  type: "LOADING";
 }
 
 export interface InitAction {

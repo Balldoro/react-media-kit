@@ -16,8 +16,7 @@ export function playerReducer(state: PlayerState, action: PlayerAction): PlayerS
         durationInSec: normalizeTime(durationInSec),
         volume,
         playbackRate,
-        isReady: true,
-        isError: false,
+        state: "ready",
       };
     }
     case "TIME_UPDATE": {
@@ -49,7 +48,10 @@ export function playerReducer(state: PlayerState, action: PlayerAction): PlayerS
       return { ...state, playbackRate };
     }
     case "ERROR": {
-      return { ...state, isError: true };
+      return { ...state, state: "error" };
+    }
+    case "LOADING": {
+      return { ...state, state: "loading" };
     }
   }
 }

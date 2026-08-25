@@ -2,14 +2,13 @@ import type { PlayerAction, PlayerState, Selector } from "./types";
 import { playerReducer } from "@/state/playerReducer";
 import { createSeekQueue } from "./seekQueue";
 import { clampVolume } from "@/utils/volume";
-import { clampPlaybackRate } from "@/utils/playbackRate";
+import type { OnErrorFunc, PlayerError } from "@/types";
 
 export type PlayerStore = ReturnType<typeof createPlayerStore>;
 
 export function createPlayerStore() {
   let state: PlayerState = {
-    isReady: false,
-    isError: false,
+    state: "pending",
     isPlaying: false,
     isMuted: false,
     isFullscreen: false,
@@ -23,6 +22,7 @@ export function createPlayerStore() {
 
   const seekQueue = createSeekQueue();
   const listeners = new Set<() => void>();
+  const errorListeners = new Set<OnErrorFunc>();
 
   let abortController = new AbortController();
   let video: HTMLVideoElement | null = null;
@@ -37,7 +37,13 @@ export function createPlayerStore() {
 
   const handlePause = () => dispatch({ type: "PAUSE" });
 
-  const play = () => video?.play();
+  const play = async () => {
+    try {
+      await video?.play();
+    } catch (error) {
+      notifyAboutError({ type: "play", error });
+    }
+  };
 
   const pause = () => video?.pause();
 
@@ -61,20 +67,32 @@ export function createPlayerStore() {
     video.muted = false;
   };
 
-  const toggleFullscreen = () =>
-    state.isFullscreen ? document.exitFullscreen() : container?.requestFullscreen();
+  const toggleFullscreen = async () => {
+    try {
+      if (state.isFullscreen) await document.exitFullscreen();
+      else await container?.requestFullscreen();
+    } catch (error) {
+      notifyAboutError({ type: "fullscreen", error });
+    }
+  };
 
-  const togglePip = () =>
-    state.isPictureInPicture ? document.exitPictureInPicture() : video?.requestPictureInPicture();
+  const togglePip = async () => {
+    try {
+      if (state.isPictureInPicture) await document.exitPictureInPicture();
+      else await video?.requestPictureInPicture();
+    } catch (error) {
+      notifyAboutError({ type: "pip", error });
+    }
+  };
 
   const stepPlaybackRate = (delta: number) => {
     if (!video) return;
-    video.playbackRate = clampPlaybackRate(video.playbackRate + delta);
+    video.playbackRate = video.playbackRate + delta;
   };
 
   const setPlaybackRate = (rate: number) => {
     if (!video) return;
-    video.playbackRate = clampPlaybackRate(rate);
+    video.playbackRate = rate;
   };
 
   function skip(delta: number) {
@@ -145,8 +163,13 @@ export function createPlayerStore() {
     }
   }
 
-  function handleError() {
+  function handleError(this: HTMLVideoElement) {
     dispatch({ type: "ERROR" });
+    notifyAboutError({ type: "media", error: this.error! });
+  }
+
+  function handleLoading() {
+    dispatch({ type: "LOADING" });
   }
 
   function init(videoEl: HTMLVideoElement, containerEl: HTMLDivElement) {
@@ -159,6 +182,7 @@ export function createPlayerStore() {
     videoEl.addEventListener("error", handleError, signalConfig);
     videoEl.addEventListener("enterpictureinpicture", handlePipEnter, signalConfig);
     videoEl.addEventListener("leavepictureinpicture", handlePipLeave, signalConfig);
+    videoEl.addEventListener("loadstart", handleLoading, signalConfig);
     videoEl.addEventListener("play", handlePlay, signalConfig);
     videoEl.addEventListener("pause", handlePause, signalConfig);
     videoEl.addEventListener("ratechange", handleRateChange, signalConfig);
@@ -174,6 +198,7 @@ export function createPlayerStore() {
     abortController.abort();
     abortController = new AbortController();
     listeners.clear();
+    errorListeners.clear();
   }
 
   function subscribe(listener: () => void) {
@@ -182,6 +207,17 @@ export function createPlayerStore() {
       listeners.delete(listener);
     };
   }
+
+  const notifyAboutError = (playerError: PlayerError) => {
+    errorListeners.forEach((l) => l(playerError));
+  };
+
+  const subscribeToErrors = (cb: OnErrorFunc) => {
+    errorListeners.add(cb);
+    return () => {
+      errorListeners.delete(cb);
+    };
+  };
 
   const getSnapshot = () => state;
 
@@ -216,6 +252,7 @@ export function createPlayerStore() {
     controls,
     subscribe,
     subscribeWithSelector,
+    subscribeToErrors,
     init,
     destroy,
     getSnapshot,

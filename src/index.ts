@@ -11,3 +11,5 @@ export {
   Video,
   Volume,
 } from "@/components";
+
+export type { PlayerError, OnErrorFunc } from "@/types";
