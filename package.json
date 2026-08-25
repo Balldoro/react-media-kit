@@ -28,8 +28,34 @@
     "lint:fix": "oxlint . --fix",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "size": "size-limit",
+    "size:why": "size-limit --why",
     "prepare": "husky"
   },
+  "size-limit": [
+    {
+      "name": "Bundle size (gzip)",
+      "path": "dist/*.js",
+      "gzip": true,
+      "disablePlugins": [
+        "@size-limit/esbuild"
+      ],
+      "limit": "12 KB"
+    },
+    {
+      "name": "Bundle size (gzip, from source)",
+      "path": "src/index.ts",
+      "gzip": true,
+      "ignore": [
+        "react",
+        "react-dom",
+        "react/jsx-runtime"
+      ],
+      "limit": "12 KB"
+    }
+  ],
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
       "oxlint --fix",
@@ -41,16 +67,22 @@
     "react-dom": ">=18"
   },
   "devDependencies": {
+    "@size-limit/esbuild-why": "^13.0.3",
+    "@size-limit/file": "^13.0.3",
+    "@size-limit/preset-small-lib": "^13.0.3",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
     "husky": "^9.1.7",
+    "jsdom": "^30.0.1",
     "lint-staged": "^17.3.0",
     "oxlint": "^1.78.0",
     "prettier": "^3.9.6",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
+    "size-limit": "^13.0.3",
     "tsdown": "^0.22.14",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.11"
   },
   "packageManager": "pnpm@11.22.0"
 }

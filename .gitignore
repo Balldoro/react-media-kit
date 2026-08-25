@@ -6,3 +6,4 @@ demo
 .env
 .env.*
 coverage
+esbuild-why-*.html
