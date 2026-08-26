@@ -1,6 +1,6 @@
 import { useAnimateOnPlay } from "@/hooks/useAnimateOnPlay";
 import { usePlayerCtx, usePlayerSubscription } from "@/state/PlayerContext";
-import { toPercent } from "@/utils";
+import { safeDivide, toPercent } from "@/utils";
 import { createTimeLabelFormatter } from "@/utils/time";
 import { useCallback, useLayoutEffect, useMemo, type RefObject } from "react";
 
@@ -18,7 +18,7 @@ export function useSeekbarTime(sliderEl: RefObject<HTMLDivElement | null>) {
     const { optimisticTimeInSec, durationInSec } = getSnapshot();
     const { currentTime } = videoEl.current;
     const time = optimisticTimeInSec ?? currentTime;
-    const elapsed = durationInSec > 0 ? toPercent(time / durationInSec) : 0;
+    const elapsed = toPercent(safeDivide(time, durationInSec));
     const totalElapsedTimeLabel = `${getTimeLabel(time)} / ${getTimeLabel(durationInSec)}`;
 
     sliderEl.current.style.setProperty("--progress-percent", elapsed.toFixed(2));

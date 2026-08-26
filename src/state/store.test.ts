@@ -14,6 +14,13 @@ function stubReadonly<T extends object, K extends keyof T>(target: T, key: K, va
   Object.defineProperty(target, key, { value, configurable: true });
 }
 
+const fakeTimeRanges = (ranges: [number, number][]): TimeRanges =>
+  ({
+    length: ranges.length,
+    start: (index: number) => ranges[index]![0],
+    end: (index: number) => ranges[index]![1],
+  }) as TimeRanges;
+
 describe("createPlayerStore", () => {
   describe("lifecycle events", () => {
     it("loadedmetadata moves state to ready and captures duration/volume/playbackRate", () => {
@@ -69,30 +76,40 @@ describe("createPlayerStore", () => {
   });
 
   describe("seeking", () => {
-    it("seek() sets currentTime directly and reports an optimistic time when not already seeking", () => {
+    it("seek() sets currentTime directly and reports an optimistic time and bufferedTo", () => {
       const { store, video } = setup();
+      stubReadonly(video, "buffered", fakeTimeRanges([[0, 50]]));
+
       store.controls.seek(42);
+
       expect(video.currentTime).toBe(42);
       expect(store.getSnapshot().optimisticTimeInSec).toBe(42);
+      expect(store.getSnapshot().bufferedEndInSec).toBe(50);
     });
 
     it("applies a queued seek once the native seeked event fires", () => {
       const { store, video } = setup();
       stubReadonly(video, "seeking", true);
+      stubReadonly(video, "buffered", fakeTimeRanges([[0, 60]]));
 
       store.controls.seek(50);
+      expect(store.getSnapshot().bufferedEndInSec).toBe(60);
+
       video.dispatchEvent(new Event("seeked"));
 
       expect(video.currentTime).toBe(50);
     });
 
-    it("native seeking event reports the current time when no seek is queued", () => {
+    it("native seeking event reports the current time and bufferedTo when no seek is queued", () => {
       const { store, video } = setup();
       video.currentTime = 33;
+      stubReadonly(video, "buffered", fakeTimeRanges([[0, 40]]));
 
       video.dispatchEvent(new Event("seeking"));
 
-      expect(store.getSnapshot().optimisticTimeInSec).toBe(33);
+      const snapshot = store.getSnapshot();
+      expect(snapshot.optimisticTimeInSec).toBe(33);
+      expect(snapshot.bufferedEndInSec).toBe(40);
     });
 
     it("native seeking event is ignored while a seek is already queued", () => {
@@ -103,7 +120,8 @@ describe("createPlayerStore", () => {
       video.currentTime = 999;
       video.dispatchEvent(new Event("seeking"));
 
-      expect(store.getSnapshot().optimisticTimeInSec).toBe(50);
+      const snapshot = store.getSnapshot();
+      expect(snapshot.optimisticTimeInSec).toBe(50);
     });
 
     it("skip() clamps to [0, durationInSec]", () => {
@@ -118,6 +136,84 @@ describe("createPlayerStore", () => {
       video.currentTime = 5;
       store.controls.skip(-50);
       expect(video.currentTime).toBe(0);
+    });
+  });
+
+  describe("buffering", () => {
+    it("progress event sets bufferedEndInSec to the end of the range containing the current time", () => {
+      const { store, video } = setup();
+      video.currentTime = 5;
+      video.dispatchEvent(new Event("timeupdate"));
+      stubReadonly(video, "buffered", fakeTimeRanges([[0, 20]]));
+
+      video.dispatchEvent(new Event("progress"));
+
+      expect(store.getSnapshot().bufferedEndInSec).toBe(20);
+    });
+
+    it("picks the buffered range that contains the current time out of several disjoint ranges", () => {
+      const { store, video } = setup();
+      video.currentTime = 45;
+      video.dispatchEvent(new Event("timeupdate"));
+      stubReadonly(
+        video,
+        "buffered",
+        fakeTimeRanges([
+          [0, 12],
+          [40, 55],
+        ]),
+      );
+
+      video.dispatchEvent(new Event("progress"));
+
+      expect(store.getSnapshot().bufferedEndInSec).toBe(55);
+    });
+
+    it("falls back to the current time when it falls in a gap between buffered ranges", () => {
+      const { store, video } = setup();
+      video.currentTime = 20;
+      video.dispatchEvent(new Event("timeupdate"));
+      stubReadonly(
+        video,
+        "buffered",
+        fakeTimeRanges([
+          [0, 12],
+          [40, 55],
+        ]),
+      );
+
+      video.dispatchEvent(new Event("progress"));
+
+      expect(store.getSnapshot().bufferedEndInSec).toBe(20);
+    });
+
+    it("falls back to the current time when nothing is buffered yet", () => {
+      const { store, video } = setup();
+      video.currentTime = 3;
+      video.dispatchEvent(new Event("timeupdate"));
+      stubReadonly(video, "buffered", fakeTimeRanges([]));
+
+      video.dispatchEvent(new Event("progress"));
+
+      expect(store.getSnapshot().bufferedEndInSec).toBe(3);
+    });
+
+    it("prefers the optimistic seek time over currentTimeInSec when both are present", () => {
+      const { store, video } = setup();
+      stubReadonly(video, "seeking", true);
+      store.controls.seek(45);
+      stubReadonly(
+        video,
+        "buffered",
+        fakeTimeRanges([
+          [0, 12],
+          [40, 55],
+        ]),
+      );
+
+      video.dispatchEvent(new Event("progress"));
+
+      expect(store.getSnapshot().bufferedEndInSec).toBe(55);
     });
   });
 

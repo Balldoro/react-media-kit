@@ -24,8 +24,8 @@ export function playerReducer(state: PlayerState, action: PlayerAction): PlayerS
       return { ...state, currentTimeInSec: normalizeTime(time), optimisticTimeInSec: null };
     }
     case "SEEKING": {
-      const { time } = action.payload;
-      return { ...state, optimisticTimeInSec: normalizeTime(time) };
+      const { time, bufferedEnd } = action.payload;
+      return { ...state, optimisticTimeInSec: normalizeTime(time), bufferedEndInSec: bufferedEnd };
     }
     case "FULLSCREEN": {
       const { enabled } = action.payload;
@@ -52,6 +52,10 @@ export function playerReducer(state: PlayerState, action: PlayerAction): PlayerS
     }
     case "LOADING": {
       return { ...state, state: "loading" };
+    }
+    case "BUFFER": {
+      const { bufferedEnd } = action.payload;
+      return { ...state, bufferedEndInSec: bufferedEnd };
     }
   }
 }

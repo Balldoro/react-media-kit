@@ -11,6 +11,7 @@ export interface PlayerState {
   durationInSec: number;
   currentTimeInSec: number;
   optimisticTimeInSec: number | null;
+  bufferedEndInSec: number | null;
   volume: number;
   playbackRate: number;
 }
@@ -28,7 +29,8 @@ export type PlayerAction =
   | VolumeChangeAction
   | PlaybackRateChangeAction
   | ErrorAction
-  | LoadingAction;
+  | LoadingAction
+  | BufferAction;
 
 export interface PlayAction {
   type: "PLAY";
@@ -62,7 +64,7 @@ export interface TimeUpdateAction {
 
 export interface SeekingAction {
   type: "SEEKING";
-  payload: { time: number };
+  payload: { time: number; bufferedEnd: number };
 }
 
 export interface FullscreenAction {
@@ -88,4 +90,9 @@ export interface VolumeChangeAction {
 export interface PlaybackRateChangeAction {
   type: "PLAYBACK_RATE_CHANGE";
   payload: { playbackRate: number };
+}
+
+export interface BufferAction {
+  type: "BUFFER";
+  payload: { bufferedEnd: number };
 }

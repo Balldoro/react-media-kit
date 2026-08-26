@@ -15,6 +15,7 @@ export const initialState = Object.freeze({
   durationInSec: 0,
   currentTimeInSec: 0,
   optimisticTimeInSec: null,
+  bufferedEndInSec: null,
   volume: 0.5,
   playbackRate: 1,
 });
@@ -115,12 +116,15 @@ export function createPlayerStore() {
     } else {
       video.currentTime = time;
     }
-    dispatch({ type: "SEEKING", payload: { time } });
+    dispatch({ type: "SEEKING", payload: { time, bufferedEnd: getBufferedEnd(time) } });
   }
 
   function handleSeeking(this: HTMLVideoElement) {
     if (seekQueue.get().isPending) return;
-    dispatch({ type: "SEEKING", payload: { time: this.currentTime } });
+    dispatch({
+      type: "SEEKING",
+      payload: { time: this.currentTime, bufferedEnd: getBufferedEnd(this.currentTime) },
+    });
   }
 
   function handleSeeked() {
@@ -174,6 +178,25 @@ export function createPlayerStore() {
     dispatch({ type: "LOADING" });
   }
 
+  function getBufferedEnd(time: number) {
+    if (!video) return time;
+
+    const { buffered } = video;
+    for (let i = 1, len = buffered.length; i <= len; i++) {
+      const idx = len - i;
+      const start = buffered.start(idx);
+      const end = buffered.end(idx);
+
+      if (time >= start && time <= end) return end;
+    }
+    return time;
+  }
+
+  function handleProgress() {
+    const time = state.optimisticTimeInSec ?? state.currentTimeInSec;
+    dispatch({ type: "BUFFER", payload: { bufferedEnd: getBufferedEnd(time) } });
+  }
+
   function init(videoEl: HTMLVideoElement, containerEl: HTMLDivElement) {
     video = videoEl;
     container = containerEl;
@@ -192,6 +215,7 @@ export function createPlayerStore() {
     videoEl.addEventListener("seeked", handleSeeked, signalConfig);
     videoEl.addEventListener("timeupdate", handleTimeUpdate, signalConfig);
     videoEl.addEventListener("volumechange", handleVolumeChange, signalConfig);
+    videoEl.addEventListener("progress", handleProgress, signalConfig);
 
     containerEl.addEventListener("fullscreenchange", handleFullscreen, signalConfig);
   }

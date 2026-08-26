@@ -6,6 +6,7 @@ import { useSeekbarInteractivity } from "./useSeekbarInteractivity";
 import { composeHandlers } from "@/utils/handlers";
 import { Slider } from "@/components/common/Slider";
 import { useMergeRefs } from "@/hooks/useMergeRefs";
+import { useBufferTime } from "./useBufferTimer";
 
 export interface SeekbarRootProps extends HTMLAttributes<HTMLDivElement> {
   skipInterval?: number;
@@ -24,6 +25,8 @@ export function SeekbarRoot({
   const sliderEl = useRef<HTMLDivElement>(null);
 
   useSeekbarTime(sliderEl);
+  useBufferTime(sliderEl);
+
   const mergedRef = useMergeRefs(sliderEl, ref);
   const { handlePointerDown, handlePointerMove, handleKeyDown } = useSeekbarInteractivity(
     sliderEl,

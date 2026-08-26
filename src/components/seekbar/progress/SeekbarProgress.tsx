@@ -6,5 +6,5 @@ export interface SeekbarProgressProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export function SeekbarProgress(props: SeekbarProgressProps) {
-  return <Progress {...props} />;
+  return <Progress progressVar="--progress-percent" {...props} />;
 }
