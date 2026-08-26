@@ -1,17 +1,27 @@
 {
   "name": "react-media-kit",
   "version": "0.1.0",
-  "description": "React video player library",
+  "description": "Headless, unstyled React video player primitives",
   "type": "module",
   "license": "MIT",
   "author": "Marek Miklaszewski",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Balldoro/react-media-kit.git"
+  },
+  "homepage": "https://github.com/Balldoro/react-media-kit#readme",
+  "bugs": {
+    "url": "https://github.com/Balldoro/react-media-kit/issues"
+  },
   "keywords": [
     "react",
     "video",
     "video-player",
     "media",
+    "audio",
     "player",
     "headless",
+    "UI",
     "typescript"
   ],
   "sideEffects": false,

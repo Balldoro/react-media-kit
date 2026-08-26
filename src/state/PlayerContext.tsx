@@ -4,7 +4,7 @@ import type { Selector } from "./types";
 
 interface PlayerContextValue extends PlayerStore {
   containerEl: RefObject<HTMLDivElement | null>;
-  videoEl: RefObject<HTMLVideoElement | null>;
+  mediaEl: RefObject<HTMLMediaElement | null>;
   lang?: string;
 }
 
@@ -27,8 +27,8 @@ export const usePlayerCtx = () => {
     throw new Error("usePlayerCtx used outside of the PlayerProvider!");
   }
 
-  const { lang, videoEl, containerEl } = ctx;
-  return { lang, videoEl, containerEl };
+  const { lang, mediaEl, containerEl } = ctx;
+  return { lang, mediaEl, containerEl };
 };
 
 export function usePlayer<T>(selector: Selector<T>) {

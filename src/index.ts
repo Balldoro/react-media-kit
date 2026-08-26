@@ -1,6 +1,7 @@
 "use client";
 
 export {
+  Audio,
   Controls,
   FullscreenButton,
   PipButton,

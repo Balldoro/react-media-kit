@@ -4,9 +4,9 @@ export type ButtonAttributes = ButtonHTMLAttributes<HTMLButtonElement>;
 
 export type OnErrorFunc = (playerError: PlayerError) => void;
 
-export type PlayerError = VideoMediaError | GeneralError;
+export type PlayerError = MediaPlaybackError | GeneralError;
 
-interface VideoMediaError {
+interface MediaPlaybackError {
   type: "media";
   error: MediaError;
 }

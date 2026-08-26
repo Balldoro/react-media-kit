@@ -1,29 +1,25 @@
 # react-media-kit
 
-Headless, unstyled video player primitives for React.
+Headless, unstyled video and audio player primitives for React.
 
-`react-media-kit` gives you the behavior of a video player — play/pause, seeking,
-volume, buffering, fullscreen, picture-in-picture, playback rate, keyboard
-shortcuts — as a set of composable components. It renders no CSS and imposes
-no visual design, so your player looks exactly like whatever markup and
-styles you give it.
+`react-media-kit` gives you the behavior of a media player as a set of composable components.
+It renders no CSS and imposes no visual design, so your player looks exactly however you want!
 
 ## Features
 
-- 🧱 **Compound components** — `Player`, `Video`, `Controls`, `Seekbar`,
+- 🧱 **Compound components** - `Player`, `Video`, `Audio`, `Controls`, `Seekbar`,
   `Volume`, `TimeDisplay`, `PlayButton`, `SkipButton`, `FullscreenButton`,
   `PipButton`, `PlaybackRateButton`. Use only the parts you need.
-- 🎨 **Unstyled by default** — no shipped CSS, no default theme. Style
+- 🎨 **Unstyled by default** - no shipped CSS, no default theme. Style
   everything yourself with plain class names.
-- 🏷️ **Data-attribute state hooks** — playing, fullscreen, picture-in-picture,
+- 🏷️ **Data-attribute state hooks** - playing, fullscreen, picture-in-picture,
   and other states are exposed as `data-*` attributes, so state-driven styling
   stays in CSS instead of JS.
 - ⌨️ **Keyboard shortcuts** built in (play/pause, mute, fullscreen, seeking).
-- 📦 **Small footprint** — no runtime dependencies beyond React, and tree-shakeable.
-- ⚡ **Optimized for performance** — player state lives outside React in an
-  external store; components subscribe to only the slice of state they use,
-  minimizing re-renders.
-- 🔒 **Typed** — written in TypeScript, ships its own types.
+- 📦 **Small footprint** - Tree-shakeable, with no runtime dependencies beyond React.
+- ⚡ **Optimized for performance** - player state lives outside React in an
+  external store; components subscribe to only the slice of state they need.
+- 🔒 **Typed** - written in TypeScript.
 
 ## Installation
 
@@ -76,7 +72,14 @@ function App() {
 ```
 
 All styling is up to you — target elements by class name or by the `data-*`
-state attributes they expose (e.g. `[data-fullscreen]`, `[data-pip]`).
+state attributes they expose.
+
+### Adaptive streaming
+
+`react-media-kit` ships no streaming engine (HLS, DASH, ...) — it stays
+dependency-free. `Video.Player` and `Audio.Player` both accept a plain
+`ref`, which easily lets you hook in hls.js, dash.js, shaka-player, or
+whichever engine you need.
 
 ## Core Concepts
 
@@ -87,6 +90,7 @@ primitives:
 | -------------------- | ------------------------------------------- |
 | `Player`             | Top-level provider; owns player state       |
 | `Video`              | The `<video>` element and its overlay       |
+| `Audio`              | The `<audio>` element                       |
 | `Controls`           | Wrapper for the control bar                 |
 | `Seekbar`            | Scrub/seek, with progress and buffer ranges |
 | `Volume`             | Mute toggle and volume slider               |

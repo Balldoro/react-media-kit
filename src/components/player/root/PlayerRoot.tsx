@@ -11,13 +11,13 @@ interface PlayerRootProps {
 
 export const PlayerRoot = ({ children, lang, onError }: PlayerRootProps) => {
   const [state] = useState<PlayerStore>(createPlayerStore);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const mediaRef = useRef<HTMLMediaElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (!videoRef.current || !containerRef.current) return;
+    if (!mediaRef.current || !containerRef.current) return;
 
-    state.init(videoRef.current, containerRef.current);
+    state.init(mediaRef.current, containerRef.current);
     return state.destroy;
   }, [state]);
 
@@ -32,7 +32,7 @@ export const PlayerRoot = ({ children, lang, onError }: PlayerRootProps) => {
   }, [state]);
 
   const value = useMemo(
-    () => ({ ...state, videoEl: videoRef, containerEl: containerRef, lang }),
+    () => ({ ...state, mediaEl: mediaRef, containerEl: containerRef, lang }),
     [state, lang],
   );
 

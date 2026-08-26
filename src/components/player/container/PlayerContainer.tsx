@@ -29,6 +29,7 @@ export function PlayerContainer({ onKeyDown, style, ref, ...props }: PlayerConta
 
     switch (key) {
       case KEY_NAMES.SPACE:
+      case KEY_NAMES.ENTER:
         e.preventDefault();
         return toggle();
       case KEY_NAMES.ARROW_LEFT:

@@ -29,7 +29,7 @@ export function createPlayerStore() {
   const errorListeners = new Set<OnErrorFunc>();
 
   let abortController = new AbortController();
-  let video: HTMLVideoElement | null = null;
+  let media: HTMLMediaElement | null = null;
   let container: HTMLDivElement | null = null;
 
   const dispatch = (action: PlayerAction) => {
@@ -43,32 +43,34 @@ export function createPlayerStore() {
 
   const play = async () => {
     try {
-      await video?.play();
+      await media?.play();
     } catch (error) {
       notifyAboutError({ type: "play", error });
     }
   };
 
-  const pause = () => video?.pause();
+  const pause = () => media?.pause();
 
   const toggle = () => (state.isPlaying ? pause() : play());
 
-  const mute = () => video && (video.muted = true);
-  const unmute = () => video && (video.muted = false);
+  const mute = () => media && (media.muted = true);
+  const unmute = () => media && (media.muted = false);
   const toggleMute = () => (state.isMuted ? unmute() : mute());
 
   const stepVolume = (delta: number) => {
-    if (!video) return;
-    const newValue = clampVolume(video.volume + delta);
-    video.volume = newValue;
-    video.muted = false;
+    if (!media) return;
+
+    const newValue = clampVolume(media.volume + delta);
+    media.volume = newValue;
+    media.muted = false;
   };
 
   const setVolume = (volume: number) => {
-    if (!video) return;
+    if (!media) return;
+
     const newValue = clampVolume(volume);
-    video.volume = newValue;
-    video.muted = false;
+    media.volume = newValue;
+    media.muted = false;
   };
 
   const toggleFullscreen = async () => {
@@ -82,45 +84,48 @@ export function createPlayerStore() {
 
   const togglePip = async () => {
     try {
+      if (!(media instanceof HTMLVideoElement)) {
+        throw new Error("Picture-in-picture is only supported for video elements");
+      }
       if (state.isPictureInPicture) await document.exitPictureInPicture();
-      else await video?.requestPictureInPicture();
+      else await media.requestPictureInPicture();
     } catch (error) {
       notifyAboutError({ type: "pip", error });
     }
   };
 
   const stepPlaybackRate = (delta: number) => {
-    if (!video) return;
-    video.playbackRate = video.playbackRate + delta;
+    if (!media) return;
+    media.playbackRate = media.playbackRate + delta;
   };
 
   const setPlaybackRate = (rate: number) => {
-    if (!video) return;
-    video.playbackRate = rate;
+    if (!media) return;
+    media.playbackRate = rate;
   };
 
   function skip(delta: number) {
-    if (!video) return;
-    const newValue = Math.max(Math.min(video.currentTime + delta, state.durationInSec), 0);
+    if (!media) return;
+    const newValue = Math.max(Math.min(media.currentTime + delta, state.durationInSec), 0);
     seek(newValue);
   }
 
-  function handleTimeUpdate(this: HTMLVideoElement) {
+  function handleTimeUpdate(this: HTMLMediaElement) {
     dispatch({ type: "TIME_UPDATE", payload: { time: this.currentTime } });
   }
 
   function seek(time: number) {
-    if (!video) return;
+    if (!media) return;
 
-    if (video.seeking) {
+    if (media.seeking) {
       seekQueue.set(time);
     } else {
-      video.currentTime = time;
+      media.currentTime = time;
     }
     dispatch({ type: "SEEKING", payload: { time, bufferedEnd: getBufferedEnd(time) } });
   }
 
-  function handleSeeking(this: HTMLVideoElement) {
+  function handleSeeking(this: HTMLMediaElement) {
     if (seekQueue.get().isPending) return;
     dispatch({
       type: "SEEKING",
@@ -130,17 +135,17 @@ export function createPlayerStore() {
 
   function handleSeeked() {
     const seekQueueState = seekQueue.pop();
-    if (seekQueueState.isPending && video) {
-      video.currentTime = seekQueueState.value;
+    if (seekQueueState.isPending && media) {
+      media.currentTime = seekQueueState.value;
     }
   }
 
-  function handleInit(this: HTMLVideoElement) {
+  function handleInit(this: HTMLMediaElement) {
     const { duration, volume, playbackRate } = this;
     dispatch({ type: "INIT", payload: { durationInSec: duration, volume, playbackRate } });
   }
 
-  function handleFullscreen(this: HTMLVideoElement) {
+  function handleFullscreen(this: HTMLMediaElement) {
     dispatch({
       type: "FULLSCREEN",
       payload: { enabled: document.fullscreenElement === container },
@@ -155,7 +160,7 @@ export function createPlayerStore() {
     dispatch({ type: "PIP", payload: { enabled: false } });
   }
 
-  function handleVolumeChange(this: HTMLVideoElement) {
+  function handleVolumeChange(this: HTMLMediaElement) {
     if (state.isMuted !== this.muted) {
       dispatch({ type: "MUTE", payload: { muted: this.muted } });
     }
@@ -164,13 +169,13 @@ export function createPlayerStore() {
     }
   }
 
-  function handleRateChange(this: HTMLVideoElement) {
+  function handleRateChange(this: HTMLMediaElement) {
     if (state.playbackRate !== this.playbackRate) {
       dispatch({ type: "PLAYBACK_RATE_CHANGE", payload: { playbackRate: this.playbackRate } });
     }
   }
 
-  function handleError(this: HTMLVideoElement) {
+  function handleError(this: HTMLMediaElement) {
     dispatch({ type: "ERROR" });
     notifyAboutError({ type: "media", error: this.error! });
   }
@@ -192,9 +197,9 @@ export function createPlayerStore() {
   }
 
   function getBufferedEnd(time: number) {
-    if (!video) return time;
+    if (!media) return time;
 
-    const { buffered } = video;
+    const { buffered } = media;
     for (let i = 1, len = buffered.length; i <= len; i++) {
       const idx = len - i;
       const start = buffered.start(idx);
@@ -210,28 +215,32 @@ export function createPlayerStore() {
     dispatch({ type: "PROGRESS", payload: { bufferedEnd: getBufferedEnd(time) } });
   }
 
-  function init(videoEl: HTMLVideoElement, containerEl: HTMLDivElement) {
-    video = videoEl;
+  function init(mediaEl: HTMLMediaElement, containerEl: HTMLDivElement) {
+    media = mediaEl;
     container = containerEl;
 
     const signalConfig = { signal: abortController.signal };
 
-    videoEl.addEventListener("loadedmetadata", handleInit, signalConfig);
-    videoEl.addEventListener("error", handleError, signalConfig);
-    videoEl.addEventListener("enterpictureinpicture", handlePipEnter, signalConfig);
-    videoEl.addEventListener("leavepictureinpicture", handlePipLeave, signalConfig);
-    videoEl.addEventListener("loadstart", handleLoading, signalConfig);
-    videoEl.addEventListener("play", handlePlay, signalConfig);
-    videoEl.addEventListener("pause", handlePause, signalConfig);
-    videoEl.addEventListener("ratechange", handleRateChange, signalConfig);
-    videoEl.addEventListener("seeking", handleSeeking, signalConfig);
-    videoEl.addEventListener("seeked", handleSeeked, signalConfig);
-    videoEl.addEventListener("timeupdate", handleTimeUpdate, signalConfig);
-    videoEl.addEventListener("volumechange", handleVolumeChange, signalConfig);
-    videoEl.addEventListener("progress", handleProgress, signalConfig);
-    videoEl.addEventListener("waiting", handleBufferingStart, signalConfig);
-    videoEl.addEventListener("playing", handleBufferingEnd, signalConfig);
-    videoEl.addEventListener("canplay", handleBufferingEnd, signalConfig);
+    mediaEl.addEventListener("loadedmetadata", handleInit, signalConfig);
+    mediaEl.addEventListener("error", handleError, signalConfig);
+    mediaEl.addEventListener("loadstart", handleLoading, signalConfig);
+    mediaEl.addEventListener("play", handlePlay, signalConfig);
+    mediaEl.addEventListener("pause", handlePause, signalConfig);
+    mediaEl.addEventListener("ratechange", handleRateChange, signalConfig);
+    mediaEl.addEventListener("seeking", handleSeeking, signalConfig);
+    mediaEl.addEventListener("seeked", handleSeeked, signalConfig);
+    mediaEl.addEventListener("timeupdate", handleTimeUpdate, signalConfig);
+    mediaEl.addEventListener("volumechange", handleVolumeChange, signalConfig);
+    mediaEl.addEventListener("progress", handleProgress, signalConfig);
+    mediaEl.addEventListener("waiting", handleBufferingStart, signalConfig);
+    mediaEl.addEventListener("playing", handleBufferingEnd, signalConfig);
+    mediaEl.addEventListener("canplay", handleBufferingEnd, signalConfig);
+
+    // Picture-in-picture is a video-only capability
+    if (mediaEl instanceof HTMLVideoElement) {
+      mediaEl.addEventListener("enterpictureinpicture", handlePipEnter, signalConfig);
+      mediaEl.addEventListener("leavepictureinpicture", handlePipLeave, signalConfig);
+    }
 
     containerEl.addEventListener("fullscreenchange", handleFullscreen, signalConfig);
   }

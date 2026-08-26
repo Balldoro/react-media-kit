@@ -1,3 +1,4 @@
+export { Audio } from "./audio";
 export { Controls } from "./controls";
 export { FullscreenButton } from "./fullscreenButton";
 export { PipButton } from "./pipButton";

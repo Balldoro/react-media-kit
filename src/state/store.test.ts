@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 import { createPlayerStore } from "@/state/store";
 
-function setup() {
+function setup(tag: "video" | "audio" = "video") {
   const store = createPlayerStore();
-  const video = document.createElement("video");
+  const video = document.createElement(tag);
   const container = document.createElement("div");
   document.body.appendChild(container);
   store.init(video, container);
@@ -375,6 +375,36 @@ describe("createPlayerStore", () => {
 
       expect(onError).toHaveBeenCalledTimes(1);
       expect(onError.mock.calls[0]![0]).toMatchObject({ type: "pip" });
+    });
+
+    it("togglePip() reports a pip error instead of throwing when backed by an audio element", async () => {
+      const { store } = setup("audio");
+      const onError = vi.fn();
+      store.subscribeToErrors(onError);
+
+      await expect(store.controls.togglePip()).resolves.toBeUndefined();
+
+      expect(onError).toHaveBeenCalledTimes(1);
+      expect(onError.mock.calls[0]![0]).toMatchObject({ type: "pip" });
+    });
+  });
+
+  describe("audio element support", () => {
+    it("play/pause, seeking, and volume controls work against an <audio> element", () => {
+      const { store, video: audio } = setup("audio");
+      const playSpy = vi.spyOn(audio, "play").mockResolvedValue(undefined);
+
+      store.controls.toggle();
+      expect(playSpy).toHaveBeenCalledTimes(1);
+
+      audio.dispatchEvent(new Event("play"));
+      expect(store.getSnapshot().isPlaying).toBe(true);
+
+      store.controls.setVolume(0.4);
+      expect(audio.volume).toBe(0.4);
+
+      store.controls.seek(12);
+      expect(audio.currentTime).toBe(12);
     });
   });
 
