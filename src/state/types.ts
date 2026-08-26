@@ -8,6 +8,7 @@ export interface PlayerState {
   isMuted: boolean;
   isFullscreen: boolean;
   isPictureInPicture: boolean;
+  isBuffering: boolean;
   durationInSec: number;
   currentTimeInSec: number;
   optimisticTimeInSec: number | null;
@@ -30,7 +31,8 @@ export type PlayerAction =
   | PlaybackRateChangeAction
   | ErrorAction
   | LoadingAction
-  | BufferAction;
+  | ProgressAction
+  | BufferingAction;
 
 export interface PlayAction {
   type: "PLAY";
@@ -92,7 +94,12 @@ export interface PlaybackRateChangeAction {
   payload: { playbackRate: number };
 }
 
-export interface BufferAction {
-  type: "BUFFER";
+export interface ProgressAction {
+  type: "PROGRESS";
   payload: { bufferedEnd: number };
+}
+
+export interface BufferingAction {
+  type: "BUFFERING";
+  payload: { isBuffering: boolean };
 }

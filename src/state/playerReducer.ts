@@ -53,9 +53,13 @@ export function playerReducer(state: PlayerState, action: PlayerAction): PlayerS
     case "LOADING": {
       return { ...state, state: "loading" };
     }
-    case "BUFFER": {
+    case "PROGRESS": {
       const { bufferedEnd } = action.payload;
       return { ...state, bufferedEndInSec: bufferedEnd };
+    }
+    case "BUFFERING": {
+      const { isBuffering } = action.payload;
+      return { ...state, isBuffering };
     }
   }
 }

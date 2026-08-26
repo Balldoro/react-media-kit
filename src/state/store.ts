@@ -12,6 +12,7 @@ export const initialState = Object.freeze({
   isMuted: false,
   isFullscreen: false,
   isPictureInPicture: false,
+  isBuffering: false,
   durationInSec: 0,
   currentTimeInSec: 0,
   optimisticTimeInSec: null,
@@ -178,6 +179,18 @@ export function createPlayerStore() {
     dispatch({ type: "LOADING" });
   }
 
+  function handleBufferingStart() {
+    if (!state.isBuffering) {
+      dispatch({ type: "BUFFERING", payload: { isBuffering: true } });
+    }
+  }
+
+  function handleBufferingEnd() {
+    if (state.isBuffering) {
+      dispatch({ type: "BUFFERING", payload: { isBuffering: false } });
+    }
+  }
+
   function getBufferedEnd(time: number) {
     if (!video) return time;
 
@@ -194,7 +207,7 @@ export function createPlayerStore() {
 
   function handleProgress() {
     const time = state.optimisticTimeInSec ?? state.currentTimeInSec;
-    dispatch({ type: "BUFFER", payload: { bufferedEnd: getBufferedEnd(time) } });
+    dispatch({ type: "PROGRESS", payload: { bufferedEnd: getBufferedEnd(time) } });
   }
 
   function init(videoEl: HTMLVideoElement, containerEl: HTMLDivElement) {
@@ -216,6 +229,9 @@ export function createPlayerStore() {
     videoEl.addEventListener("timeupdate", handleTimeUpdate, signalConfig);
     videoEl.addEventListener("volumechange", handleVolumeChange, signalConfig);
     videoEl.addEventListener("progress", handleProgress, signalConfig);
+    videoEl.addEventListener("waiting", handleBufferingStart, signalConfig);
+    videoEl.addEventListener("playing", handleBufferingEnd, signalConfig);
+    videoEl.addEventListener("canplay", handleBufferingEnd, signalConfig);
 
     containerEl.addEventListener("fullscreenchange", handleFullscreen, signalConfig);
   }
