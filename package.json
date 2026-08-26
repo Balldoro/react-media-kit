@@ -4,6 +4,16 @@
   "description": "React video player library",
   "type": "module",
   "license": "MIT",
+  "author": "Marek Miklaszewski",
+  "keywords": [
+    "react",
+    "video",
+    "video-player",
+    "media",
+    "player",
+    "headless",
+    "typescript"
+  ],
   "sideEffects": false,
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -27,12 +37,17 @@
     "lint": "oxlint .",
     "lint:fix": "oxlint . --fix",
     "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "size": "size-limit",
     "size:why": "size-limit --why",
-    "prepare": "husky"
+    "prepare": "husky",
+    "prepublishOnly": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm test && pnpm build",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "release": "changeset publish"
   },
   "size-limit": [
     {
@@ -67,6 +82,7 @@
     "react-dom": ">=19"
   },
   "devDependencies": {
+    "@changesets/cli": "^3.0.1",
     "@size-limit/esbuild-why": "^13.0.3",
     "@size-limit/file": "^13.0.3",
     "@size-limit/preset-small-lib": "^13.0.3",
