@@ -10,10 +10,18 @@ export const MIN_VOLUME = 0;
 export const MAX_PLAYBACK_RATE = 2;
 export const MIN_PLAYBACK_RATE = 0.25;
 
-export const BACK_NAV_KEYS = new Set(["ArrowLeft", "ArrowDown"]);
-export const NEXT_NAV_KEYS = new Set(["ArrowRight", "ArrowUp"]);
-export const START_NAV_KEYS = new Set(["Home"]);
-export const END_NAV_KEYS = new Set(["End"]);
+export const KEY_NAMES = {
+  SPACE: " ",
+  ENTER: "ENTER",
+  ARROW_LEFT: "ARROWLEFT",
+  ARROW_RIGHT: "ARROWRIGHT",
+  ARROW_UP: "ARROWUP",
+  ARROW_DOWN: "ARROWDOWN",
+  HOME: "HOME",
+  END: "END",
+  MUTE: "M",
+  FULLSCREEN: "F",
+} as const;
 
 export const CSS_VARS = {
   progressPercent: "--progress-percent",

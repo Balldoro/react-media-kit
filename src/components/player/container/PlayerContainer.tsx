@@ -1,10 +1,12 @@
 import type { HTMLAttributes, KeyboardEvent, Ref } from "react";
 import { usePlayer, usePlayerControls, usePlayerCtx } from "@/state/PlayerContext";
 import { useMediaGlobalProps } from "@/hooks/dataProps";
-import { composeHandlers } from "@/utils/handlers";
+import { composeHandlers, normalizeKeyCode } from "@/utils/handlers";
 import { setDataAttr } from "@/utils";
-import { DATA_ATTRS } from "@/constants";
+import { DATA_ATTRS, KEY_NAMES, SKIP_INTERVAL, VOLUME_INTERVAL } from "@/constants";
 import { useMergeRefs } from "@/hooks/useMergeRefs";
+
+export const NATIVE_ACTIVATION_TAGS = new Set(["BUTTON", "INPUT", "SELECT", "TEXTAREA", "A"]);
 
 interface PlayerContainerProps extends HTMLAttributes<HTMLDivElement> {
   ref?: Ref<HTMLDivElement>;
@@ -12,17 +14,38 @@ interface PlayerContainerProps extends HTMLAttributes<HTMLDivElement> {
 
 export function PlayerContainer({ onKeyDown, style, ref, ...props }: PlayerContainerProps) {
   const { containerEl } = usePlayerCtx();
+  const { toggle, toggleMute, toggleFullscreen, skip, stepVolume } = usePlayerControls();
   const mergedRef = useMergeRefs(containerEl, ref);
   const mediaDataAttrs = useMediaGlobalProps();
-  const { toggleMute, toggleFullscreen } = usePlayerControls();
   const isFullscreen = usePlayer((s) => s.isFullscreen);
   const isPictureInPicture = usePlayer((s) => s.isPictureInPicture);
 
   const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-    switch (e.key.toUpperCase()) {
-      case "M":
+    if (e.defaultPrevented) return;
+
+    const key = normalizeKeyCode(e.key);
+    const isActivationKey = key === KEY_NAMES.SPACE || key === KEY_NAMES.ENTER;
+    if (isActivationKey && NATIVE_ACTIVATION_TAGS.has((e.target as HTMLElement).tagName)) return;
+
+    switch (key) {
+      case KEY_NAMES.SPACE:
+        e.preventDefault();
+        return toggle();
+      case KEY_NAMES.ARROW_LEFT:
+        e.preventDefault();
+        return skip(-SKIP_INTERVAL);
+      case KEY_NAMES.ARROW_RIGHT:
+        e.preventDefault();
+        return skip(SKIP_INTERVAL);
+      case KEY_NAMES.ARROW_UP:
+        e.preventDefault();
+        return stepVolume(VOLUME_INTERVAL);
+      case KEY_NAMES.ARROW_DOWN:
+        e.preventDefault();
+        return stepVolume(-VOLUME_INTERVAL);
+      case KEY_NAMES.MUTE:
         return toggleMute();
-      case "F":
+      case KEY_NAMES.FULLSCREEN:
         return toggleFullscreen();
     }
   };

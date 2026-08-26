@@ -1,14 +1,6 @@
-import {
-  BACK_NAV_KEYS,
-  DOUBLE_CLICK_DELTA_MS,
-  END_NAV_KEYS,
-  MAX_VOLUME,
-  MIN_VOLUME,
-  NEXT_NAV_KEYS,
-  SKIP_INTERVAL,
-  START_NAV_KEYS,
-} from "@/constants";
+import { DOUBLE_CLICK_DELTA_MS, KEY_NAMES, SKIP_INTERVAL } from "@/constants";
 import { usePlayerControls, usePlayerCtx } from "@/state/PlayerContext";
+import { normalizeKeyCode } from "@/utils/handlers";
 import {
   useEffect,
   useRef,
@@ -42,7 +34,7 @@ export function useOverlayInteractivity({
   const prevClick = useRef(0);
 
   const { containerEl } = usePlayerCtx();
-  const { toggle, toggleFullscreen, skip, setVolume } = usePlayerControls();
+  const { toggle, toggleFullscreen, skip } = usePlayerControls();
 
   useEffect(() => {
     return () => {
@@ -92,21 +84,9 @@ export function useOverlayInteractivity({
   };
 
   const handleKeyDown: KeyboardEventHandler<HTMLButtonElement> = (e) => {
-    switch (true) {
-      case BACK_NAV_KEYS.has(e.key):
-        e.preventDefault();
-        return skip(-skipInterval);
-      case NEXT_NAV_KEYS.has(e.key):
-        e.preventDefault();
-        return skip(skipInterval);
-      case START_NAV_KEYS.has(e.key):
-        e.preventDefault();
-        return setVolume(MIN_VOLUME);
-      case END_NAV_KEYS.has(e.key):
-        e.preventDefault();
-        return setVolume(MAX_VOLUME);
-      case e.key === "Enter":
-      case e.key === " ":
+    switch (normalizeKeyCode(e.key)) {
+      case KEY_NAMES.ENTER:
+      case KEY_NAMES.SPACE:
         e.preventDefault();
         return toggle();
     }

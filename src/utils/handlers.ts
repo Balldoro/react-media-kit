@@ -8,3 +8,5 @@ export const composeHandlers = <E>(...handlers: EventHandler<E>[]) => {
     }
   };
 };
+
+export const normalizeKeyCode = (key: string) => key.toUpperCase();

@@ -1,16 +1,8 @@
-import {
-  BACK_NAV_KEYS,
-  CSS_VARS,
-  DATA_ATTRS,
-  END_NAV_KEYS,
-  MAX_VOLUME,
-  MIN_VOLUME,
-  NEXT_NAV_KEYS,
-  START_NAV_KEYS,
-} from "@/constants";
+import { CSS_VARS, DATA_ATTRS, KEY_NAMES, MAX_VOLUME, MIN_VOLUME } from "@/constants";
 import { useRectPosition } from "@/hooks/useRectPosition";
 import { usePlayerControls, usePlayerSubscription } from "@/state/PlayerContext";
 import { shallow, toPercent } from "@/utils";
+import { normalizeKeyCode } from "@/utils/handlers";
 import { clampVolume } from "@/utils/volume";
 import {
   useCallback,
@@ -98,17 +90,19 @@ export function useVolume(
   };
 
   const handleKeyDown: KeyboardEventHandler<HTMLDivElement> = (e) => {
-    switch (true) {
-      case BACK_NAV_KEYS.has(e.key):
+    switch (normalizeKeyCode(e.key)) {
+      case KEY_NAMES.ARROW_LEFT:
+      case KEY_NAMES.ARROW_DOWN:
         e.preventDefault();
         return stepVolume(-volumeInterval);
-      case NEXT_NAV_KEYS.has(e.key):
+      case KEY_NAMES.ARROW_RIGHT:
+      case KEY_NAMES.ARROW_UP:
         e.preventDefault();
         return stepVolume(volumeInterval);
-      case START_NAV_KEYS.has(e.key):
+      case KEY_NAMES.HOME:
         e.preventDefault();
         return setVolume(MIN_VOLUME);
-      case END_NAV_KEYS.has(e.key):
+      case KEY_NAMES.END:
         e.preventDefault();
         return setVolume(MAX_VOLUME);
     }

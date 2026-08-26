@@ -1,13 +1,8 @@
 import { useRectPosition } from "@/hooks/useRectPosition";
 import { usePlayer, usePlayerControls } from "@/state/PlayerContext";
-import {
-  BACK_NAV_KEYS,
-  DATA_ATTRS,
-  END_NAV_KEYS,
-  NEXT_NAV_KEYS,
-  START_NAV_KEYS,
-} from "@/constants";
+import { DATA_ATTRS, KEY_NAMES } from "@/constants";
 import { type KeyboardEventHandler, type PointerEventHandler, type RefObject } from "react";
+import { normalizeKeyCode } from "@/utils/handlers";
 
 interface Config {
   skipInterval: number;
@@ -51,17 +46,19 @@ export function useSeekbarInteractivity(
   };
 
   const handleKeyDown: KeyboardEventHandler<HTMLDivElement> = (e) => {
-    switch (true) {
-      case BACK_NAV_KEYS.has(e.key):
+    switch (normalizeKeyCode(e.key)) {
+      case KEY_NAMES.ARROW_LEFT:
+      case KEY_NAMES.ARROW_DOWN:
         e.preventDefault();
         return skip(-skipInterval);
-      case NEXT_NAV_KEYS.has(e.key):
+      case KEY_NAMES.ARROW_RIGHT:
+      case KEY_NAMES.ARROW_UP:
         e.preventDefault();
         return skip(skipInterval);
-      case START_NAV_KEYS.has(e.key):
+      case KEY_NAMES.HOME:
         e.preventDefault();
         return seek(0);
-      case END_NAV_KEYS.has(e.key):
+      case KEY_NAMES.END:
         e.preventDefault();
         return seek(duration);
     }
