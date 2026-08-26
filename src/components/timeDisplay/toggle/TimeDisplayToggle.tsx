@@ -2,6 +2,8 @@ import type { Ref } from "react";
 import { useTimeDisplay } from "../TimeDisplayContext";
 import { composeHandlers } from "@/utils/handlers";
 import type { ButtonAttributes } from "@/types";
+import { useMediaGlobalProps } from "@/hooks/dataProps";
+import { DATA_ATTRS } from "@/constants";
 
 interface TimeDisplayToggleProps extends ButtonAttributes {
   ref?: Ref<HTMLButtonElement>;
@@ -9,6 +11,7 @@ interface TimeDisplayToggleProps extends ButtonAttributes {
 
 export function TimeDisplayToggle({ onClick, ...props }: TimeDisplayToggleProps) {
   const { toggleMode, isElapsedMode } = useTimeDisplay();
+  const mediaDataAttrs = useMediaGlobalProps();
 
   return (
     <button
@@ -16,6 +19,8 @@ export function TimeDisplayToggle({ onClick, ...props }: TimeDisplayToggleProps)
       {...props}
       type="button"
       onClick={composeHandlers(onClick, toggleMode)}
+      {...{ [DATA_ATTRS.elapsedMode]: isElapsedMode }}
+      {...mediaDataAttrs}
     />
   );
 }

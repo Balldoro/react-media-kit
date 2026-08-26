@@ -7,11 +7,13 @@ interface ControlsRootProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export function ControlsRoot({ overlay = true, style, ...props }: ControlsRootProps) {
+  const mediaDataAttrs = useMediaGlobalProps();
+
   return (
     <div
       style={overlay ? { ...overlayStyle, ...style, position: "absolute" } : style}
       {...props}
-      {...useMediaGlobalProps()}
+      {...mediaDataAttrs}
     />
   );
 }

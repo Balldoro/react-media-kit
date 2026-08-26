@@ -15,18 +15,18 @@ export interface VolumeSliderRootProps extends HTMLAttributes<HTMLDivElement> {
 export function VolumeSlider({
   volumeInterval = VOLUME_INTERVAL,
   ref,
-  onPointerMove,
   onPointerDown,
+  onPointerMove,
+  onLostPointerCapture,
   onKeyDown,
   computeAriaValueText,
   ...props
 }: VolumeSliderRootProps) {
   const sliderEl = useRef<HTMLDivElement>(null);
   const mergedRef = useMergeRefs(sliderEl, ref);
-  const { handleKeyDown, handlePointerDown, handlePointerMove } = useVolume(sliderEl, {
-    volumeInterval,
-    computeAriaValueText,
-  });
+  const mediaDataAttrs = useMediaGlobalProps();
+  const { handleKeyDown, handlePointerDown, handlePointerMove, handleLostPointerCapture } =
+    useVolume(sliderEl, { volumeInterval, computeAriaValueText });
 
   return (
     <Slider
@@ -37,8 +37,9 @@ export function VolumeSlider({
       aria-valuemax={MAX_VOLUME}
       onPointerMove={composeHandlers(onPointerMove, handlePointerMove)}
       onPointerDown={composeHandlers(onPointerDown, handlePointerDown)}
+      onLostPointerCapture={composeHandlers(onLostPointerCapture, handleLostPointerCapture)}
       onKeyDown={composeHandlers(onKeyDown, handleKeyDown)}
-      {...useMediaGlobalProps()}
+      {...mediaDataAttrs}
     />
   );
 }

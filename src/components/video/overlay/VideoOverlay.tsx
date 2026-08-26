@@ -4,6 +4,7 @@ import {
   type OverlayInteractivityOptions,
 } from "./useOverlayInteractivity";
 import { composeHandlers } from "@/utils/handlers";
+import { useMediaGlobalProps } from "@/hooks/dataProps";
 import type { ButtonAttributes } from "@/types";
 
 interface VideoOverlayRootProps extends Omit<ButtonAttributes, "onDoubleClick"> {
@@ -27,6 +28,7 @@ export function VideoOverlayRoot({
   onKeyDown,
   ...props
 }: VideoOverlayRootProps) {
+  const mediaDataAttrs = useMediaGlobalProps();
   const { handlePointerDown, handlePointerUp, handleKeyDown } = useOverlayInteractivity({
     onPointerDown,
     onPointerUp,
@@ -47,6 +49,7 @@ export function VideoOverlayRoot({
       {...props}
       // double click is handled internally onPointerDown, so onDoubleClick has to be no-op
       onDoubleClick={() => {}}
+      {...mediaDataAttrs}
     />
   );
 }

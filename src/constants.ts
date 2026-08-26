@@ -14,3 +14,19 @@ export const BACK_NAV_KEYS = new Set(["ArrowLeft", "ArrowDown"]);
 export const NEXT_NAV_KEYS = new Set(["ArrowRight", "ArrowUp"]);
 export const START_NAV_KEYS = new Set(["Home"]);
 export const END_NAV_KEYS = new Set(["End"]);
+
+export const DATA_ATTRS = {
+  mediaPending: "data-media-pending",
+  mediaLoading: "data-media-loading",
+  mediaReady: "data-media-ready",
+  mediaError: "data-media-error",
+
+  playing: "data-playing",
+  muted: "data-muted",
+  fullscreen: "data-fullscreen",
+  pip: "data-pip",
+  direction: "data-direction",
+  dragging: "data-dragging",
+  active: "data-active",
+  elapsedMode: "data-elapsed-mode",
+} as const;

@@ -2,7 +2,7 @@ import type { Ref } from "react";
 import { usePlayerControls } from "@/state/PlayerContext";
 import { useMediaGlobalProps } from "@/hooks/dataProps";
 import { composeHandlers } from "@/utils/handlers";
-import { SKIP_INTERVAL } from "@/constants";
+import { DATA_ATTRS, SKIP_INTERVAL } from "@/constants";
 import type { ButtonAttributes } from "@/types";
 import { createTimeLabelFormatter } from "@/utils/time";
 
@@ -23,6 +23,7 @@ export function SkipButtonRoot({
   ...props
 }: SkipButtonRootProps) {
   const { skip } = usePlayerControls();
+  const mediaDataAttrs = useMediaGlobalProps();
 
   const isForward = direction === "forward";
   const handleSkip = () => skip(isForward ? skipInterval : -skipInterval);
@@ -33,8 +34,8 @@ export function SkipButtonRoot({
       {...props}
       type="button"
       onClick={composeHandlers(onClick, handleSkip)}
-      data-direction={direction}
-      {...useMediaGlobalProps()}
+      {...{ [DATA_ATTRS.direction]: direction }}
+      {...mediaDataAttrs}
     />
   );
 }

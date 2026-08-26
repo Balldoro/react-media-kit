@@ -2,6 +2,8 @@ import type { Ref } from "react";
 import { usePlayer, usePlayerControls } from "@/state/PlayerContext";
 import { useMediaGlobalProps } from "@/hooks/dataProps";
 import { composeHandlers } from "@/utils/handlers";
+import { setDataAttr } from "@/utils";
+import { DATA_ATTRS } from "@/constants";
 import type { ButtonAttributes } from "@/types";
 
 interface PlayButtonRootProps extends ButtonAttributes {
@@ -10,6 +12,7 @@ interface PlayButtonRootProps extends ButtonAttributes {
 
 export function PlayButtonRoot({ onClick, ...props }: PlayButtonRootProps) {
   const { toggle } = usePlayerControls();
+  const mediaDataAttrs = useMediaGlobalProps();
   const isPlaying = usePlayer((s) => s.isPlaying);
 
   return (
@@ -18,8 +21,8 @@ export function PlayButtonRoot({ onClick, ...props }: PlayButtonRootProps) {
       {...props}
       type="button"
       onClick={composeHandlers(onClick, toggle)}
-      data-isplaying={isPlaying}
-      {...useMediaGlobalProps()}
+      {...{ [DATA_ATTRS.playing]: setDataAttr(isPlaying) }}
+      {...mediaDataAttrs}
     />
   );
 }

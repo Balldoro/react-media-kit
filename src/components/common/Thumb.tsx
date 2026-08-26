@@ -4,12 +4,10 @@ export interface ThumbProps extends HTMLAttributes<HTMLDivElement> {
   ref?: Ref<HTMLDivElement>;
 }
 
-export function Thumb(props: ThumbProps) {
+export function Thumb({ style, ...props }: ThumbProps) {
   return (
     <div style={defaultContainerStyle}>
-      <div style={defaultStyle}>
-        <div {...props} />
-      </div>
+      <div style={{ ...defaultStyle, ...style }} {...props} />
     </div>
   );
 }
@@ -22,6 +20,7 @@ const defaultContainerStyle: CSSProperties = {
   willChange: "transform",
   pointerEvents: "none",
   left: 0,
+  zIndex: "var(--seekbar-thumb-z-index, 9999)",
 };
 
 const defaultStyle: CSSProperties = {

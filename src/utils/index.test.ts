@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isEqual, shallow, toPercent } from "@/utils";
+import { isEqual, setDataAttr, shallow, toPercent } from "@/utils";
 import { initialState } from "@/state/store";
 import type { PlayerState } from "@/state/types";
 
@@ -100,5 +100,15 @@ describe("toPercent", () => {
     expect(toPercent(0.5)).toBe(50);
     expect(toPercent(0.25)).toBe(25);
     expect(toPercent(1)).toBe(100);
+  });
+});
+
+describe("setDataAttr", () => {
+  it("returns true when the condition is true", () => {
+    expect(setDataAttr(true)).toBe(true);
+  });
+
+  it("returns undefined when the condition is false", () => {
+    expect(setDataAttr(false)).toBeUndefined();
   });
 });

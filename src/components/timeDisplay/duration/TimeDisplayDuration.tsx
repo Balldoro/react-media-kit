@@ -8,10 +8,11 @@ interface TimeDisplayDurationProps extends Omit<HTMLAttributes<HTMLTimeElement>,
 }
 
 export function TimeDisplayDuration(props: TimeDisplayDurationProps) {
+  const mediaDataAttrs = useMediaGlobalProps();
   const duration = usePlayer((s) => s.durationInSec);
 
   return (
-    <time {...props} dateTime={getDurationTimeFormat(duration)} {...useMediaGlobalProps()}>
+    <time {...props} dateTime={getDurationTimeFormat(duration)} {...mediaDataAttrs}>
       {getTimeFormat(duration)}
     </time>
   );

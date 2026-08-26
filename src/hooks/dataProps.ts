@@ -1,17 +1,14 @@
 import { usePlayer } from "@/state/PlayerContext";
-
-const MEDIA_READY_ATTR = "data-media-ready";
-const MEDIA_ERROR_ATTR = "data-media-error";
-const MEDIA_LOADING_ATTR = "data-media-loading";
-const MEDIA_PENDING_ATTR = "data-media-pending";
+import { setDataAttr } from "@/utils";
+import { DATA_ATTRS } from "@/constants";
 
 export function useMediaGlobalProps() {
   const state = usePlayer((s) => s.state);
 
   return {
-    [MEDIA_PENDING_ATTR]: state === "pending",
-    [MEDIA_LOADING_ATTR]: state === "loading",
-    [MEDIA_READY_ATTR]: state === "ready",
-    [MEDIA_ERROR_ATTR]: state === "error",
+    [DATA_ATTRS.mediaPending]: setDataAttr(state === "pending"),
+    [DATA_ATTRS.mediaLoading]: setDataAttr(state === "loading"),
+    [DATA_ATTRS.mediaReady]: setDataAttr(state === "ready"),
+    [DATA_ATTRS.mediaError]: setDataAttr(state === "error"),
   };
 }

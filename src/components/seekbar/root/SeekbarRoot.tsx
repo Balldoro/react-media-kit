@@ -20,18 +20,18 @@ export function SeekbarRoot({
   onKeyDown,
   onPointerMove,
   onPointerDown,
+  onLostPointerCapture,
   ...props
 }: SeekbarRootProps) {
   const sliderEl = useRef<HTMLDivElement>(null);
+  const mediaDataAttrs = useMediaGlobalProps();
 
   useSeekbarTime(sliderEl);
   useBufferTime(sliderEl);
 
   const mergedRef = useMergeRefs(sliderEl, ref);
-  const { handlePointerDown, handlePointerMove, handleKeyDown } = useSeekbarInteractivity(
-    sliderEl,
-    { skipInterval },
-  );
+  const { handlePointerDown, handleLostPointerCapture, handlePointerMove, handleKeyDown } =
+    useSeekbarInteractivity(sliderEl, { skipInterval });
 
   return (
     <Slider
@@ -41,9 +41,10 @@ export function SeekbarRoot({
       {...props}
       onPointerDown={composeHandlers(onPointerDown, handlePointerDown)}
       onPointerMove={composeHandlers(onPointerMove, handlePointerMove)}
+      onLostPointerCapture={composeHandlers(onLostPointerCapture, handleLostPointerCapture)}
       onKeyDown={composeHandlers(onKeyDown, handleKeyDown)}
       aria-valuemin={0}
-      {...useMediaGlobalProps()}
+      {...mediaDataAttrs}
     />
   );
 }

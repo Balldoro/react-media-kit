@@ -24,3 +24,6 @@ export const toPercent = (value: number) => value * 100;
 
 export const safeDivide = (divident: number, divisor: number) =>
   divisor === 0 ? 0 : divident / divisor;
+
+// Set explicit undefined if condition is false, so that data-* attribute is remove from DOM element
+export const setDataAttr = (condition: boolean) => condition || undefined;

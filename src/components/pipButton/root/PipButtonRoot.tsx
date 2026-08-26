@@ -2,6 +2,8 @@ import type { Ref } from "react";
 import { usePlayer, usePlayerControls } from "@/state/PlayerContext";
 import { useMediaGlobalProps } from "@/hooks/dataProps";
 import { composeHandlers } from "@/utils/handlers";
+import { setDataAttr } from "@/utils";
+import { DATA_ATTRS } from "@/constants";
 import type { ButtonAttributes } from "@/types";
 
 interface PipButtonRootProps extends ButtonAttributes {
@@ -10,6 +12,7 @@ interface PipButtonRootProps extends ButtonAttributes {
 
 export function PipButtonRoot({ onClick, ...props }: PipButtonRootProps) {
   const { togglePip } = usePlayerControls();
+  const mediaDataAttrs = useMediaGlobalProps();
   const isPictureInPicture = usePlayer((s) => s.isPictureInPicture);
 
   return (
@@ -18,8 +21,8 @@ export function PipButtonRoot({ onClick, ...props }: PipButtonRootProps) {
       {...props}
       type="button"
       onClick={composeHandlers(onClick, togglePip)}
-      data-ispictureinpicture={isPictureInPicture}
-      {...useMediaGlobalProps()}
+      {...{ [DATA_ATTRS.pip]: setDataAttr(isPictureInPicture) }}
+      {...mediaDataAttrs}
     />
   );
 }

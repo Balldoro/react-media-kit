@@ -1,6 +1,7 @@
 import { useRectPosition } from "@/hooks/useRectPosition";
 import { usePlayer, usePlayerControls } from "@/state/PlayerContext";
 import { handleNavKeyDown } from "@/utils/handlers";
+import { DATA_ATTRS } from "@/constants";
 import { type KeyboardEventHandler, type PointerEventHandler, type RefObject } from "react";
 
 interface Config {
@@ -28,6 +29,7 @@ export function useSeekbarInteractivity(
 
     setSliderRect(sliderEl.current.getBoundingClientRect());
     sliderEl.current.setPointerCapture(e.pointerId);
+    sliderEl.current.setAttribute(DATA_ATTRS.dragging, "true");
     updateVideoTime(e.clientX);
   };
 
@@ -35,6 +37,12 @@ export function useSeekbarInteractivity(
     if (!sliderEl.current || !sliderEl.current.hasPointerCapture(e.pointerId)) return;
 
     updateVideoTime(e.clientX);
+  };
+
+  const handleLostPointerCapture: PointerEventHandler<HTMLDivElement> = () => {
+    if (!sliderEl.current) return;
+
+    sliderEl.current.toggleAttribute(DATA_ATTRS.dragging, false);
   };
 
   const handleKeyDown: KeyboardEventHandler<HTMLDivElement> = (e) =>
@@ -45,5 +53,5 @@ export function useSeekbarInteractivity(
       onEnd: () => seek(duration),
     });
 
-  return { handlePointerDown, handlePointerMove, handleKeyDown };
+  return { handlePointerDown, handleLostPointerCapture, handlePointerMove, handleKeyDown };
 }

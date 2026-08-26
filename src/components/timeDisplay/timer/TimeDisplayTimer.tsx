@@ -10,8 +10,9 @@ interface TimeDisplayTimerProps extends Omit<HTMLAttributes<HTMLTimeElement>, "c
 export function TimeDisplayTimer({ ref, ...props }: TimeDisplayTimerProps) {
   const timerRef = useRef<HTMLTimeElement>(null);
   const mergedRef = useMergeRefs(timerRef, ref);
+  const mediaDataAttrs = useMediaGlobalProps();
 
   useTimeDisplayTimer(timerRef);
 
-  return <time {...props} ref={mergedRef} {...useMediaGlobalProps()} />;
+  return <time {...props} ref={mergedRef} {...mediaDataAttrs} />;
 }

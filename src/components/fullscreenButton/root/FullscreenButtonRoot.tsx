@@ -2,6 +2,8 @@ import type { Ref } from "react";
 import { usePlayer, usePlayerControls } from "@/state/PlayerContext";
 import { useMediaGlobalProps } from "@/hooks/dataProps";
 import { composeHandlers } from "@/utils/handlers";
+import { setDataAttr } from "@/utils";
+import { DATA_ATTRS } from "@/constants";
 import type { ButtonAttributes } from "@/types";
 
 interface FullscreenButtonRootProps extends ButtonAttributes {
@@ -10,6 +12,7 @@ interface FullscreenButtonRootProps extends ButtonAttributes {
 
 export function FullscreenButtonRoot({ onClick, ...props }: FullscreenButtonRootProps) {
   const { toggleFullscreen } = usePlayerControls();
+  const mediaDataAttrs = useMediaGlobalProps();
   const isFullscreen = usePlayer((s) => s.isFullscreen);
 
   return (
@@ -18,8 +21,8 @@ export function FullscreenButtonRoot({ onClick, ...props }: FullscreenButtonRoot
       {...props}
       type="button"
       onClick={composeHandlers(onClick, toggleFullscreen)}
-      data-isfullscreen={isFullscreen}
-      {...useMediaGlobalProps()}
+      {...{ [DATA_ATTRS.fullscreen]: setDataAttr(isFullscreen) }}
+      {...mediaDataAttrs}
     />
   );
 }

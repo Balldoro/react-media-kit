@@ -1,4 +1,4 @@
-import { MAX_VOLUME, MIN_VOLUME } from "@/constants";
+import { DATA_ATTRS, MAX_VOLUME, MIN_VOLUME } from "@/constants";
 import { useRectPosition } from "@/hooks/useRectPosition";
 import { usePlayerControls, usePlayerSubscription } from "@/state/PlayerContext";
 import { shallow, toPercent } from "@/utils";
@@ -37,12 +37,12 @@ export function useVolume(
     const currentVolumePercent = toPercent(currentVolume).toFixed(2);
 
     sliderEl.current.style.setProperty("--progress-percent", String(currentVolumePercent));
-    sliderEl.current.setAttribute("aria-valuenow", String(currentVolume));
+    sliderEl.current.setAttribute("aria-valuenow", String(currentVolume.toFixed(2)));
     sliderEl.current.setAttribute(
       "aria-valuetext",
       computeAriaValueTextStable.current?.({ volume, isMuted }) ?? `${currentVolumePercent}%`,
     );
-    sliderEl.current.setAttribute("data-ismuted", String(isMuted));
+    sliderEl.current.toggleAttribute(DATA_ATTRS.muted, isMuted);
   }, [getSnapshot, sliderEl]);
 
   useEffect(() => {
@@ -73,6 +73,7 @@ export function useVolume(
 
     setSliderRect(sliderEl.current.getBoundingClientRect());
     sliderEl.current.setPointerCapture(e.pointerId);
+    sliderEl.current.setAttribute(DATA_ATTRS.dragging, "true");
     updateVolume(e.clientX);
   };
 
@@ -80,6 +81,12 @@ export function useVolume(
     if (!sliderEl.current || !sliderEl.current.hasPointerCapture(e.pointerId)) return;
 
     updateVolume(e.clientX);
+  };
+
+  const handleLostPointerCapture: PointerEventHandler<HTMLDivElement> = () => {
+    if (!sliderEl.current) return;
+
+    sliderEl.current.toggleAttribute(DATA_ATTRS.dragging, false);
   };
 
   const handleKeyDown: KeyboardEventHandler<HTMLDivElement> = (e) =>
@@ -90,5 +97,5 @@ export function useVolume(
       onEnd: () => setVolume(MAX_VOLUME),
     });
 
-  return { handlePointerDown, handlePointerMove, handleKeyDown };
+  return { handlePointerDown, handlePointerMove, handleLostPointerCapture, handleKeyDown };
 }

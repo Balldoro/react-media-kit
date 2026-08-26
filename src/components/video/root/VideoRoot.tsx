@@ -6,5 +6,7 @@ interface VideoRootProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export function VideoRoot({ style, ...props }: VideoRootProps) {
-  return <div style={{ ...style, position: "relative" }} {...props} {...useMediaGlobalProps()} />;
+  const mediaDataAttrs = useMediaGlobalProps();
+
+  return <div style={{ ...style, position: "relative" }} {...props} {...mediaDataAttrs} />;
 }
