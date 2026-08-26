@@ -12,4 +12,7 @@ export {
   Volume,
 } from "@/components";
 
+export { usePlayer, usePlayerControls } from "@/state/PlayerContext";
+
 export type { PlayerError, OnErrorFunc } from "@/types";
+export type { PlayerState, LifeCycleState, Selector } from "@/state/types";

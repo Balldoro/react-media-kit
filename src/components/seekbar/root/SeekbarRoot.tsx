@@ -1,4 +1,4 @@
-import { useRef, type CSSProperties, type HTMLAttributes, type Ref } from "react";
+import { useRef, type HTMLAttributes, type Ref } from "react";
 import { useMediaGlobalProps } from "@/hooks/dataProps";
 import { SKIP_INTERVAL } from "@/constants";
 import { useSeekbarTime } from "./useSeekbarTime";
@@ -14,7 +14,6 @@ export interface SeekbarRootProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export function SeekbarRoot({
-  style,
   skipInterval = SKIP_INTERVAL,
   ref,
   onKeyDown,
@@ -37,7 +36,6 @@ export function SeekbarRoot({
     <Slider
       ref={mergedRef}
       aria-label="Video player slider"
-      style={{ ...defaultStyle, ...style }}
       {...props}
       onPointerDown={composeHandlers(onPointerDown, handlePointerDown)}
       onPointerMove={composeHandlers(onPointerMove, handlePointerMove)}
@@ -48,10 +46,3 @@ export function SeekbarRoot({
     />
   );
 }
-
-const defaultStyle: CSSProperties = {
-  // TODO: Those are hardcoded sane values that prevent Thumb from overflowing. This would make use of ResizeObserver attached
-  // to the Thumb element to dynamically calculate it, as consumer applies his own, custom width
-  paddingLeft: 6,
-  paddingRight: 6,
-};

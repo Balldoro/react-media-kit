@@ -1,25 +1,12 @@
-import type { CSSProperties, HTMLAttributes, Ref } from "react";
+import type { HTMLAttributes, Ref } from "react";
 import { useMediaGlobalProps } from "@/hooks/dataProps";
 
 interface ControlsRootProps extends HTMLAttributes<HTMLDivElement> {
-  overlay?: boolean;
   ref?: Ref<HTMLDivElement>;
 }
 
-export function ControlsRoot({ overlay = true, style, ...props }: ControlsRootProps) {
+export function ControlsRoot(props: ControlsRootProps) {
   const mediaDataAttrs = useMediaGlobalProps();
 
-  return (
-    <div
-      style={overlay ? { ...overlayStyle, ...style, position: "absolute" } : style}
-      {...props}
-      {...mediaDataAttrs}
-    />
-  );
+  return <div {...props} {...mediaDataAttrs} />;
 }
-
-const overlayStyle: CSSProperties = {
-  bottom: 0,
-  left: 0,
-  right: 0,
-};
