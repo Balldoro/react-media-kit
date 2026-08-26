@@ -1,3 +1,4 @@
+import { CSS_VARS } from "@/constants";
 import { useAnimateOnPlay } from "@/hooks/useAnimateOnPlay";
 import { usePlayerCtx, usePlayerSubscription } from "@/state/PlayerContext";
 import { safeDivide, toPercent } from "@/utils";
@@ -21,7 +22,7 @@ export function useSeekbarTime(sliderEl: RefObject<HTMLDivElement | null>) {
     const elapsed = toPercent(safeDivide(time, durationInSec));
     const totalElapsedTimeLabel = `${getTimeLabel(time)} / ${getTimeLabel(durationInSec)}`;
 
-    sliderEl.current.style.setProperty("--progress-percent", elapsed.toFixed(2));
+    sliderEl.current.style.setProperty(CSS_VARS.progressPercent, elapsed.toFixed(2));
     sliderEl.current.setAttribute("aria-valuetext", totalElapsedTimeLabel);
     sliderEl.current.setAttribute("aria-valuenow", String(Math.floor(time)));
     sliderEl.current.setAttribute("aria-valuemax", String(Math.floor(durationInSec)));

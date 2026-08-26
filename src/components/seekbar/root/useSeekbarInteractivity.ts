@@ -1,7 +1,12 @@
 import { useRectPosition } from "@/hooks/useRectPosition";
 import { usePlayer, usePlayerControls } from "@/state/PlayerContext";
-import { handleNavKeyDown } from "@/utils/handlers";
-import { DATA_ATTRS } from "@/constants";
+import {
+  BACK_NAV_KEYS,
+  DATA_ATTRS,
+  END_NAV_KEYS,
+  NEXT_NAV_KEYS,
+  START_NAV_KEYS,
+} from "@/constants";
 import { type KeyboardEventHandler, type PointerEventHandler, type RefObject } from "react";
 
 interface Config {
@@ -45,13 +50,22 @@ export function useSeekbarInteractivity(
     sliderEl.current.toggleAttribute(DATA_ATTRS.dragging, false);
   };
 
-  const handleKeyDown: KeyboardEventHandler<HTMLDivElement> = (e) =>
-    handleNavKeyDown(e, {
-      onNext: () => skip(skipInterval),
-      onBack: () => skip(-skipInterval),
-      onStart: () => seek(0),
-      onEnd: () => seek(duration),
-    });
+  const handleKeyDown: KeyboardEventHandler<HTMLDivElement> = (e) => {
+    switch (true) {
+      case BACK_NAV_KEYS.has(e.key):
+        e.preventDefault();
+        return skip(-skipInterval);
+      case NEXT_NAV_KEYS.has(e.key):
+        e.preventDefault();
+        return skip(skipInterval);
+      case START_NAV_KEYS.has(e.key):
+        e.preventDefault();
+        return seek(0);
+      case END_NAV_KEYS.has(e.key):
+        e.preventDefault();
+        return seek(duration);
+    }
+  };
 
   return { handlePointerDown, handleLostPointerCapture, handlePointerMove, handleKeyDown };
 }

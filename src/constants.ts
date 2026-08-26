@@ -15,6 +15,11 @@ export const NEXT_NAV_KEYS = new Set(["ArrowRight", "ArrowUp"]);
 export const START_NAV_KEYS = new Set(["Home"]);
 export const END_NAV_KEYS = new Set(["End"]);
 
+export const CSS_VARS = {
+  progressPercent: "--progress-percent",
+  bufferPercent: "--buffer-percent",
+} as const;
+
 export const DATA_ATTRS = {
   mediaPending: "data-media-pending",
   mediaLoading: "data-media-loading",

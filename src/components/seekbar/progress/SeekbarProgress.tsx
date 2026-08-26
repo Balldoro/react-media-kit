@@ -1,5 +1,6 @@
 import { Progress } from "@/components/common/Progress";
 import type { HTMLAttributes, Ref } from "react";
+import { CSS_VARS } from "@/constants";
 import { useMediaGlobalProps } from "@/hooks/dataProps";
 
 export interface SeekbarProgressProps extends HTMLAttributes<HTMLDivElement> {
@@ -11,7 +12,7 @@ export function SeekbarProgress({ style, ...props }: SeekbarProgressProps) {
 
   return (
     <Progress
-      progressVar="--progress-percent"
+      progressVar={CSS_VARS.progressPercent}
       style={{ zIndex: 2, ...style }}
       {...props}
       {...mediaDataAttrs}

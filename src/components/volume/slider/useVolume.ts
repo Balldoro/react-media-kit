@@ -1,8 +1,16 @@
-import { DATA_ATTRS, MAX_VOLUME, MIN_VOLUME } from "@/constants";
+import {
+  BACK_NAV_KEYS,
+  CSS_VARS,
+  DATA_ATTRS,
+  END_NAV_KEYS,
+  MAX_VOLUME,
+  MIN_VOLUME,
+  NEXT_NAV_KEYS,
+  START_NAV_KEYS,
+} from "@/constants";
 import { useRectPosition } from "@/hooks/useRectPosition";
 import { usePlayerControls, usePlayerSubscription } from "@/state/PlayerContext";
 import { shallow, toPercent } from "@/utils";
-import { handleNavKeyDown } from "@/utils/handlers";
 import { clampVolume } from "@/utils/volume";
 import {
   useCallback,
@@ -36,7 +44,7 @@ export function useVolume(
     const currentVolume = isMuted ? 0 : volume;
     const currentVolumePercent = toPercent(currentVolume).toFixed(2);
 
-    sliderEl.current.style.setProperty("--progress-percent", String(currentVolumePercent));
+    sliderEl.current.style.setProperty(CSS_VARS.progressPercent, String(currentVolumePercent));
     sliderEl.current.setAttribute("aria-valuenow", String(currentVolume.toFixed(2)));
     sliderEl.current.setAttribute(
       "aria-valuetext",
@@ -89,13 +97,22 @@ export function useVolume(
     sliderEl.current.toggleAttribute(DATA_ATTRS.dragging, false);
   };
 
-  const handleKeyDown: KeyboardEventHandler<HTMLDivElement> = (e) =>
-    handleNavKeyDown(e, {
-      onBack: () => stepVolume(-volumeInterval),
-      onNext: () => stepVolume(volumeInterval),
-      onStart: () => setVolume(MIN_VOLUME),
-      onEnd: () => setVolume(MAX_VOLUME),
-    });
+  const handleKeyDown: KeyboardEventHandler<HTMLDivElement> = (e) => {
+    switch (true) {
+      case BACK_NAV_KEYS.has(e.key):
+        e.preventDefault();
+        return stepVolume(-volumeInterval);
+      case NEXT_NAV_KEYS.has(e.key):
+        e.preventDefault();
+        return stepVolume(volumeInterval);
+      case START_NAV_KEYS.has(e.key):
+        e.preventDefault();
+        return setVolume(MIN_VOLUME);
+      case END_NAV_KEYS.has(e.key):
+        e.preventDefault();
+        return setVolume(MAX_VOLUME);
+    }
+  };
 
   return { handlePointerDown, handlePointerMove, handleLostPointerCapture, handleKeyDown };
 }

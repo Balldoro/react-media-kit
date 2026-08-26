@@ -1,3 +1,4 @@
+import { CSS_VARS } from "@/constants";
 import { usePlayerSubscription } from "@/state/PlayerContext";
 import { safeDivide, toPercent } from "@/utils";
 import { useEffect, type RefObject } from "react";
@@ -16,7 +17,7 @@ export function useBufferTime(sliderEl: RefObject<HTMLDivElement | null>) {
         const { durationInSec } = getSnapshot();
         const buffered = toPercent(safeDivide(bufferedEnd ?? 0, durationInSec));
 
-        sliderEl.current.style.setProperty("--buffer-percent", buffered.toFixed(2));
+        sliderEl.current.style.setProperty(CSS_VARS.bufferPercent, buffered.toFixed(2));
       },
     );
 

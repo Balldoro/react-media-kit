@@ -1,4 +1,5 @@
 import type { CSSProperties, HTMLAttributes, Ref } from "react";
+import { CSS_VARS } from "@/constants";
 
 export interface ThumbProps extends HTMLAttributes<HTMLDivElement> {
   ref?: Ref<HTMLDivElement>;
@@ -16,7 +17,7 @@ const defaultContainerStyle: CSSProperties = {
   width: "100%",
   height: "100%",
   position: "absolute",
-  transform: `translateX(calc(var(--progress-percent, 0) * 1%))`,
+  transform: `translateX(calc(var(${CSS_VARS.progressPercent}, 0) * 1%))`,
   willChange: "transform",
   pointerEvents: "none",
   left: 0,
