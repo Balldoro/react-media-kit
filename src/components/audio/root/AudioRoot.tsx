@@ -1,17 +1,17 @@
 import { usePlayerCtx } from "@/state/PlayerContext";
-import type { Ref, VideoHTMLAttributes } from "react";
+import type { MediaHTMLAttributes, Ref } from "react";
 import { useMergeRefs } from "@/hooks/useMergeRefs";
 import { useMediaAttributes } from "@/hooks/useMediaAttributes";
 
-interface VideoPlayerProps extends VideoHTMLAttributes<HTMLVideoElement> {
+interface AudioRootProps extends MediaHTMLAttributes<HTMLAudioElement> {
   src?: string;
-  ref?: Ref<HTMLVideoElement>;
+  ref?: Ref<HTMLAudioElement>;
 }
 
-export function VideoPlayer({ ref, ...props }: VideoPlayerProps) {
+export function AudioRoot({ ref, ...props }: AudioRootProps) {
   const { attachMedia } = usePlayerCtx();
   const mergedRef = useMergeRefs(attachMedia, ref);
   const mediaDataAttrs = useMediaAttributes();
 
-  return <video ref={mergedRef} {...props} {...mediaDataAttrs} />;
+  return <audio ref={mergedRef} {...props} {...mediaDataAttrs} />;
 }

@@ -7,7 +7,7 @@ import { composeHandlers } from "@/utils/handlers";
 import { useMediaAttributes } from "@/hooks/useMediaAttributes";
 import type { ButtonAttributes } from "@/types";
 
-interface VideoOverlayRootProps extends Omit<ButtonAttributes, "onDoubleClick"> {
+interface PlayerOverlayProps extends Omit<ButtonAttributes, "onDoubleClick"> {
   label: string;
   onDoubleClick?: OverlayInteractivityOptions["onDoubleClick"];
   onDoubleTouch?: OverlayInteractivityOptions["onDoubleTouch"];
@@ -15,7 +15,7 @@ interface VideoOverlayRootProps extends Omit<ButtonAttributes, "onDoubleClick"> 
   ref?: Ref<HTMLButtonElement>;
 }
 
-export function VideoOverlayRoot({
+export function PlayerOverlay({
   style,
   label,
   onDoubleClick,
@@ -25,7 +25,7 @@ export function VideoOverlayRoot({
   onPointerUp,
   onKeyDown,
   ...props
-}: VideoOverlayRootProps) {
+}: PlayerOverlayProps) {
   const mediaDataAttrs = useMediaAttributes();
   const { handlePointerDown, handlePointerUp, handleKeyDown } = useOverlayInteractivity({
     onPointerDown,

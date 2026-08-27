@@ -1,1 +1,1 @@
-export { AudioPlayer as Player } from "./player/AudioPlayer";
+export { AudioRoot as Root } from "./root/AudioRoot";
