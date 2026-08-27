@@ -9,8 +9,8 @@ interface AudioPlayerProps extends MediaHTMLAttributes<HTMLAudioElement> {
 }
 
 export function AudioPlayer({ ref, ...props }: AudioPlayerProps) {
-  const { mediaEl } = usePlayerCtx();
-  const mergedRef = useMergeRefs(mediaEl, ref);
+  const { attachMedia } = usePlayerCtx();
+  const mergedRef = useMergeRefs(attachMedia, ref);
   const mediaDataAttrs = useMediaAttributes();
 
   return <audio ref={mergedRef} {...props} {...mediaDataAttrs} />;

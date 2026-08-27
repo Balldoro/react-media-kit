@@ -1,5 +1,6 @@
 import type { PlayerAction, PlayerState } from "./types";
 import { normalizeTime } from "@/utils/time";
+import { initialState } from "./initialState";
 
 export function playerReducer(state: PlayerState, action: PlayerAction): PlayerState {
   switch (action.type) {
@@ -60,6 +61,9 @@ export function playerReducer(state: PlayerState, action: PlayerAction): PlayerS
     case "BUFFERING": {
       const { isBuffering } = action.payload;
       return { ...state, isBuffering };
+    }
+    case "RESET": {
+      return { ...initialState };
     }
   }
 }

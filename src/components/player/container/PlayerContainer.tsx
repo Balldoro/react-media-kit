@@ -10,12 +10,21 @@ export const NATIVE_ACTIVATION_TAGS = new Set(["BUTTON", "INPUT", "SELECT", "TEX
 
 interface PlayerContainerProps extends HTMLAttributes<HTMLDivElement> {
   ref?: Ref<HTMLDivElement>;
+  skipInterval?: number;
+  volumeInterval?: number;
 }
 
-export function PlayerContainer({ onKeyDown, style, ref, ...props }: PlayerContainerProps) {
-  const { containerEl } = usePlayerCtx();
+export function PlayerContainer({
+  onKeyDown,
+  style,
+  ref,
+  skipInterval = SKIP_INTERVAL,
+  volumeInterval = VOLUME_INTERVAL,
+  ...props
+}: PlayerContainerProps) {
+  const { attachContainer } = usePlayerCtx();
   const { toggle, toggleMute, toggleFullscreen, skip, stepVolume } = usePlayerControls();
-  const mergedRef = useMergeRefs(containerEl, ref);
+  const mergedRef = useMergeRefs(attachContainer, ref);
   const mediaDataAttrs = useMediaAttributes();
   const isFullscreen = usePlayer((s) => s.isFullscreen);
   const isPictureInPicture = usePlayer((s) => s.isPictureInPicture);
@@ -34,16 +43,16 @@ export function PlayerContainer({ onKeyDown, style, ref, ...props }: PlayerConta
         return toggle();
       case KEY_NAMES.ARROW_LEFT:
         e.preventDefault();
-        return skip(-SKIP_INTERVAL);
+        return skip(-skipInterval);
       case KEY_NAMES.ARROW_RIGHT:
         e.preventDefault();
-        return skip(SKIP_INTERVAL);
+        return skip(skipInterval);
       case KEY_NAMES.ARROW_UP:
         e.preventDefault();
-        return stepVolume(VOLUME_INTERVAL);
+        return stepVolume(volumeInterval);
       case KEY_NAMES.ARROW_DOWN:
         e.preventDefault();
-        return stepVolume(-VOLUME_INTERVAL);
+        return stepVolume(-volumeInterval);
       case KEY_NAMES.MUTE:
         return toggleMute();
       case KEY_NAMES.FULLSCREEN:

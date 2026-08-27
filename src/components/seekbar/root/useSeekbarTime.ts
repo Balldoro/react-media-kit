@@ -8,16 +8,17 @@ import { useCallback, useLayoutEffect, useMemo, type RefObject } from "react";
 const UPDATE_INTERVAL_MS = 25;
 
 export function useSeekbarTime(sliderEl: RefObject<HTMLDivElement | null>) {
-  const { lang, mediaEl } = usePlayerCtx();
+  const { lang, getMedia } = usePlayerCtx();
   const { getSnapshot } = usePlayerSubscription();
 
   const getTimeLabel = useMemo(() => createTimeLabelFormatter(lang), [lang]);
 
   const draw = useCallback(() => {
-    if (!mediaEl.current || !sliderEl.current) return;
+    const media = getMedia();
+    if (!media || !sliderEl.current) return;
 
     const { optimisticTimeInSec, durationInSec } = getSnapshot();
-    const { currentTime } = mediaEl.current;
+    const { currentTime } = media;
     const time = optimisticTimeInSec ?? currentTime;
     const elapsed = toPercent(safeDivide(time, durationInSec));
     const totalElapsedTimeLabel = `${getTimeLabel(time)} / ${getTimeLabel(durationInSec)}`;
@@ -26,7 +27,7 @@ export function useSeekbarTime(sliderEl: RefObject<HTMLDivElement | null>) {
     sliderEl.current.setAttribute("aria-valuetext", totalElapsedTimeLabel);
     sliderEl.current.setAttribute("aria-valuenow", String(Math.floor(time)));
     sliderEl.current.setAttribute("aria-valuemax", String(Math.floor(durationInSec)));
-  }, [mediaEl, getTimeLabel, sliderEl, getSnapshot]);
+  }, [getMedia, getTimeLabel, sliderEl, getSnapshot]);
 
   useAnimateOnPlay({ draw, intervalMs: UPDATE_INTERVAL_MS });
 

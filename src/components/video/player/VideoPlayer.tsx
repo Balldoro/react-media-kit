@@ -9,8 +9,8 @@ interface VideoPlayerProps extends VideoHTMLAttributes<HTMLVideoElement> {
 }
 
 export function VideoPlayer({ ref, ...props }: VideoPlayerProps) {
-  const { mediaEl } = usePlayerCtx();
-  const mergedRef = useMergeRefs(mediaEl, ref);
+  const { attachMedia } = usePlayerCtx();
+  const mergedRef = useMergeRefs(attachMedia, ref);
   const mediaDataAttrs = useMediaAttributes();
 
   return <video ref={mergedRef} {...props} {...mediaDataAttrs} />;

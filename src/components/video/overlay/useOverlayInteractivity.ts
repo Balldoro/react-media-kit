@@ -31,7 +31,7 @@ export function useOverlayInteractivity({
   const prevClickTimer = useRef<ReturnType<typeof setTimeout>>(null);
   const prevClick = useRef(0);
 
-  const { containerEl } = usePlayerCtx();
+  const { getContainer } = usePlayerCtx();
   const { toggle, toggleFullscreen } = usePlayerControls();
 
   useEffect(() => {
@@ -61,7 +61,9 @@ export function useOverlayInteractivity({
 
   const handlePointerUp: PointerEventHandler<HTMLButtonElement> = (e) => {
     onPointerUp?.(e);
-    if (e.defaultPrevented || !containerEl.current?.contains(pointedDownEl.current)) return;
+
+    const container = getContainer();
+    if (e.defaultPrevented || !container?.contains(pointedDownEl.current)) return;
 
     const now = performance.now();
     const delta = now - prevClick.current;

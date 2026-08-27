@@ -3,24 +3,12 @@ import { playerReducer } from "@/state/playerReducer";
 import { createSeekQueue } from "./seekQueue";
 import { clampVolume } from "@/utils/volume";
 import { getBufferedEnd } from "@/utils/buffer";
+import { initialState } from "./initialState";
 import type { OnErrorFunc, PlayerError } from "@/types";
 
-export type PlayerStore = ReturnType<typeof createPlayerStore>;
+export { initialState };
 
-export const initialState = Object.freeze({
-  state: "pending",
-  isPlaying: false,
-  isMuted: false,
-  isFullscreen: false,
-  isPictureInPicture: false,
-  isBuffering: false,
-  durationInSec: 0,
-  currentTimeInSec: 0,
-  optimisticTimeInSec: null,
-  bufferedEndInSec: null,
-  volume: 0.5,
-  playbackRate: 1,
-});
+export type PlayerStore = ReturnType<typeof createPlayerStore>;
 
 export function createPlayerStore() {
   let state: PlayerState = { ...initialState };
@@ -29,7 +17,8 @@ export function createPlayerStore() {
   const listeners = new Set<() => void>();
   const errorListeners = new Set<OnErrorFunc>();
 
-  let abortController = new AbortController();
+  let mediaAbortController = new AbortController();
+  let containerAbortController = new AbortController();
   let media: HTMLMediaElement | null = null;
   let container: HTMLDivElement | null = null;
 
@@ -208,11 +197,16 @@ export function createPlayerStore() {
     dispatch({ type: "PROGRESS", payload: { bufferedEnd: getBufferedEnd(media?.buffered, time) } });
   }
 
-  function init(mediaEl: HTMLMediaElement, containerEl: HTMLDivElement) {
-    media = mediaEl;
-    container = containerEl;
+  function resetMedia() {
+    mediaAbortController.abort();
+    mediaAbortController = new AbortController();
+    media = null;
+    dispatch({ type: "RESET" });
+  }
 
-    const signalConfig = { signal: abortController.signal };
+  function attachMedia(mediaEl: HTMLMediaElement) {
+    media = mediaEl;
+    const signalConfig = { signal: mediaAbortController.signal };
 
     mediaEl.addEventListener("loadedmetadata", handleInit, signalConfig);
     mediaEl.addEventListener("error", handleError, signalConfig);
@@ -235,12 +229,34 @@ export function createPlayerStore() {
       mediaEl.addEventListener("leavepictureinpicture", handlePipLeave, signalConfig);
     }
 
-    containerEl.addEventListener("fullscreenchange", handleFullscreen, signalConfig);
+    return resetMedia;
   }
 
+  function resetContainer() {
+    containerAbortController.abort();
+    containerAbortController = new AbortController();
+    container = null;
+    if (state.isFullscreen) {
+      dispatch({ type: "FULLSCREEN", payload: { enabled: false } });
+    }
+  }
+
+  function attachContainer(containerEl: HTMLDivElement) {
+    container = containerEl;
+    containerEl.addEventListener("fullscreenchange", handleFullscreen, {
+      signal: containerAbortController.signal,
+    });
+
+    return resetContainer;
+  }
+
+  const getMedia = () => media;
+
+  const getContainer = () => container;
+
   function destroy() {
-    abortController.abort();
-    abortController = new AbortController();
+    mediaAbortController.abort();
+    containerAbortController.abort();
     listeners.clear();
     errorListeners.clear();
   }
@@ -297,7 +313,10 @@ export function createPlayerStore() {
     subscribe,
     subscribeWithSelector,
     subscribeToErrors,
-    init,
+    attachMedia,
+    attachContainer,
+    getMedia,
+    getContainer,
     destroy,
     getSnapshot,
   };

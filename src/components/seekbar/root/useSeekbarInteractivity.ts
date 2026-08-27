@@ -16,7 +16,7 @@ export function useSeekbarInteractivity(
   const { seek, skip } = usePlayerControls();
   const { setRect: setSliderRect, calcRectPositionX } = useRectPosition();
 
-  function updateVideoTime(clickX: number) {
+  function updateMediaTime(clickX: number) {
     const calculatedPosition = calcRectPositionX(clickX);
     if (calculatedPosition == null) return;
 
@@ -30,13 +30,13 @@ export function useSeekbarInteractivity(
     setSliderRect(sliderEl.current.getBoundingClientRect());
     sliderEl.current.setPointerCapture(e.pointerId);
     sliderEl.current.setAttribute(DATA_ATTRS.dragging, "true");
-    updateVideoTime(e.clientX);
+    updateMediaTime(e.clientX);
   };
 
   const handlePointerMove: PointerEventHandler<HTMLDivElement> = (e) => {
     if (!sliderEl.current || !sliderEl.current.hasPointerCapture(e.pointerId)) return;
 
-    updateVideoTime(e.clientX);
+    updateMediaTime(e.clientX);
   };
 
   const handleLostPointerCapture: PointerEventHandler<HTMLDivElement> = () => {

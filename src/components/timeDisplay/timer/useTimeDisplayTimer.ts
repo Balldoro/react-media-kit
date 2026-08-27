@@ -8,20 +8,21 @@ const UPDATE_INTERVAL_MS = 250;
 
 export function useTimeDisplayTimer(timerRef: RefObject<HTMLTimeElement | null>) {
   const { isElapsedMode } = useTimeDisplay();
-  const { mediaEl } = usePlayerCtx();
+  const { getMedia } = usePlayerCtx();
   const { getSnapshot } = usePlayerSubscription();
 
   const draw = useCallback(() => {
-    if (!mediaEl.current || !timerRef.current) return;
+    const media = getMedia();
+    if (!media || !timerRef.current) return;
 
     const { optimisticTimeInSec, durationInSec } = getSnapshot();
-    const time = optimisticTimeInSec ?? mediaEl.current.currentTime;
+    const time = optimisticTimeInSec ?? media.currentTime;
     const remainingTime = durationInSec - time;
     const displayTime = isElapsedMode ? time : remainingTime;
 
     timerRef.current.textContent = `${isElapsedMode ? "" : "-"}${getTimeFormat(displayTime)}`;
     timerRef.current.dateTime = getDurationTimeFormat(displayTime);
-  }, [isElapsedMode, mediaEl, timerRef, getSnapshot]);
+  }, [isElapsedMode, getMedia, timerRef, getSnapshot]);
 
   useAnimateOnPlay({ draw, intervalMs: UPDATE_INTERVAL_MS });
 

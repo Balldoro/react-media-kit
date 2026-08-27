@@ -6,8 +6,9 @@ function setup(tag: "video" | "audio" = "video") {
   const video = document.createElement(tag);
   const container = document.createElement("div");
   document.body.appendChild(container);
-  store.init(video, container);
-  return { store, video, container };
+  const detachMedia = store.attachMedia(video);
+  const detachContainer = store.attachContainer(container);
+  return { store, video, container, detachMedia, detachContainer };
 }
 
 function stubReadonly<T extends object, K extends keyof T>(target: T, key: K, value: T[K]) {
@@ -469,6 +470,120 @@ describe("createPlayerStore", () => {
       unsubscribe();
       video.dispatchEvent(new Event("pause"));
       expect(listener).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("getMedia / getContainer", () => {
+    it("reflect the most recently bound element after a rebind", () => {
+      const { store, detachMedia } = setup();
+      const secondVideo = document.createElement("video");
+
+      detachMedia();
+      store.attachMedia(secondVideo);
+
+      expect(store.getMedia()).toBe(secondVideo);
+    });
+
+    it("return null once detached", () => {
+      const { store, detachMedia } = setup();
+
+      detachMedia();
+
+      expect(store.getMedia()).toBeNull();
+    });
+  });
+
+  describe("rebinding", () => {
+    it("attachMedia() detaches the previous element and attaches the new one", () => {
+      const { store, video: firstVideo, detachMedia } = setup();
+      const secondVideo = document.createElement("video");
+
+      detachMedia();
+      store.attachMedia(secondVideo);
+
+      firstVideo.dispatchEvent(new Event("play"));
+      expect(store.getSnapshot().isPlaying).toBe(false);
+
+      secondVideo.dispatchEvent(new Event("play"));
+      expect(store.getSnapshot().isPlaying).toBe(true);
+    });
+
+    it("detaching resets state so the previous element's values don't leak into the next one", () => {
+      const { store, video, detachMedia } = setup();
+      stubReadonly(video, "duration", 120);
+      video.dispatchEvent(new Event("loadedmetadata"));
+      video.dispatchEvent(new Event("play"));
+      video.currentTime = 45;
+      video.dispatchEvent(new Event("timeupdate"));
+
+      let snapshot = store.getSnapshot();
+      expect(snapshot.isPlaying).toBe(true);
+      expect(snapshot.durationInSec).toBe(120);
+      expect(snapshot.currentTimeInSec).toBe(45);
+
+      detachMedia();
+      store.attachMedia(document.createElement("video"));
+
+      snapshot = store.getSnapshot();
+      expect(snapshot.isPlaying).toBe(false);
+      expect(snapshot.durationInSec).toBe(0);
+      expect(snapshot.currentTimeInSec).toBe(0);
+      expect(snapshot.state).toBe("pending");
+    });
+
+    it("attachContainer() detaches the previous element and attaches the new one", () => {
+      const { store, container: firstContainer, detachContainer } = setup();
+      const secondContainer = document.createElement("div");
+      document.body.appendChild(secondContainer);
+
+      detachContainer();
+      store.attachContainer(secondContainer);
+
+      stubReadonly(document, "fullscreenElement", firstContainer);
+      firstContainer.dispatchEvent(new Event("fullscreenchange"));
+      expect(store.getSnapshot().isFullscreen).toBe(false);
+
+      stubReadonly(document, "fullscreenElement", secondContainer);
+      secondContainer.dispatchEvent(new Event("fullscreenchange"));
+      expect(store.getSnapshot().isFullscreen).toBe(true);
+    });
+
+    it("detaching the container resets isFullscreen without touching unrelated media state", () => {
+      const { store, container, video, detachContainer } = setup();
+      stubReadonly(document, "fullscreenElement", container);
+      container.dispatchEvent(new Event("fullscreenchange"));
+      video.dispatchEvent(new Event("play"));
+
+      let snapshot = store.getSnapshot();
+      expect(snapshot.isFullscreen).toBe(true);
+      expect(snapshot.isPlaying).toBe(true);
+
+      detachContainer();
+      store.attachContainer(document.createElement("div"));
+
+      snapshot = store.getSnapshot();
+      expect(snapshot.isFullscreen).toBe(false);
+      expect(snapshot.isPlaying).toBe(true);
+    });
+
+    it("rebinding media does not disturb the container's listeners, and vice versa", () => {
+      const { store, container, detachMedia, detachContainer } = setup();
+      const secondVideo = document.createElement("video");
+
+      detachMedia();
+      store.attachMedia(secondVideo);
+
+      stubReadonly(document, "fullscreenElement", container);
+      container.dispatchEvent(new Event("fullscreenchange"));
+      expect(store.getSnapshot().isFullscreen).toBe(true);
+
+      const secondContainer = document.createElement("div");
+      document.body.appendChild(secondContainer);
+      detachContainer();
+      store.attachContainer(secondContainer);
+
+      secondVideo.dispatchEvent(new Event("play"));
+      expect(store.getSnapshot().isPlaying).toBe(true);
     });
   });
 

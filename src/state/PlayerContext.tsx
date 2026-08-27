@@ -1,10 +1,8 @@
-import { createContext, use, useSyncExternalStore, type RefObject } from "react";
+import { createContext, use, useSyncExternalStore } from "react";
 import { initialState, type PlayerStore } from "@/state/store";
 import type { Selector } from "./types";
 
 interface PlayerContextValue extends PlayerStore {
-  containerEl: RefObject<HTMLDivElement | null>;
-  mediaEl: RefObject<HTMLMediaElement | null>;
   lang?: string;
 }
 
@@ -27,8 +25,8 @@ export const usePlayerCtx = () => {
     throw new Error("usePlayerCtx used outside of the PlayerProvider!");
   }
 
-  const { lang, mediaEl, containerEl } = ctx;
-  return { lang, mediaEl, containerEl };
+  const { lang, attachMedia, attachContainer, getMedia, getContainer } = ctx;
+  return { lang, attachMedia, attachContainer, getMedia, getContainer };
 };
 
 export function usePlayer<T>(selector: Selector<T>) {

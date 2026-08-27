@@ -32,7 +32,8 @@ export type PlayerAction =
   | ErrorAction
   | LoadingAction
   | ProgressAction
-  | BufferingAction;
+  | BufferingAction
+  | ResetAction;
 
 export interface PlayAction {
   type: "PLAY";
@@ -102,4 +103,8 @@ export interface ProgressAction {
 export interface BufferingAction {
   type: "BUFFERING";
   payload: { isBuffering: boolean };
+}
+
+export interface ResetAction {
+  type: "RESET";
 }
