@@ -1,7 +1,8 @@
 import { CSS_VARS, DATA_ATTRS, KEY_NAMES, MAX_VOLUME, MIN_VOLUME } from "@/constants";
 import { useRectPosition } from "@/hooks/useRectPosition";
 import { usePlayerControls, usePlayerSubscription } from "@/state/PlayerContext";
-import { shallow, toPercent } from "@/utils";
+import { shallow } from "@/state/shallow";
+import { toPercent } from "@/utils/math";
 import { normalizeKeyCode } from "@/utils/handlers";
 import { clampVolume } from "@/utils/volume";
 import {

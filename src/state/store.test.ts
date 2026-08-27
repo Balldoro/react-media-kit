@@ -217,6 +217,28 @@ describe("createPlayerStore", () => {
     });
   });
 
+  describe("isBuffering", () => {
+    it("waiting sets isBuffering to true", () => {
+      const { store, video } = setup();
+      video.dispatchEvent(new Event("waiting"));
+      expect(store.getSnapshot().isBuffering).toBe(true);
+    });
+
+    it("playing sets isBuffering back to false", () => {
+      const { store, video } = setup();
+      video.dispatchEvent(new Event("waiting"));
+      video.dispatchEvent(new Event("playing"));
+      expect(store.getSnapshot().isBuffering).toBe(false);
+    });
+
+    it("canplay sets isBuffering back to false", () => {
+      const { store, video } = setup();
+      video.dispatchEvent(new Event("waiting"));
+      video.dispatchEvent(new Event("canplay"));
+      expect(store.getSnapshot().isBuffering).toBe(false);
+    });
+  });
+
   describe("play/pause/toggle controls", () => {
     it("play() reports a play error instead of throwing", async () => {
       const { store, video } = setup();

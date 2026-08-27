@@ -1,8 +1,8 @@
 import { usePlayer } from "@/state/PlayerContext";
-import { setDataAttr } from "@/utils";
+import { setDataAttr } from "@/utils/attributes";
 import { DATA_ATTRS } from "@/constants";
 
-export function useMediaGlobalProps() {
+export function useMediaAttributes() {
   const state = usePlayer((s) => s.state);
 
   return {

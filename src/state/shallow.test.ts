@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isEqual, setDataAttr, shallow, toPercent } from "@/utils";
+import { isEqual, shallow } from "@/state/shallow";
 import { initialState } from "@/state/store";
 import type { PlayerState } from "@/state/types";
 
@@ -91,24 +91,5 @@ describe("shallow", () => {
     const a2 = selectA(createState({ volume: 0.5 }));
 
     expect(a2).toBe(a1);
-  });
-});
-
-describe("toPercent", () => {
-  it("converts to a percentage", () => {
-    expect(toPercent(-10)).toBe(-1000);
-    expect(toPercent(0.5)).toBe(50);
-    expect(toPercent(0.25)).toBe(25);
-    expect(toPercent(1)).toBe(100);
-  });
-});
-
-describe("setDataAttr", () => {
-  it("returns true when the condition is true", () => {
-    expect(setDataAttr(true)).toBe(true);
-  });
-
-  it("returns undefined when the condition is false", () => {
-    expect(setDataAttr(false)).toBeUndefined();
   });
 });

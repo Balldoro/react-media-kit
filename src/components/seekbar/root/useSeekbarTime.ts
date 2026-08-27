@@ -1,7 +1,7 @@
 import { CSS_VARS } from "@/constants";
 import { useAnimateOnPlay } from "@/hooks/useAnimateOnPlay";
 import { usePlayerCtx, usePlayerSubscription } from "@/state/PlayerContext";
-import { safeDivide, toPercent } from "@/utils";
+import { safeDivide, toPercent } from "@/utils/math";
 import { createTimeLabelFormatter } from "@/utils/time";
 import { useCallback, useLayoutEffect, useMemo, type RefObject } from "react";
 

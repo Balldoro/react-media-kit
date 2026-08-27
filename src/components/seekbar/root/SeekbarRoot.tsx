@@ -1,5 +1,5 @@
 import { useRef, type HTMLAttributes, type Ref } from "react";
-import { useMediaGlobalProps } from "@/hooks/dataProps";
+import { useMediaAttributes } from "@/hooks/useMediaAttributes";
 import { SKIP_INTERVAL } from "@/constants";
 import { useSeekbarTime } from "./useSeekbarTime";
 import { useSeekbarInteractivity } from "./useSeekbarInteractivity";
@@ -23,7 +23,7 @@ export function SeekbarRoot({
   ...props
 }: SeekbarRootProps) {
   const sliderEl = useRef<HTMLDivElement>(null);
-  const mediaDataAttrs = useMediaGlobalProps();
+  const mediaDataAttrs = useMediaAttributes();
 
   useSeekbarTime(sliderEl);
   useBufferTime(sliderEl);

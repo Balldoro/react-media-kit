@@ -2,6 +2,7 @@ import type { PlayerAction, PlayerState, Selector } from "./types";
 import { playerReducer } from "@/state/playerReducer";
 import { createSeekQueue } from "./seekQueue";
 import { clampVolume } from "@/utils/volume";
+import { getBufferedEnd } from "@/utils/buffer";
 import type { OnErrorFunc, PlayerError } from "@/types";
 
 export type PlayerStore = ReturnType<typeof createPlayerStore>;
@@ -122,14 +123,20 @@ export function createPlayerStore() {
     } else {
       media.currentTime = time;
     }
-    dispatch({ type: "SEEKING", payload: { time, bufferedEnd: getBufferedEnd(time) } });
+    dispatch({
+      type: "SEEKING",
+      payload: { time, bufferedEnd: getBufferedEnd(media.buffered, time) },
+    });
   }
 
   function handleSeeking(this: HTMLMediaElement) {
     if (seekQueue.get().isPending) return;
     dispatch({
       type: "SEEKING",
-      payload: { time: this.currentTime, bufferedEnd: getBufferedEnd(this.currentTime) },
+      payload: {
+        time: this.currentTime,
+        bufferedEnd: getBufferedEnd(this.buffered, this.currentTime),
+      },
     });
   }
 
@@ -196,23 +203,9 @@ export function createPlayerStore() {
     }
   }
 
-  function getBufferedEnd(time: number) {
-    if (!media) return time;
-
-    const { buffered } = media;
-    for (let i = 1, len = buffered.length; i <= len; i++) {
-      const idx = len - i;
-      const start = buffered.start(idx);
-      const end = buffered.end(idx);
-
-      if (time >= start && time <= end) return end;
-    }
-    return time;
-  }
-
   function handleProgress() {
     const time = state.optimisticTimeInSec ?? state.currentTimeInSec;
-    dispatch({ type: "PROGRESS", payload: { bufferedEnd: getBufferedEnd(time) } });
+    dispatch({ type: "PROGRESS", payload: { bufferedEnd: getBufferedEnd(media?.buffered, time) } });
   }
 
   function init(mediaEl: HTMLMediaElement, containerEl: HTMLDivElement) {

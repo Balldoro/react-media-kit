@@ -1,7 +1,7 @@
 import { usePlayer, usePlayerControls } from "@/state/PlayerContext";
-import { useMediaGlobalProps } from "@/hooks/dataProps";
+import { useMediaAttributes } from "@/hooks/useMediaAttributes";
 import { composeHandlers } from "@/utils/handlers";
-import { setDataAttr } from "@/utils";
+import { setDataAttr } from "@/utils/attributes";
 import { DATA_ATTRS } from "@/constants";
 import type { Ref } from "react";
 import type { ButtonAttributes } from "@/types";
@@ -12,7 +12,7 @@ interface VolumeMuteProps extends ButtonAttributes {
 
 export function VolumeMute({ onClick, ...props }: VolumeMuteProps) {
   const { toggleMute } = usePlayerControls();
-  const mediaDataAttrs = useMediaGlobalProps();
+  const mediaDataAttrs = useMediaAttributes();
   const isMuted = usePlayer((s) => s.isMuted);
 
   return (

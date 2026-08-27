@@ -4,7 +4,7 @@ import {
   type TimeDisplayContextValue,
   type TimerMode,
 } from "../TimeDisplayContext";
-import { useMediaGlobalProps } from "@/hooks/dataProps";
+import { useMediaAttributes } from "@/hooks/useMediaAttributes";
 
 interface TimeDisplayRootProps extends HTMLAttributes<HTMLDivElement> {
   initialMode?: "elapsed" | "remaining";
@@ -13,7 +13,7 @@ interface TimeDisplayRootProps extends HTMLAttributes<HTMLDivElement> {
 
 export function TimeDisplayRoot({ initialMode = "elapsed", ...props }: TimeDisplayRootProps) {
   const [isElapsedMode, setIsElapsedMode] = useState(initialMode === "elapsed");
-  const mediaDataAttrs = useMediaGlobalProps();
+  const mediaDataAttrs = useMediaAttributes();
 
   const setMode = useCallback((mode: TimerMode) => setIsElapsedMode(mode === "elapsed"), []);
   const toggleMode = useCallback(() => setIsElapsedMode((m) => !m), []);

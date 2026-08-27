@@ -1,4 +1,4 @@
-import { DOUBLE_CLICK_DELTA_MS, KEY_NAMES, SKIP_INTERVAL } from "@/constants";
+import { DOUBLE_CLICK_DELTA_MS, KEY_NAMES } from "@/constants";
 import { usePlayerControls, usePlayerCtx } from "@/state/PlayerContext";
 import { normalizeKeyCode } from "@/utils/handlers";
 import {
@@ -10,7 +10,7 @@ import {
   type PointerEventHandler,
 } from "react";
 
-type OnDoubleClick = "fullscreen" | "skip" | PointerEventHandler<HTMLButtonElement>;
+type OnDoubleClick = "fullscreen" | PointerEventHandler<HTMLButtonElement>;
 
 export interface OverlayInteractivityOptions {
   onPointerUp?: MouseEventHandler<HTMLButtonElement>;
@@ -18,23 +18,21 @@ export interface OverlayInteractivityOptions {
   onDoubleClick?: OnDoubleClick;
   onDoubleTouch?: OnDoubleClick;
   doubleClickInterval?: number;
-  skipInterval?: number;
 }
 
 export function useOverlayInteractivity({
   onPointerUp,
   onPointerDown,
-  onDoubleTouch = "skip",
+  onDoubleTouch = "fullscreen",
   onDoubleClick = "fullscreen",
   doubleClickInterval = DOUBLE_CLICK_DELTA_MS,
-  skipInterval = SKIP_INTERVAL,
 }: OverlayInteractivityOptions) {
   const pointedDownEl = useRef<HTMLElement>(null);
   const prevClickTimer = useRef<ReturnType<typeof setTimeout>>(null);
   const prevClick = useRef(0);
 
   const { containerEl } = usePlayerCtx();
-  const { toggle, toggleFullscreen, skip } = usePlayerControls();
+  const { toggle, toggleFullscreen } = usePlayerControls();
 
   useEffect(() => {
     return () => {
@@ -44,15 +42,14 @@ export function useOverlayInteractivity({
     };
   }, []);
 
-  const fireDoubleClick = (e: PointerEvent<HTMLButtonElement>, onDouble: OnDoubleClick) => {
+  const fireDoubleClick = (e: PointerEvent<HTMLButtonElement>, onDoubleClick: OnDoubleClick) => {
     if (prevClickTimer.current) {
       clearTimeout(prevClickTimer.current);
       prevClickTimer.current = null;
     }
 
-    if (typeof onDouble === "function") return onDouble(e);
-    if (onDouble === "fullscreen") return toggleFullscreen();
-    if (onDouble === "skip") return skip(skipInterval);
+    if (typeof onDoubleClick === "function") return onDoubleClick(e);
+    if (onDoubleClick === "fullscreen") return toggleFullscreen();
   };
 
   const handlePointerDown: PointerEventHandler<HTMLButtonElement> = (e) => {

@@ -1,6 +1,6 @@
 import { CSS_VARS } from "@/constants";
 import { usePlayerSubscription } from "@/state/PlayerContext";
-import { safeDivide, toPercent } from "@/utils";
+import { safeDivide, toPercent } from "@/utils/math";
 import { useEffect, type RefObject } from "react";
 
 export function useBufferTime(sliderEl: RefObject<HTMLDivElement | null>) {

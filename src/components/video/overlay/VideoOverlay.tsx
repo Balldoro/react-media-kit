@@ -4,14 +4,13 @@ import {
   type OverlayInteractivityOptions,
 } from "./useOverlayInteractivity";
 import { composeHandlers } from "@/utils/handlers";
-import { useMediaGlobalProps } from "@/hooks/dataProps";
+import { useMediaAttributes } from "@/hooks/useMediaAttributes";
 import type { ButtonAttributes } from "@/types";
 
 interface VideoOverlayRootProps extends Omit<ButtonAttributes, "onDoubleClick"> {
   label: string;
   onDoubleClick?: OverlayInteractivityOptions["onDoubleClick"];
   onDoubleTouch?: OverlayInteractivityOptions["onDoubleTouch"];
-  skipInterval?: number;
   doubleClickInterval?: number;
   ref?: Ref<HTMLButtonElement>;
 }
@@ -22,20 +21,18 @@ export function VideoOverlayRoot({
   onDoubleClick,
   onDoubleTouch,
   doubleClickInterval,
-  skipInterval,
   onPointerDown,
   onPointerUp,
   onKeyDown,
   ...props
 }: VideoOverlayRootProps) {
-  const mediaDataAttrs = useMediaGlobalProps();
+  const mediaDataAttrs = useMediaAttributes();
   const { handlePointerDown, handlePointerUp, handleKeyDown } = useOverlayInteractivity({
     onPointerDown,
     onPointerUp,
     onDoubleClick,
     onDoubleTouch,
     doubleClickInterval,
-    skipInterval,
   });
 
   return (

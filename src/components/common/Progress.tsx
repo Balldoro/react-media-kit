@@ -8,7 +8,7 @@ export interface ProgressProps extends HTMLAttributes<HTMLDivElement> {
 export function Progress({ progressVar = "", style, ...props }: ProgressProps) {
   return (
     <div
-      style={{ transform: `scaleX(calc(var(${progressVar}, 0) / 100))`, ...defaultStyle, ...style }}
+      style={{ ...style, ...defaultStyle, transform: `scaleX(calc(var(${progressVar}, 0) / 100))` }}
       {...props}
     />
   );

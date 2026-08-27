@@ -1,8 +1,8 @@
 import type { HTMLAttributes, KeyboardEvent, Ref } from "react";
 import { usePlayer, usePlayerControls, usePlayerCtx } from "@/state/PlayerContext";
-import { useMediaGlobalProps } from "@/hooks/dataProps";
+import { useMediaAttributes } from "@/hooks/useMediaAttributes";
 import { composeHandlers, normalizeKeyCode } from "@/utils/handlers";
-import { setDataAttr } from "@/utils";
+import { setDataAttr } from "@/utils/attributes";
 import { DATA_ATTRS, KEY_NAMES, SKIP_INTERVAL, VOLUME_INTERVAL } from "@/constants";
 import { useMergeRefs } from "@/hooks/useMergeRefs";
 
@@ -16,7 +16,7 @@ export function PlayerContainer({ onKeyDown, style, ref, ...props }: PlayerConta
   const { containerEl } = usePlayerCtx();
   const { toggle, toggleMute, toggleFullscreen, skip, stepVolume } = usePlayerControls();
   const mergedRef = useMergeRefs(containerEl, ref);
-  const mediaDataAttrs = useMediaGlobalProps();
+  const mediaDataAttrs = useMediaAttributes();
   const isFullscreen = usePlayer((s) => s.isFullscreen);
   const isPictureInPicture = usePlayer((s) => s.isPictureInPicture);
 

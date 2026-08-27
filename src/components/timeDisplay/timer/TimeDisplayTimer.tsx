@@ -1,16 +1,17 @@
-import { useRef, type HTMLAttributes, type Ref } from "react";
+import { useRef, type Ref } from "react";
 import { useTimeDisplayTimer } from "./useTimeDisplayTimer";
-import { useMediaGlobalProps } from "@/hooks/dataProps";
+import { useMediaAttributes } from "@/hooks/useMediaAttributes";
 import { useMergeRefs } from "@/hooks/useMergeRefs";
+import type { TimeDisplayAttributes } from "@/types";
 
-interface TimeDisplayTimerProps extends Omit<HTMLAttributes<HTMLTimeElement>, "children"> {
+interface TimeDisplayTimerProps extends TimeDisplayAttributes {
   ref?: Ref<HTMLTimeElement>;
 }
 
 export function TimeDisplayTimer({ ref, ...props }: TimeDisplayTimerProps) {
   const timerRef = useRef<HTMLTimeElement>(null);
   const mergedRef = useMergeRefs(timerRef, ref);
-  const mediaDataAttrs = useMediaGlobalProps();
+  const mediaDataAttrs = useMediaAttributes();
 
   useTimeDisplayTimer(timerRef);
 

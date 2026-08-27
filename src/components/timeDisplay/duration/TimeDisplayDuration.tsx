@@ -1,14 +1,15 @@
+import type { Ref } from "react";
 import { usePlayer } from "@/state/PlayerContext";
-import { useMediaGlobalProps } from "@/hooks/dataProps";
+import { useMediaAttributes } from "@/hooks/useMediaAttributes";
 import { getDurationTimeFormat, getTimeFormat } from "@/utils/time";
-import type { HTMLAttributes, Ref } from "react";
+import type { TimeDisplayAttributes } from "@/types";
 
-interface TimeDisplayDurationProps extends Omit<HTMLAttributes<HTMLTimeElement>, "children"> {
+interface TimeDisplayDurationProps extends TimeDisplayAttributes {
   ref?: Ref<HTMLTimeElement>;
 }
 
 export function TimeDisplayDuration(props: TimeDisplayDurationProps) {
-  const mediaDataAttrs = useMediaGlobalProps();
+  const mediaDataAttrs = useMediaAttributes();
   const duration = usePlayer((s) => s.durationInSec);
 
   return (

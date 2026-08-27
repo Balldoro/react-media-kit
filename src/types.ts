@@ -1,6 +1,10 @@
-import type { ButtonHTMLAttributes } from "react";
+import type { ButtonHTMLAttributes, TimeHTMLAttributes } from "react";
 
 export type ButtonAttributes = ButtonHTMLAttributes<HTMLButtonElement>;
+export type TimeDisplayAttributes = Omit<
+  TimeHTMLAttributes<HTMLTimeElement>,
+  "children" | "dateTime"
+>;
 
 export type OnErrorFunc = (playerError: PlayerError) => void;
 
