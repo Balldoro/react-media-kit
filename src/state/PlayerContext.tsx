@@ -1,5 +1,5 @@
 import { createContext, use, useSyncExternalStore, type RefObject } from "react";
-import { type PlayerStore } from "@/state/store";
+import { initialState, type PlayerStore } from "@/state/store";
 import type { Selector } from "./types";
 
 interface PlayerContextValue extends PlayerStore {
@@ -33,7 +33,11 @@ export const usePlayerCtx = () => {
 
 export function usePlayer<T>(selector: Selector<T>) {
   const { subscribe, getSnapshot } = usePlayerSubscription();
-  return useSyncExternalStore(subscribe, () => selector(getSnapshot()));
+  return useSyncExternalStore(
+    subscribe,
+    () => selector(getSnapshot()),
+    () => selector(initialState),
+  );
 }
 
 export function usePlayerControls() {
