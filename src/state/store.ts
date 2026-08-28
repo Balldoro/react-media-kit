@@ -45,7 +45,9 @@ export function createPlayerStore() {
   const toggle = () => (state.isPlaying ? pause() : play());
 
   const mute = () => media && (media.muted = true);
+
   const unmute = () => media && (media.muted = false);
+
   const toggleMute = () => (state.isMuted ? unmute() : mute());
 
   const stepVolume = (delta: number) => {
@@ -137,17 +139,6 @@ export function createPlayerStore() {
     }
   }
 
-  async function detectSupportedFeatures() {
-    // TODO: iPhone allows to enter fullscreen on video element only
-    // This needs a separate, iOS scoped check and invocation on video
-    // element, not container
-    const fullscreen = document.fullscreenEnabled ?? false;
-    const pip = document.pictureInPictureEnabled ?? false;
-    const volumeChange = await isVolumeMutable();
-
-    dispatch({ type: "FEATURES_DETECTED", payload: { fullscreen, pip, volumeChange } });
-  }
-
   function handleInit(this: HTMLMediaElement) {
     const { duration, volume, playbackRate } = this;
     dispatch({
@@ -224,9 +215,22 @@ export function createPlayerStore() {
   }
 
   function attachMedia(mediaEl: HTMLMediaElement) {
+    const detectSupportedFeatures = async () => {
+      // TODO: iPhone allows to enter fullscreen on video element only
+      // This needs a separate, iOS scoped check and invocation on video
+      // element, not container
+      const fullscreen = document.fullscreenEnabled ?? false;
+      const pip =
+        mediaEl instanceof HTMLVideoElement && (document.pictureInPictureEnabled ?? false);
+      const volumeChange = await isVolumeMutable();
+
+      dispatch({ type: "FEATURES_DETECTED", payload: { fullscreen, pip, volumeChange } });
+    };
+
     mediaAbortController = new AbortController();
     media = mediaEl;
     const signalConfig = { signal: mediaAbortController.signal };
+    detectSupportedFeatures();
 
     mediaEl.addEventListener("loadedmetadata", handleInit, signalConfig);
     mediaEl.addEventListener("error", handleError, signalConfig);
@@ -337,7 +341,6 @@ export function createPlayerStore() {
     attachContainer,
     getMedia,
     getContainer,
-    detectSupportedFeatures,
     destroy,
     getSnapshot,
   };

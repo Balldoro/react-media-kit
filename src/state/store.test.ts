@@ -59,11 +59,10 @@ describe("createPlayerStore", () => {
       video.dispatchEvent(new Event("canplay"));
       expect(store.getSnapshot().featuresDetected).toBe(false);
 
-      await store.detectSupportedFeatures();
+      await vi.waitFor(() => expect(store.getSnapshot().featuresDetected).toBe(true));
 
       const snapshot = store.getSnapshot();
       expect(snapshot.state).toBe("playable");
-      expect(snapshot.featuresDetected).toBe(true);
       expect(snapshot.supportsFullscreen).not.toBeNull();
       expect(snapshot.supportsPiP).not.toBeNull();
       expect(snapshot.supportsVolumeChange).not.toBeNull();
@@ -439,6 +438,20 @@ describe("createPlayerStore", () => {
 
       expect(onError).toHaveBeenCalledTimes(1);
       expect(onError.mock.calls[0]![0]).toMatchObject({ type: "pip" });
+    });
+
+    it("re-detects pip support against the newly attached element after a rebind", async () => {
+      stubReadonly(document, "pictureInPictureEnabled", true);
+      const { store, detachMedia } = setup("video");
+
+      await vi.waitFor(() => expect(store.getSnapshot().supportsPiP).toBe(true));
+
+      detachMedia();
+      store.attachMedia(document.createElement("audio"));
+
+      await vi.waitFor(() => expect(store.getSnapshot().featuresDetected).toBe(true));
+
+      expect(store.getSnapshot().supportsPiP).toBe(false);
     });
   });
 

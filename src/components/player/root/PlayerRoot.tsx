@@ -14,10 +14,6 @@ export const PlayerRoot = ({ children, lang, onError }: PlayerRootProps) => {
 
   useEffect(() => state.destroy, [state]);
 
-  useEffect(() => {
-    state.detectSupportedFeatures();
-  }, [state]);
-
   const subscribeErrorsEvent = useEffectEvent((state: PlayerStore) => {
     if (typeof onError !== "function") return;
     state.subscribeToErrors(onError);
