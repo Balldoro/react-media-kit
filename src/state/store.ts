@@ -207,6 +207,11 @@ export function createPlayerStore() {
     }
   }
 
+  function handleCanPlay() {
+    handleBufferingEnd();
+    dispatch({ type: "CAN_PLAY" });
+  }
+
   function handleProgress() {
     const time = state.optimisticTimeInSec ?? state.currentTimeInSec;
     dispatch({ type: "PROGRESS", payload: { bufferedEnd: getBufferedEnd(media?.buffered, time) } });
@@ -214,12 +219,12 @@ export function createPlayerStore() {
 
   function resetMedia() {
     mediaAbortController.abort();
-    mediaAbortController = new AbortController();
     media = null;
     dispatch({ type: "RESET" });
   }
 
   function attachMedia(mediaEl: HTMLMediaElement) {
+    mediaAbortController = new AbortController();
     media = mediaEl;
     const signalConfig = { signal: mediaAbortController.signal };
 
@@ -236,7 +241,7 @@ export function createPlayerStore() {
     mediaEl.addEventListener("progress", handleProgress, signalConfig);
     mediaEl.addEventListener("waiting", handleBufferingStart, signalConfig);
     mediaEl.addEventListener("playing", handleBufferingEnd, signalConfig);
-    mediaEl.addEventListener("canplay", handleBufferingEnd, signalConfig);
+    mediaEl.addEventListener("canplay", handleCanPlay, signalConfig);
 
     // Picture-in-picture is a video-only capability
     if (mediaEl instanceof HTMLVideoElement) {
@@ -249,7 +254,6 @@ export function createPlayerStore() {
 
   function resetContainer() {
     containerAbortController.abort();
-    containerAbortController = new AbortController();
     container = null;
     if (state.isFullscreen) {
       dispatch({ type: "FULLSCREEN", payload: { enabled: false } });
@@ -257,6 +261,7 @@ export function createPlayerStore() {
   }
 
   function attachContainer(containerEl: HTMLDivElement) {
+    containerAbortController = new AbortController();
     container = containerEl;
     containerEl.addEventListener("fullscreenchange", handleFullscreen, {
       signal: containerAbortController.signal,

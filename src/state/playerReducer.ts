@@ -12,23 +12,27 @@ export function playerReducer(state: PlayerState, action: PlayerAction): PlayerS
       return { ...state, isPlaying: !state.isPlaying };
     case "METADATA_LOADED": {
       const { durationInSec, volume, playbackRate } = action.payload;
-      const areFeaturesDetected = state.supportsVolumeChange !== null;
       return {
         ...state,
         durationInSec: normalizeTime(durationInSec),
         volume,
         playbackRate,
-        state: areFeaturesDetected ? "ready" : "metadataloaded",
+        state: "metadataloaded",
       };
+    }
+    case "CAN_PLAY": {
+      if (state.state === "playable") return state;
+
+      return { ...state, state: "playable" };
     }
     case "FEATURES_DETECTED": {
       const { volumeChange, fullscreen, pip } = action.payload;
       return {
         ...state,
+        featuresDetected: true,
         supportsVolumeChange: volumeChange,
         supportsFullscreen: fullscreen,
         supportsPiP: pip,
-        state: state.state === "metadataloaded" ? "ready" : state.state,
       };
     }
     case "TIME_UPDATE": {
@@ -74,12 +78,7 @@ export function playerReducer(state: PlayerState, action: PlayerAction): PlayerS
       return { ...state, isBuffering };
     }
     case "RESET": {
-      return {
-        ...initialState,
-        supportsVolumeChange: state.supportsVolumeChange,
-        supportsFullscreen: state.supportsFullscreen,
-        supportsPiP: state.supportsPiP,
-      };
+      return { ...initialState };
     }
   }
 }

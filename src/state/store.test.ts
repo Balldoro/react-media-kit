@@ -38,36 +38,35 @@ describe("createPlayerStore", () => {
       expect(snapshot.playbackRate).toBe(1.5);
     });
 
-    it("moves to 'metadataloaded' when metadata arrives before feature detection resolves", () => {
+    it("moves to 'metadataloaded' when metadata arrives", () => {
       const { store, video } = setup();
 
       video.dispatchEvent(new Event("loadedmetadata"));
       expect(store.getSnapshot().state).toBe("metadataloaded");
     });
 
-    it("moves from 'metadataloaded' to 'ready' once feature detection resolves", async () => {
+    it("moves to 'playable' once canplay fires", () => {
+      const { store, video } = setup();
+
+      video.dispatchEvent(new Event("canplay"));
+      expect(store.getSnapshot().state).toBe("playable");
+    });
+
+    it("marks featuresDetected once feature detection resolves, independently of lifecycle state", async () => {
       const { store, video } = setup();
 
       video.dispatchEvent(new Event("loadedmetadata"));
-      expect(store.getSnapshot().state).toBe("metadataloaded");
+      video.dispatchEvent(new Event("canplay"));
+      expect(store.getSnapshot().featuresDetected).toBe(false);
 
       await store.detectSupportedFeatures();
 
       const snapshot = store.getSnapshot();
-      expect(snapshot.state).toBe("ready");
+      expect(snapshot.state).toBe("playable");
+      expect(snapshot.featuresDetected).toBe(true);
       expect(snapshot.supportsFullscreen).not.toBeNull();
       expect(snapshot.supportsPiP).not.toBeNull();
       expect(snapshot.supportsVolumeChange).not.toBeNull();
-    });
-
-    it("goes straight to 'ready' when feature detection resolves before metadata loads", async () => {
-      const { store, video } = setup();
-
-      await store.detectSupportedFeatures();
-      expect(store.getSnapshot().state).toBe("pending");
-
-      video.dispatchEvent(new Event("loadedmetadata"));
-      expect(store.getSnapshot().state).toBe("ready");
     });
 
     it("normalizes a non-finite duration to 0", () => {

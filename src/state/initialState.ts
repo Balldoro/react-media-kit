@@ -7,6 +7,7 @@ export const initialState: PlayerState = Object.freeze({
   isFullscreen: false,
   isPictureInPicture: false,
   isBuffering: false,
+  featuresDetected: false,
   supportsVolumeChange: null,
   supportsFullscreen: null,
   supportsPiP: null,

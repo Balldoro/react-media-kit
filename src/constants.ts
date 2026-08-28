@@ -32,6 +32,7 @@ export const DATA_ATTRS = {
   mediaPending: "data-media-pending",
   mediaLoading: "data-media-loading",
   mediaMetadataLoaded: "data-media-metadata-loaded",
+  mediaPlayable: "data-media-playable",
   mediaReady: "data-media-ready",
   mediaError: "data-media-error",
 
