@@ -1,4 +1,3 @@
-import type { Ref } from "react";
 import { Button } from "@/components/common/Button";
 import { usePlayer, usePlayerControls } from "@/state/PlayerContext";
 import { useMediaAttributes } from "@/hooks/useMediaAttributes";
@@ -7,9 +6,7 @@ import { setDataAttr } from "@/utils/dom";
 import { DATA_ATTRS } from "@/constants";
 import type { ButtonAttributes } from "@/types";
 
-interface FullscreenButtonRootProps extends ButtonAttributes {
-  ref?: Ref<HTMLButtonElement>;
-}
+interface FullscreenButtonRootProps extends ButtonAttributes {}
 
 export function FullscreenButtonRoot({ onClick, ...props }: FullscreenButtonRootProps) {
   const { toggleFullscreen } = usePlayerControls();

@@ -1,4 +1,4 @@
-import type { CSSProperties, Ref } from "react";
+import type { CSSProperties } from "react";
 import {
   useOverlayInteractivity,
   type OverlayInteractivityOptions,
@@ -13,7 +13,6 @@ interface PlayerOverlayProps extends Omit<ButtonAttributes, "onDoubleClick"> {
   onDoubleClick?: OverlayInteractivityOptions["onDoubleClick"];
   onDoubleTouch?: OverlayInteractivityOptions["onDoubleTouch"];
   doubleClickInterval?: number;
-  ref?: Ref<HTMLButtonElement>;
 }
 
 export function PlayerOverlay({

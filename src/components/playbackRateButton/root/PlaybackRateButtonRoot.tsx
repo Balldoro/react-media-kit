@@ -1,4 +1,3 @@
-import type { Ref } from "react";
 import { usePlayer, usePlayerControls } from "@/state/PlayerContext";
 import { useMediaAttributes } from "@/hooks/useMediaAttributes";
 import { composeHandlers } from "@/utils/handlers";
@@ -9,7 +8,6 @@ import { Button } from "@/components/common/Button";
 
 interface PlaybackRateButtonRootProps extends ButtonAttributes {
   playbackRate: number;
-  ref?: Ref<HTMLButtonElement>;
 }
 
 export function PlaybackRateButtonRoot({

@@ -1,6 +1,9 @@
-import type { ButtonHTMLAttributes, TimeHTMLAttributes } from "react";
+import type { ButtonHTMLAttributes, Ref, TimeHTMLAttributes } from "react";
 
-export type ButtonAttributes = ButtonHTMLAttributes<HTMLButtonElement>;
+export type ButtonAttributes = ButtonHTMLAttributes<HTMLButtonElement> & {
+  ref?: Ref<HTMLButtonElement>;
+};
+
 export type TimeDisplayAttributes = Omit<
   TimeHTMLAttributes<HTMLTimeElement>,
   "children" | "dateTime"
