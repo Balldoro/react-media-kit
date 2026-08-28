@@ -31,6 +31,7 @@ export const CSS_VARS = {
 export const DATA_ATTRS = {
   mediaPending: "data-media-pending",
   mediaLoading: "data-media-loading",
+  mediaMetadataLoaded: "data-media-metadata-loaded",
   mediaReady: "data-media-ready",
   mediaError: "data-media-error",
 
@@ -42,4 +43,8 @@ export const DATA_ATTRS = {
   dragging: "data-dragging",
   active: "data-active",
   elapsedMode: "data-elapsed-mode",
+
+  fullscreenUnsupported: "data-fullscreen-unsupported",
+  pipUnsupported: "data-pip-unsupported",
+  volumeChangeUnsupported: "data-volume-change-unsupported",
 } as const;

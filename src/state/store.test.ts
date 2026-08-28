@@ -24,7 +24,7 @@ const fakeTimeRanges = (ranges: [number, number][]): TimeRanges =>
 
 describe("createPlayerStore", () => {
   describe("lifecycle events", () => {
-    it("loadedmetadata moves state to ready and captures duration/volume/playbackRate", () => {
+    it("loadedmetadata captures duration/volume/playbackRate", () => {
       const { store, video } = setup();
       stubReadonly(video, "duration", 120);
       video.volume = 0.8;
@@ -33,10 +33,41 @@ describe("createPlayerStore", () => {
       video.dispatchEvent(new Event("loadedmetadata"));
 
       const snapshot = store.getSnapshot();
-      expect(snapshot.state).toBe("ready");
       expect(snapshot.durationInSec).toBe(120);
       expect(snapshot.volume).toBe(0.8);
       expect(snapshot.playbackRate).toBe(1.5);
+    });
+
+    it("moves to 'metadataloaded' when metadata arrives before feature detection resolves", () => {
+      const { store, video } = setup();
+
+      video.dispatchEvent(new Event("loadedmetadata"));
+      expect(store.getSnapshot().state).toBe("metadataloaded");
+    });
+
+    it("moves from 'metadataloaded' to 'ready' once feature detection resolves", async () => {
+      const { store, video } = setup();
+
+      video.dispatchEvent(new Event("loadedmetadata"));
+      expect(store.getSnapshot().state).toBe("metadataloaded");
+
+      await store.detectSupportedFeatures();
+
+      const snapshot = store.getSnapshot();
+      expect(snapshot.state).toBe("ready");
+      expect(snapshot.supportsFullscreen).not.toBeNull();
+      expect(snapshot.supportsPiP).not.toBeNull();
+      expect(snapshot.supportsVolumeChange).not.toBeNull();
+    });
+
+    it("goes straight to 'ready' when feature detection resolves before metadata loads", async () => {
+      const { store, video } = setup();
+
+      await store.detectSupportedFeatures();
+      expect(store.getSnapshot().state).toBe("pending");
+
+      video.dispatchEvent(new Event("loadedmetadata"));
+      expect(store.getSnapshot().state).toBe("ready");
     });
 
     it("normalizes a non-finite duration to 0", () => {

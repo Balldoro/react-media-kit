@@ -1,6 +1,12 @@
 export type Selector<T> = (state: PlayerState) => T;
 
-export type LifeCycleState = "pending" | "loading" | "ready" | "error";
+export type LifeCycleState = "pending" | "loading" | "metadataloaded" | "ready" | "error";
+
+export interface SupportedFeatures {
+  volumeChange: boolean;
+  fullscreen: boolean;
+  pip: boolean;
+}
 
 export interface PlayerState {
   state: LifeCycleState;
@@ -9,6 +15,9 @@ export interface PlayerState {
   isFullscreen: boolean;
   isPictureInPicture: boolean;
   isBuffering: boolean;
+  supportsVolumeChange: boolean | null;
+  supportsFullscreen: boolean | null;
+  supportsPiP: boolean | null;
   durationInSec: number;
   currentTimeInSec: number;
   optimisticTimeInSec: number | null;
@@ -21,7 +30,8 @@ export type PlayerAction =
   | PlayAction
   | PauseAction
   | ToggleAction
-  | InitAction
+  | MetadataLoadedAction
+  | FeaturesDetectedAction
   | TimeUpdateAction
   | SeekingAction
   | FullscreenAction
@@ -55,9 +65,14 @@ export interface LoadingAction {
   type: "LOADING";
 }
 
-export interface InitAction {
-  type: "INIT";
+export interface MetadataLoadedAction {
+  type: "METADATA_LOADED";
   payload: { durationInSec: number; volume: number; playbackRate: number };
+}
+
+export interface FeaturesDetectedAction {
+  type: "FEATURES_DETECTED";
+  payload: SupportedFeatures;
 }
 
 export interface TimeUpdateAction {

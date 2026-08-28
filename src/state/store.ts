@@ -5,6 +5,7 @@ import { clampVolume } from "@/utils/volume";
 import { getBufferedEnd } from "@/utils/buffer";
 import { initialState } from "./initialState";
 import type { OnErrorFunc, PlayerError } from "@/types";
+import { isVolumeMutable } from "@/utils/dom";
 
 export { initialState };
 
@@ -136,9 +137,23 @@ export function createPlayerStore() {
     }
   }
 
+  async function detectSupportedFeatures() {
+    // TODO: iPhone allows to enter fullscreen on video element only
+    // This needs a separate, iOS scoped check and invocation on video
+    // element, not container
+    const fullscreen = document.fullscreenEnabled ?? false;
+    const pip = document.pictureInPictureEnabled ?? false;
+    const volumeChange = await isVolumeMutable();
+
+    dispatch({ type: "FEATURES_DETECTED", payload: { fullscreen, pip, volumeChange } });
+  }
+
   function handleInit(this: HTMLMediaElement) {
     const { duration, volume, playbackRate } = this;
-    dispatch({ type: "INIT", payload: { durationInSec: duration, volume, playbackRate } });
+    dispatch({
+      type: "METADATA_LOADED",
+      payload: { durationInSec: duration, volume, playbackRate },
+    });
   }
 
   function handleFullscreen(this: HTMLMediaElement) {
@@ -317,6 +332,7 @@ export function createPlayerStore() {
     attachContainer,
     getMedia,
     getContainer,
+    detectSupportedFeatures,
     destroy,
     getSnapshot,
   };

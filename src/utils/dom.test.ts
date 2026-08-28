@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { setDataAttr } from "@/utils/attributes";
+import { setDataAttr } from "@/utils/dom";
 
 describe("setDataAttr", () => {
   it("returns true when the condition is true", () => {

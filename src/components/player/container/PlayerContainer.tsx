@@ -2,7 +2,7 @@ import type { HTMLAttributes, KeyboardEvent, Ref } from "react";
 import { usePlayer, usePlayerControls, usePlayerCtx } from "@/state/PlayerContext";
 import { useMediaAttributes } from "@/hooks/useMediaAttributes";
 import { composeHandlers, normalizeKeyCode } from "@/utils/handlers";
-import { setDataAttr } from "@/utils/attributes";
+import { setDataAttr } from "@/utils/dom";
 import { DATA_ATTRS, KEY_NAMES, SKIP_INTERVAL, VOLUME_INTERVAL } from "@/constants";
 import { useMergeRefs } from "@/hooks/useMergeRefs";
 
