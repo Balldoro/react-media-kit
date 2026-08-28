@@ -1,4 +1,4 @@
-# react-media-kit
+# [react-media-kit](https://react-media-kit.com)
 
 Headless, unstyled video and audio player primitives for React.
 
@@ -29,6 +29,10 @@ npm install react-media-kit
 
 ```sh
 pnpm add react-media-kit
+```
+
+```sh
+yarn add react-media-kit
 ```
 
 Requires React and React DOM `>=19`.
