@@ -1,7 +1,7 @@
 import { useRectPosition } from "@/hooks/useRectPosition";
 import { usePlayer, usePlayerControls } from "@/state/PlayerContext";
 import { DATA_ATTRS, KEY_NAMES } from "@/constants";
-import { type KeyboardEventHandler, type PointerEventHandler, type RefObject } from "react";
+import { useRef, type KeyboardEventHandler, type PointerEventHandler, type RefObject } from "react";
 import { normalizeKeyCode } from "@/utils/handlers";
 
 interface Config {
@@ -13,8 +13,11 @@ export function useSeekbarInteractivity(
   { skipInterval }: Config,
 ) {
   const duration = usePlayer((s) => s.durationInSec);
-  const { seek, skip } = usePlayerControls();
+  const isPlaying = usePlayer((s) => s.isPlaying);
+  const { seek, skip, play, pause } = usePlayerControls();
   const { setRect: setSliderRect, calcRectPositionX } = useRectPosition();
+
+  const isPausedRef = useRef(false);
 
   function updateMediaTime(clickX: number) {
     const calculatedPosition = calcRectPositionX(clickX);
@@ -31,6 +34,11 @@ export function useSeekbarInteractivity(
     sliderEl.current.setPointerCapture(e.pointerId);
     sliderEl.current.setAttribute(DATA_ATTRS.dragging, "true");
     updateMediaTime(e.clientX);
+
+    if (!isPausedRef.current && isPlaying) {
+      isPausedRef.current = true;
+      pause();
+    }
   };
 
   const handlePointerMove: PointerEventHandler<HTMLDivElement> = (e) => {
@@ -43,6 +51,11 @@ export function useSeekbarInteractivity(
     if (!sliderEl.current) return;
 
     sliderEl.current.toggleAttribute(DATA_ATTRS.dragging, false);
+
+    if (isPausedRef.current) {
+      isPausedRef.current = false;
+      play();
+    }
   };
 
   const handleKeyDown: KeyboardEventHandler<HTMLDivElement> = (e) => {
