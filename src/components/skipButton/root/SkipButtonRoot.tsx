@@ -5,6 +5,7 @@ import { composeHandlers } from "@/utils/handlers";
 import { DATA_ATTRS, SKIP_INTERVAL } from "@/constants";
 import type { ButtonAttributes } from "@/types";
 import { createTimeLabelFormatter } from "@/utils/time";
+import { Button } from "@/components/common/Button";
 
 export type SkipDirection = "back" | "forward";
 
@@ -29,10 +30,9 @@ export function SkipButtonRoot({
   const handleSkip = () => skip(isForward ? skipInterval : -skipInterval);
 
   return (
-    <button
+    <Button
       aria-label={`Skip ${isForward ? "forward" : "back"} ${getTimeLabel(skipInterval)}`}
       {...props}
-      type="button"
       onClick={composeHandlers(onClick, handleSkip)}
       {...{ [DATA_ATTRS.direction]: direction }}
       {...mediaDataAttrs}

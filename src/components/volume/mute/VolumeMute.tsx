@@ -5,6 +5,7 @@ import { setDataAttr } from "@/utils/attributes";
 import { DATA_ATTRS } from "@/constants";
 import type { Ref } from "react";
 import type { ButtonAttributes } from "@/types";
+import { Button } from "@/components/common/Button";
 
 interface VolumeMuteProps extends ButtonAttributes {
   ref?: Ref<HTMLButtonElement>;
@@ -16,10 +17,9 @@ export function VolumeMute({ onClick, ...props }: VolumeMuteProps) {
   const isMuted = usePlayer((s) => s.isMuted);
 
   return (
-    <button
+    <Button
       aria-label={isMuted ? "Unmute video" : "Mute video"}
       {...props}
-      type="button"
       onClick={composeHandlers(onClick, toggleMute)}
       {...{ [DATA_ATTRS.muted]: setDataAttr(isMuted) }}
       {...mediaDataAttrs}

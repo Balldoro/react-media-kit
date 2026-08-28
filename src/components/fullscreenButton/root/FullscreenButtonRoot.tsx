@@ -1,4 +1,5 @@
 import type { Ref } from "react";
+import { Button } from "@/components/common/Button";
 import { usePlayer, usePlayerControls } from "@/state/PlayerContext";
 import { useMediaAttributes } from "@/hooks/useMediaAttributes";
 import { composeHandlers } from "@/utils/handlers";
@@ -16,10 +17,9 @@ export function FullscreenButtonRoot({ onClick, ...props }: FullscreenButtonRoot
   const isFullscreen = usePlayer((s) => s.isFullscreen);
 
   return (
-    <button
+    <Button
       aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
       {...props}
-      type="button"
       onClick={composeHandlers(onClick, toggleFullscreen)}
       {...{ [DATA_ATTRS.fullscreen]: setDataAttr(isFullscreen) }}
       {...mediaDataAttrs}

@@ -4,6 +4,7 @@ import { composeHandlers } from "@/utils/handlers";
 import type { ButtonAttributes } from "@/types";
 import { useMediaAttributes } from "@/hooks/useMediaAttributes";
 import { DATA_ATTRS } from "@/constants";
+import { Button } from "@/components/common/Button";
 
 interface TimeDisplayToggleProps extends ButtonAttributes {
   ref?: Ref<HTMLButtonElement>;
@@ -14,10 +15,9 @@ export function TimeDisplayToggle({ onClick, ...props }: TimeDisplayToggleProps)
   const mediaDataAttrs = useMediaAttributes();
 
   return (
-    <button
+    <Button
       aria-label={`See ${isElapsedMode ? "remaining" : "elapsed"} time`}
       {...props}
-      type="button"
       onClick={composeHandlers(onClick, toggleMode)}
       {...{ [DATA_ATTRS.elapsedMode]: isElapsedMode }}
       {...mediaDataAttrs}

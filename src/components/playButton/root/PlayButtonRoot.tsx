@@ -5,6 +5,7 @@ import { composeHandlers } from "@/utils/handlers";
 import { setDataAttr } from "@/utils/attributes";
 import { DATA_ATTRS } from "@/constants";
 import type { ButtonAttributes } from "@/types";
+import { Button } from "@/components/common/Button";
 
 interface PlayButtonRootProps extends ButtonAttributes {
   ref?: Ref<HTMLButtonElement>;
@@ -16,10 +17,9 @@ export function PlayButtonRoot({ onClick, ...props }: PlayButtonRootProps) {
   const isPlaying = usePlayer((s) => s.isPlaying);
 
   return (
-    <button
+    <Button
       aria-label={isPlaying ? "Pause video" : "Play video"}
       {...props}
-      type="button"
       onClick={composeHandlers(onClick, toggle)}
       {...{ [DATA_ATTRS.playing]: setDataAttr(isPlaying) }}
       {...mediaDataAttrs}

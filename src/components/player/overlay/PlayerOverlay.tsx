@@ -6,6 +6,7 @@ import {
 import { composeHandlers } from "@/utils/handlers";
 import { useMediaAttributes } from "@/hooks/useMediaAttributes";
 import type { ButtonAttributes } from "@/types";
+import { Button } from "@/components/common/Button";
 
 interface PlayerOverlayProps extends Omit<ButtonAttributes, "onDoubleClick"> {
   label: string;
@@ -36,8 +37,7 @@ export function PlayerOverlay({
   });
 
   return (
-    <button
-      type="button"
+    <Button
       aria-label={label}
       style={{ ...style, ...requiredStyle }}
       onPointerDown={handlePointerDown}

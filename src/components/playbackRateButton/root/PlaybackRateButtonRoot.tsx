@@ -5,6 +5,7 @@ import { composeHandlers } from "@/utils/handlers";
 import { setDataAttr } from "@/utils/attributes";
 import { DATA_ATTRS } from "@/constants";
 import type { ButtonAttributes } from "@/types";
+import { Button } from "@/components/common/Button";
 
 interface PlaybackRateButtonRootProps extends ButtonAttributes {
   playbackRate: number;
@@ -23,10 +24,9 @@ export function PlaybackRateButtonRoot({
   const handleClick = () => setPlaybackRate(playbackRate);
 
   return (
-    <button
+    <Button
       aria-label={`Playback speed: ${playbackRate}x`}
       {...props}
-      type="button"
       onClick={composeHandlers(onClick, handleClick)}
       {...{ [DATA_ATTRS.active]: setDataAttr(activePlaybackRate === playbackRate) }}
       {...mediaDataAttrs}
