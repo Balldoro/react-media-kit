@@ -215,22 +215,19 @@ export function createPlayerStore() {
   }
 
   function attachMedia(mediaEl: HTMLMediaElement) {
-    const detectSupportedFeatures = async () => {
-      // TODO: iPhone allows to enter fullscreen on video element only
-      // This needs a separate, iOS scoped check and invocation on video
-      // element, not container
-      const fullscreen = document.fullscreenEnabled ?? false;
-      const pip =
-        mediaEl instanceof HTMLVideoElement && (document.pictureInPictureEnabled ?? false);
-      const volumeChange = await isVolumeMutable();
-
-      dispatch({ type: "FEATURES_DETECTED", payload: { fullscreen, pip, volumeChange } });
-    };
-
     mediaAbortController = new AbortController();
     media = mediaEl;
     const signalConfig = { signal: mediaAbortController.signal };
-    detectSupportedFeatures();
+
+    // TODO: iPhone allows to enter fullscreen on video element only
+    // This needs a separate, iOS scoped check and invocation on video element, not container
+    const fullscreen = document.fullscreenEnabled ?? false;
+    const pip = mediaEl instanceof HTMLVideoElement && (document.pictureInPictureEnabled ?? false);
+    dispatch({ type: "SYNC_FEATURES_SUPPORT", payload: { fullscreen, pip } });
+
+    isVolumeMutable().then((supported) => {
+      dispatch({ type: "VOLUME_CHANGE_SUPPORT", payload: { supported } });
+    });
 
     mediaEl.addEventListener("loadedmetadata", handleInit, signalConfig);
     mediaEl.addEventListener("error", handleError, signalConfig);

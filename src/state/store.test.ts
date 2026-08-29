@@ -52,20 +52,28 @@ describe("createPlayerStore", () => {
       expect(store.getSnapshot().state).toBe("playable");
     });
 
-    it("marks featuresDetected once feature detection resolves, independently of lifecycle state", async () => {
+    it("detects fullscreen/pip support synchronously, independently of lifecycle state", () => {
       const { store, video } = setup();
 
       video.dispatchEvent(new Event("loadedmetadata"));
       video.dispatchEvent(new Event("canplay"));
-      expect(store.getSnapshot().featuresDetected).toBe(false);
-
-      await vi.waitFor(() => expect(store.getSnapshot().featuresDetected).toBe(true));
 
       const snapshot = store.getSnapshot();
       expect(snapshot.state).toBe("playable");
       expect(snapshot.supportsFullscreen).not.toBeNull();
       expect(snapshot.supportsPiP).not.toBeNull();
-      expect(snapshot.supportsVolumeChange).not.toBeNull();
+    });
+
+    it("detects volume-change support asynchronously, independently of lifecycle state", async () => {
+      const { store, video } = setup();
+
+      video.dispatchEvent(new Event("loadedmetadata"));
+      video.dispatchEvent(new Event("canplay"));
+      expect(store.getSnapshot().supportsVolumeChange).toBeNull();
+
+      await vi.waitFor(() => expect(store.getSnapshot().supportsVolumeChange).not.toBeNull());
+
+      expect(store.getSnapshot().state).toBe("playable");
     });
 
     it("normalizes a non-finite duration to 0", () => {
@@ -444,12 +452,10 @@ describe("createPlayerStore", () => {
       stubReadonly(document, "pictureInPictureEnabled", true);
       const { store, detachMedia } = setup("video");
 
-      await vi.waitFor(() => expect(store.getSnapshot().supportsPiP).toBe(true));
+      expect(store.getSnapshot().supportsPiP).toBe(true);
 
       detachMedia();
       store.attachMedia(document.createElement("audio"));
-
-      await vi.waitFor(() => expect(store.getSnapshot().featuresDetected).toBe(true));
 
       expect(store.getSnapshot().supportsPiP).toBe(false);
     });

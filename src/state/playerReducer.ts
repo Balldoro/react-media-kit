@@ -25,15 +25,13 @@ export function playerReducer(state: PlayerState, action: PlayerAction): PlayerS
 
       return { ...state, state: "playable" };
     }
-    case "FEATURES_DETECTED": {
-      const { volumeChange, fullscreen, pip } = action.payload;
-      return {
-        ...state,
-        featuresDetected: true,
-        supportsVolumeChange: volumeChange,
-        supportsFullscreen: fullscreen,
-        supportsPiP: pip,
-      };
+    case "SYNC_FEATURES_SUPPORT": {
+      const { fullscreen, pip } = action.payload;
+      return { ...state, supportsFullscreen: fullscreen, supportsPiP: pip };
+    }
+    case "VOLUME_CHANGE_SUPPORT": {
+      const { supported } = action.payload;
+      return { ...state, supportsVolumeChange: supported };
     }
     case "TIME_UPDATE": {
       const { time } = action.payload;
