@@ -1,5 +1,17 @@
 # react-media-kit
 
+## 0.4.0
+
+### Minor Changes
+
+- f3980c1: Add fullscreen enabling support for iPhone iOS
+  Fix non-responsive fullscreen toggle before video play on iPhone iOS
+  Fix broken timeupdate event sending after seeking before video play on iPhone iOS
+  Change supportsFullscreen flag to union type "container" | "media" | null
+  Remove "ready" state in favor of "playable"
+  Refactor feature detection flags - they no longer affect "state" field
+  Replace bare Error throwing with new ReactMediaKitError class
+
 ## 0.3.0
 
 ### Minor Changes
