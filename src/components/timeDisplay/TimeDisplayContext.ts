@@ -1,3 +1,4 @@
+import { ReactMediaKitError } from "@/utils/errors";
 import { createContext, use } from "react";
 
 export type TimerMode = "elapsed" | "remaining";
@@ -14,7 +15,7 @@ export const useTimeDisplay = () => {
   const ctx = use(TimeDisplayContext);
 
   if (!ctx) {
-    throw new Error("useTimeDisplay used outside of the TimeDisplayProvider!");
+    throw new ReactMediaKitError("useTimeDisplay used outside of the TimeDisplayProvider!");
   }
 
   return ctx;

@@ -1,6 +1,7 @@
 import { createContext, use, useSyncExternalStore } from "react";
 import { initialState, type PlayerStore } from "@/state/store";
 import type { Selector } from "./types";
+import { ReactMediaKitError } from "@/utils/errors";
 
 interface PlayerContextValue extends PlayerStore {
   lang?: string;
@@ -12,7 +13,7 @@ export const usePlayerSubscription = () => {
   const ctx = use(PlayerContext);
 
   if (!ctx) {
-    throw new Error("usePlayerSubscription used outside of the PlayerProvider!");
+    throw new ReactMediaKitError("usePlayerSubscription used outside of the PlayerProvider!");
   }
 
   return ctx;
@@ -22,7 +23,7 @@ export const usePlayerCtx = () => {
   const ctx = use(PlayerContext);
 
   if (!ctx) {
-    throw new Error("usePlayerCtx used outside of the PlayerProvider!");
+    throw new ReactMediaKitError("usePlayerCtx used outside of the PlayerProvider!");
   }
 
   const { lang, attachMedia, attachContainer, getMedia, getContainer } = ctx;
