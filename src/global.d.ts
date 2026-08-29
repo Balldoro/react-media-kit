@@ -1,0 +1,3 @@
+interface HTMLMediaElement {
+  webkitEnterFullscreen?: () => void;
+}

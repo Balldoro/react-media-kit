@@ -1,18 +1,21 @@
 import { describe, expect, it, vi } from "vitest";
 import { createPlayerStore } from "@/state/store";
+import { ReactMediaKitError } from "@/utils/errors";
+import { stubReadonly } from "@/utils/tests";
 
-function setup(tag: "video" | "audio" = "video") {
+function setup(
+  tag: "video" | "audio" = "video",
+  configureMedia?: (media: HTMLMediaElement) => void,
+) {
   const store = createPlayerStore();
   const video = document.createElement(tag);
+  vi.spyOn(video, "play").mockResolvedValue(undefined);
+  configureMedia?.(video);
   const container = document.createElement("div");
   document.body.appendChild(container);
   const detachMedia = store.attachMedia(video);
   const detachContainer = store.attachContainer(container);
   return { store, video, container, detachMedia, detachContainer };
-}
-
-function stubReadonly<T extends object, K extends keyof T>(target: T, key: K, value: T[K]) {
-  Object.defineProperty(target, key, { value, configurable: true });
 }
 
 const fakeTimeRanges = (ranges: [number, number][]): TimeRanges =>
@@ -21,6 +24,8 @@ const fakeTimeRanges = (ranges: [number, number][]): TimeRanges =>
     start: (index: number) => ranges[index]![0],
     end: (index: number) => ranges[index]![1],
   }) as TimeRanges;
+
+const flushSyntheticPlay = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 describe("createPlayerStore", () => {
   describe("lifecycle events", () => {
@@ -53,7 +58,9 @@ describe("createPlayerStore", () => {
     });
 
     it("detects fullscreen/pip support synchronously, independently of lifecycle state", () => {
-      const { store, video } = setup();
+      const { store, video } = setup("video", (media) => {
+        stubReadonly(media, "webkitEnterFullscreen", () => {});
+      });
 
       video.dispatchEvent(new Event("loadedmetadata"));
       video.dispatchEvent(new Event("canplay"));
@@ -99,9 +106,10 @@ describe("createPlayerStore", () => {
       expect(store.getSnapshot().isPlaying).toBe(false);
     });
 
-    it("timeupdate sets currentTimeInSec and clears any optimistic time", () => {
+    it("timeupdate sets currentTimeInSec and clears any optimistic time", async () => {
       const { store, video } = setup();
       store.controls.seek(10);
+      await flushSyntheticPlay();
       expect(store.getSnapshot().optimisticTimeInSec).toBe(10);
 
       video.currentTime = 10;
@@ -114,23 +122,25 @@ describe("createPlayerStore", () => {
   });
 
   describe("seeking", () => {
-    it("seek() sets currentTime directly and reports an optimistic time and bufferedTo", () => {
+    it("seek() sets currentTime directly and reports an optimistic time and bufferedTo", async () => {
       const { store, video } = setup();
       stubReadonly(video, "buffered", fakeTimeRanges([[0, 50]]));
 
       store.controls.seek(42);
+      await flushSyntheticPlay();
 
       expect(video.currentTime).toBe(42);
       expect(store.getSnapshot().optimisticTimeInSec).toBe(42);
       expect(store.getSnapshot().bufferedEndInSec).toBe(50);
     });
 
-    it("applies a queued seek once the native seeked event fires", () => {
+    it("applies a queued seek once the native seeked event fires", async () => {
       const { store, video } = setup();
       stubReadonly(video, "seeking", true);
       stubReadonly(video, "buffered", fakeTimeRanges([[0, 60]]));
 
       store.controls.seek(50);
+      await flushSyntheticPlay();
       expect(store.getSnapshot().bufferedEndInSec).toBe(60);
 
       video.dispatchEvent(new Event("seeked"));
@@ -150,10 +160,11 @@ describe("createPlayerStore", () => {
       expect(snapshot.bufferedEndInSec).toBe(40);
     });
 
-    it("native seeking event is ignored while a seek is already queued", () => {
+    it("native seeking event is ignored while a seek is already queued", async () => {
       const { store, video } = setup();
       stubReadonly(video, "seeking", true);
       store.controls.seek(50);
+      await flushSyntheticPlay();
 
       video.currentTime = 999;
       video.dispatchEvent(new Event("seeking"));
@@ -162,13 +173,14 @@ describe("createPlayerStore", () => {
       expect(snapshot.optimisticTimeInSec).toBe(50);
     });
 
-    it("skip() clamps to [0, durationInSec]", () => {
+    it("skip() clamps to [0, durationInSec]", async () => {
       const { store, video } = setup();
       stubReadonly(video, "duration", 100);
       video.dispatchEvent(new Event("loadedmetadata"));
       video.currentTime = 95;
 
       store.controls.skip(50);
+      await flushSyntheticPlay();
       expect(video.currentTime).toBe(100);
 
       video.currentTime = 5;
@@ -236,10 +248,11 @@ describe("createPlayerStore", () => {
       expect(store.getSnapshot().bufferedEndInSec).toBe(3);
     });
 
-    it("prefers the optimistic seek time over currentTimeInSec when both are present", () => {
+    it("prefers the optimistic seek time over currentTimeInSec when both are present", async () => {
       const { store, video } = setup();
       stubReadonly(video, "seeking", true);
       store.controls.seek(45);
+      await flushSyntheticPlay();
       stubReadonly(
         video,
         "buffered",
@@ -462,7 +475,7 @@ describe("createPlayerStore", () => {
   });
 
   describe("audio element support", () => {
-    it("play/pause, seeking, and volume controls work against an <audio> element", () => {
+    it("play/pause, seeking, and volume controls work against an <audio> element", async () => {
       const { store, video: audio } = setup("audio");
       const playSpy = vi.spyOn(audio, "play").mockResolvedValue(undefined);
 
@@ -476,6 +489,7 @@ describe("createPlayerStore", () => {
       expect(audio.volume).toBe(0.4);
 
       store.controls.seek(12);
+      await flushSyntheticPlay();
       expect(audio.currentTime).toBe(12);
     });
   });
@@ -539,6 +553,15 @@ describe("createPlayerStore", () => {
       detachMedia();
 
       expect(store.getMedia()).toBeNull();
+    });
+  });
+
+  describe("attachMedia", () => {
+    it("throws ReactMediaKitError when a second media element is attached without detaching the first", () => {
+      const { store } = setup();
+      const secondVideo = document.createElement("video");
+
+      expect(() => store.attachMedia(secondVideo)).toThrow(ReactMediaKitError);
     });
   });
 

@@ -1,3 +1,4 @@
+import type { FullscreenSupport, WebkitHTMLMediaElement } from "@/types";
 import { clampVolume } from "./volume";
 
 // Set explicit undefined if condition is false, so that data-* attribute is remove from DOM element
@@ -17,4 +18,21 @@ export const isVolumeMutable = async (): Promise<boolean> => {
       res(media.volume !== initialVolume);
     }, IOS_SAFE_TIMEOUT);
   });
+};
+
+export const supportsWebkitMediaFullscreen = (
+  mediaEl: HTMLMediaElement | null,
+): mediaEl is WebkitHTMLMediaElement => typeof mediaEl?.webkitEnterFullscreen === "function";
+
+// iPhone Safari is the only environment that has webkitEnterFullscreen but no container fullscreen support
+export const isIphone = (mediaEl: HTMLMediaElement | null): mediaEl is WebkitHTMLMediaElement =>
+  supportsWebkitMediaFullscreen(mediaEl) && !document.fullscreenEnabled;
+
+export const getFullscreenSupport = (mediaEl: HTMLMediaElement): FullscreenSupport => {
+  const mediaFullscreen = supportsWebkitMediaFullscreen(mediaEl);
+  const containerFullscreen = document.fullscreenEnabled ?? false;
+
+  if (containerFullscreen) return "container";
+  else if (mediaFullscreen) return "media";
+  return null;
 };

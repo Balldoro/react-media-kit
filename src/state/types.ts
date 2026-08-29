@@ -1,3 +1,5 @@
+import type { FullscreenSupport } from "@/types";
+
 export type Selector<T> = (state: PlayerState) => T;
 
 export type LifeCycleState = "pending" | "loading" | "metadataloaded" | "playable" | "error";
@@ -10,7 +12,7 @@ export interface PlayerState {
   isPictureInPicture: boolean;
   isBuffering: boolean;
   supportsVolumeChange: boolean | null;
-  supportsFullscreen: boolean | null;
+  supportsFullscreen: FullscreenSupport;
   supportsPiP: boolean | null;
   durationInSec: number;
   currentTimeInSec: number;
@@ -68,7 +70,7 @@ export interface MetadataLoadedAction {
 
 export interface SyncFeaturesSupportAction {
   type: "SYNC_FEATURES_SUPPORT";
-  payload: { fullscreen: boolean; pip: boolean };
+  payload: { fullscreen: FullscreenSupport; pip: boolean };
 }
 
 export interface VolumeChangeSupportAction {

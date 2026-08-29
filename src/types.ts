@@ -4,6 +4,10 @@ export type ButtonAttributes = ButtonHTMLAttributes<HTMLButtonElement> & {
   ref?: Ref<HTMLButtonElement>;
 };
 
+export type WebkitHTMLMediaElement = HTMLMediaElement & { webkitEnterFullscreen: () => void };
+
+export type FullscreenSupport = "container" | "media" | null;
+
 export type TimeDisplayAttributes = Omit<
   TimeHTMLAttributes<HTMLTimeElement>,
   "children" | "dateTime"

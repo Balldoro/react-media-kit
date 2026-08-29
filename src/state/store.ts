@@ -5,7 +5,9 @@ import { clampVolume } from "@/utils/volume";
 import { getBufferedEnd } from "@/utils/buffer";
 import { initialState } from "./initialState";
 import type { OnErrorFunc, PlayerError } from "@/types";
-import { isVolumeMutable } from "@/utils/dom";
+import { getFullscreenSupport, supportsWebkitMediaFullscreen, isVolumeMutable } from "@/utils/dom";
+import { ReactMediaKitError } from "@/utils/errors";
+import { createMediaUnlock } from "./mediaUnlock";
 
 export { initialState };
 
@@ -15,6 +17,7 @@ export function createPlayerStore() {
   let state: PlayerState = { ...initialState };
 
   const seekQueue = createSeekQueue();
+  const mediaUnlock = createMediaUnlock();
   const listeners = new Set<() => void>();
   const errorListeners = new Set<OnErrorFunc>();
 
@@ -28,7 +31,10 @@ export function createPlayerStore() {
     listeners.forEach((l) => l());
   };
 
-  const handlePlay = () => dispatch({ type: "PLAY" });
+  const handlePlay = () => {
+    if (mediaUnlock.isUnlockInFlight()) return;
+    dispatch({ type: "PLAY" });
+  };
 
   const handlePause = () => dispatch({ type: "PAUSE" });
 
@@ -68,8 +74,17 @@ export function createPlayerStore() {
 
   const toggleFullscreen = async () => {
     try {
-      if (state.isFullscreen) await document.exitFullscreen();
-      else await container?.requestFullscreen();
+      if (state.supportsFullscreen === null) {
+        throw new ReactMediaKitError("Fullscreen mode is not supported");
+      }
+
+      if (state.isFullscreen) return await document.exitFullscreen();
+
+      if (state.supportsFullscreen === "container") await container?.requestFullscreen();
+      else if (supportsWebkitMediaFullscreen(media)) {
+        await mediaUnlock.unlock(media);
+        media.webkitEnterFullscreen();
+      }
     } catch (error) {
       notifyAboutError({ type: "fullscreen", error });
     }
@@ -78,7 +93,7 @@ export function createPlayerStore() {
   const togglePip = async () => {
     try {
       if (!(media instanceof HTMLVideoElement)) {
-        throw new Error("Picture-in-picture is only supported for video elements");
+        throw new ReactMediaKitError("Picture-in-picture is only supported for video elements");
       }
       if (state.isPictureInPicture) await document.exitPictureInPicture();
       else await media.requestPictureInPicture();
@@ -108,17 +123,21 @@ export function createPlayerStore() {
   }
 
   function seek(time: number) {
-    if (!media) return;
+    const applySeek = () => {
+      if (!media) return;
 
-    if (media.seeking) {
-      seekQueue.set(time);
-    } else {
-      media.currentTime = time;
-    }
-    dispatch({
-      type: "SEEKING",
-      payload: { time, bufferedEnd: getBufferedEnd(media.buffered, time) },
-    });
+      if (media.seeking) seekQueue.set(time);
+      else media.currentTime = time;
+
+      dispatch({
+        type: "SEEKING",
+        payload: { time, bufferedEnd: getBufferedEnd(media.buffered, time) },
+      });
+    };
+
+    if (mediaUnlock.isUnlocked(media)) return applySeek();
+
+    mediaUnlock.unlock(media).then(applySeek);
   }
 
   function handleSeeking(this: HTMLMediaElement) {
@@ -187,13 +206,13 @@ export function createPlayerStore() {
   }
 
   function handleBufferingStart() {
-    if (!state.isBuffering) {
+    if (!state.isBuffering && !mediaUnlock.isUnlockInFlight()) {
       dispatch({ type: "BUFFERING", payload: { isBuffering: true } });
     }
   }
 
   function handleBufferingEnd() {
-    if (state.isBuffering) {
+    if (state.isBuffering && !mediaUnlock.isUnlockInFlight()) {
       dispatch({ type: "BUFFERING", payload: { isBuffering: false } });
     }
   }
@@ -211,17 +230,25 @@ export function createPlayerStore() {
   function resetMedia() {
     mediaAbortController.abort();
     media = null;
+    mediaUnlock.reset();
     dispatch({ type: "RESET" });
   }
 
-  function attachMedia(mediaEl: HTMLMediaElement) {
+  function attachMedia(mediaEl: HTMLMediaElement | null) {
+    if (!mediaEl) return () => {};
+
+    // Check if there is more than one media element rendered under PlayerRoot in the DOM
+    if (media) {
+      throw new ReactMediaKitError(
+        `PlayerRoot already renders ${media.tagName.toLowerCase()} element. You can only render single Video or Audio per PlayerRoot`,
+      );
+    }
+
     mediaAbortController = new AbortController();
     media = mediaEl;
     const signalConfig = { signal: mediaAbortController.signal };
 
-    // TODO: iPhone allows to enter fullscreen on video element only
-    // This needs a separate, iOS scoped check and invocation on video element, not container
-    const fullscreen = document.fullscreenEnabled ?? false;
+    const fullscreen = getFullscreenSupport(media);
     const pip = mediaEl instanceof HTMLVideoElement && (document.pictureInPictureEnabled ?? false);
     dispatch({ type: "SYNC_FEATURES_SUPPORT", payload: { fullscreen, pip } });
 
