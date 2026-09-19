@@ -17,12 +17,16 @@ export type OnErrorFunc = (playerError: PlayerError) => void;
 
 export type PlayerError = MediaPlaybackError | GeneralError;
 
+export type ErrorType = "media" | "fullscreen" | "play" | "pip";
+
 interface MediaPlaybackError {
-  type: "media";
+  type: Extract<ErrorType, "media">;
   error: MediaError;
 }
 
 interface GeneralError {
-  type: "fullscreen" | "play" | "pip";
+  type: Extract<ErrorType, "fullscreen" | "play" | "pip">;
   error: unknown;
 }
+
+export type MediaEngine<T extends HTMLMediaElement> = (media: T) => (() => void) | void;

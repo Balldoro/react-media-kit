@@ -27,6 +27,12 @@ const fakeTimeRanges = (ranges: [number, number][]): TimeRanges =>
 
 const flushSyntheticPlay = () => new Promise((resolve) => setTimeout(resolve, 0));
 
+const markLoaded = (video: HTMLMediaElement, readyState: number) => {
+  stubReadonly(video, "readyState", readyState);
+  stubReadonly(video, "duration", 120);
+  stubReadonly(video, "networkState", 1); // NETWORK_IDLE
+};
+
 describe("createPlayerStore", () => {
   describe("lifecycle events", () => {
     it("loadedmetadata captures duration/volume/playbackRate", () => {
@@ -678,6 +684,61 @@ describe("createPlayerStore", () => {
       video.dispatchEvent(new Event("play"));
 
       expect(listener).not.toHaveBeenCalled();
+    });
+  });
+  describe("attaching to an element that already progressed", () => {
+    it("reads metadata straight off the element instead of waiting for an event", () => {
+      const store = createPlayerStore();
+      const video = document.createElement("video");
+      markLoaded(video, 1); // HAVE_METADATA
+      video.volume = 0.8;
+      video.playbackRate = 1.5;
+
+      store.attachMedia(video);
+
+      const snapshot = store.getSnapshot();
+      expect(snapshot.state).toBe("metadataloaded");
+      expect(snapshot.durationInSec).toBe(120);
+      expect(snapshot.volume).toBe(0.8);
+      expect(snapshot.playbackRate).toBe(1.5);
+    });
+
+    it("reports playable when the element already has enough data", () => {
+      const store = createPlayerStore();
+      const video = document.createElement("video");
+      markLoaded(video, 4); // HAVE_ENOUGH_DATA
+
+      store.attachMedia(video);
+
+      expect(store.getSnapshot().state).toBe("playable");
+    });
+
+    it("reports playing when the element is not paused", () => {
+      const store = createPlayerStore();
+      const video = document.createElement("video");
+      markLoaded(video, 4);
+      stubReadonly(video, "paused", false);
+
+      store.attachMedia(video);
+
+      expect(store.getSnapshot().isPlaying).toBe(true);
+    });
+
+    it("restores state when the same loaded element is detached and re-attached", () => {
+      // What a dev-time ref re-attach does: the element keeps its resource, so
+      // loadstart/loadedmetadata/canplay never fire again for it.
+      const { store, video, detachMedia } = setup();
+      markLoaded(video, 4);
+      video.dispatchEvent(new Event("loadedmetadata"));
+      video.dispatchEvent(new Event("canplay"));
+      expect(store.getSnapshot().state).toBe("playable");
+
+      detachMedia();
+      expect(store.getSnapshot().state).toBe("pending");
+      store.attachMedia(video);
+
+      expect(store.getSnapshot().state).toBe("playable");
+      expect(store.getSnapshot().durationInSec).toBe(120);
     });
   });
 });
