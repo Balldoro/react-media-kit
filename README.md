@@ -7,7 +7,7 @@ It renders no CSS and imposes no visual design, so your player looks exactly how
 
 ## Features
 
-- 🧱 **Compound components** - `Player`, `Video`, `Audio`, `Controls`, `Seekbar`,
+- 🧱 **Compound components** - `Player`, `Media`, `Controls`, `Seekbar`,
   `Volume`, `TimeDisplay`, `PlayButton`, `SkipButton`, `FullscreenButton`,
   `PipButton`, `PlaybackRateButton`. Use only the parts you need.
 - 🎨 **Unstyled by default** - no shipped CSS, no default theme. Style
@@ -16,6 +16,8 @@ It renders no CSS and imposes no visual design, so your player looks exactly how
   and other states are exposed as `data-*` attributes, so state-driven styling
   stays in CSS instead of JS.
 - ⌨️ **Keyboard shortcuts** built in (play/pause, mute, fullscreen, seeking).
+- 📺 **Bring your own streaming engine** - an `attachEngine` prop hands the media
+  element to hls.js, dash.js, shaka-player, or anything else.
 - 📦 **Small footprint** - Tree-shakeable, with no runtime dependencies beyond React.
 - ⚡ **Optimized for performance** - player state lives outside React in an
   external store; components subscribe to only the slice of state they need.
@@ -35,31 +37,51 @@ pnpm add react-media-kit
 yarn add react-media-kit
 ```
 
-Requires React and React DOM `>=19`.
+Requires React and React DOM `>=19.2`.
 
 ## Usage
 
 ```tsx
-import { Player, Video, Controls, Seekbar, PlayButton, TimeDisplay } from "react-media-kit";
+import {
+  Player,
+  Media,
+  Controls,
+  Seekbar,
+  Volume,
+  PlayButton,
+  SkipButton,
+  TimeDisplay,
+  FullscreenButton,
+  PipButton,
+} from "react-media-kit";
 
 function App() {
   return (
     <Player.Root>
-      <Player.Container>
-        <Video.Root>
-          <Video.Player src="/my-video.mp4" />
-        </Video.Root>
-
-        <Controls.Root>
-          <Seekbar.Root>
-            <Seekbar.Track>
-              <Seekbar.Progress />
-              <Seekbar.Buffer />
-              <Seekbar.Thumb />
+      <Player.Container className="player">
+        <Media.Video src="/my-video.mp4" className="video" playsInline />
+        <Player.Overlay label="Toggle playback" className="overlay" />
+        <Controls.Root className="controls">
+          <Seekbar.Root className="seekbar">
+            <Seekbar.Track className="seekbar-track">
+              <Seekbar.Buffer className="seekbar-buffer" />
+              <Seekbar.Progress className="seekbar-progress" />
+              <Seekbar.Thumb className="seekbar-thumb" />
             </Seekbar.Track>
           </Seekbar.Root>
 
           <PlayButton.Root>Play</PlayButton.Root>
+
+          <SkipButton.Root direction="back">-10</SkipButton.Root>
+          <SkipButton.Root direction="forward">+10</SkipButton.Root>
+
+          <Volume.Mute>Mute</Volume.Mute>
+          <Volume.Slider className="volume">
+            <Volume.Track className="volume-track">
+              <Volume.Progress className="volume-progress" />
+              <Volume.Thumb className="volume-thumb" />
+            </Volume.Track>
+          </Volume.Slider>
 
           <TimeDisplay.Root>
             <TimeDisplay.Toggle>
@@ -68,6 +90,9 @@ function App() {
               <TimeDisplay.Duration />
             </TimeDisplay.Toggle>
           </TimeDisplay.Root>
+
+          <PipButton.Root>PiP</PipButton.Root>
+          <FullscreenButton.Root>Fullscreen</FullscreenButton.Root>
         </Controls.Root>
       </Player.Container>
     </Player.Root>
@@ -81,9 +106,29 @@ state attributes they expose.
 ### Adaptive streaming
 
 `react-media-kit` ships no streaming engine (HLS, DASH, ...) — it stays
-dependency-free. `Video.Player` and `Audio.Player` both accept a plain
-`ref`, which easily lets you hook in hls.js, dash.js, shaka-player, or
-whichever engine you need.
+dependency-free. Pass an `attachEngine` function to `Media.Video` or
+`Media.Audio` instead of a `src`: it receives the media element once it
+mounts, and may return a cleanup function that runs on unmount.
+
+```tsx
+import Hls from "hls.js";
+import { Media, type MediaEngine } from "react-media-kit";
+
+const attachHls: MediaEngine<HTMLVideoElement> = (media) => {
+  if (media.canPlayType("application/vnd.apple.mpegurl")) {
+    media.src = "/hls/master.m3u8";
+    return;
+  }
+
+  const hls = new Hls();
+  hls.loadSource("/hls/master.m3u8");
+  hls.attachMedia(media);
+
+  return () => hls.destroy();
+};
+
+<Media.Video attachEngine={attachHls} playsInline />;
+```
 
 ## Core Concepts
 
@@ -92,9 +137,8 @@ primitives:
 
 | Component            | Purpose                                     |
 | -------------------- | ------------------------------------------- |
-| `Player`             | Top-level provider; owns player state       |
-| `Video`              | The `<video>` element and its overlay       |
-| `Audio`              | The `<audio>` element                       |
+| `Player`             | Provider, layout shell, tap/click surface   |
+| `Media`              | The `<video>` / `<audio>` element           |
 | `Controls`           | Wrapper for the control bar                 |
 | `Seekbar`            | Scrub/seek, with progress and buffer ranges |
 | `Volume`             | Mute toggle and volume slider               |
@@ -104,6 +148,33 @@ primitives:
 | `FullscreenButton`   | Toggle fullscreen                           |
 | `PipButton`          | Toggle picture-in-picture                   |
 | `PlaybackRateButton` | Set a specific playback rate                |
+
+## Reading and driving state
+
+Two hooks expose the player store. Both must be called **inside** `Player.Root`
+
+`usePlayer(selector)` subscribes to a single slice of state and re-renders only
+when that slice changes:
+
+```tsx
+import { usePlayer } from "react-media-kit";
+
+function PlayIcon() {
+  const isPlaying = usePlayer((s) => s.isPlaying);
+  return <span>{isPlaying ? "⏸" : "▶"}</span>;
+}
+```
+
+`usePlayerControls()` returns the imperative controls
+
+```tsx
+import { usePlayerControls } from "react-media-kit";
+
+function Rate() {
+  const { setPlaybackRate } = usePlayerControls();
+  return <button onClick={() => setPlaybackRate(1.5)}>1.5×</button>;
+}
+```
 
 ## License
 
