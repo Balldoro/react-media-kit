@@ -227,6 +227,21 @@ export function createPlayerStore() {
     dispatch({ type: "PROGRESS", payload: { bufferedEnd: getBufferedEnd(media?.buffered, time) } });
   }
 
+  function syncStateFromMedia(mediaEl: HTMLMediaElement) {
+    if (mediaEl.readyState >= HTMLMediaElement.HAVE_METADATA) {
+      handleInit.call(mediaEl);
+      handleTimeUpdate.call(mediaEl);
+      handleVolumeChange.call(mediaEl);
+      handleProgress();
+
+      if (mediaEl.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) handleCanPlay();
+      if (!mediaEl.paused) handlePlay();
+      return;
+    }
+
+    if (mediaEl.networkState === HTMLMediaElement.NETWORK_LOADING) handleLoading();
+  }
+
   function resetMedia() {
     mediaAbortController.abort();
     media = null;
@@ -240,12 +255,12 @@ export function createPlayerStore() {
     // Check if there is more than one media element rendered under PlayerRoot in the DOM
     if (media) {
       throw new ReactMediaKitError(
-        `PlayerRoot already renders ${media.tagName.toLowerCase()} element. You can only render single Video or Audio per PlayerRoot`,
+        `PlayerRoot already renders ${media.tagName.toLowerCase()} element. You can only render single Media per PlayerRoot`,
       );
     }
 
-    mediaAbortController = new AbortController();
     media = mediaEl;
+    mediaAbortController = new AbortController();
     const signalConfig = { signal: mediaAbortController.signal };
 
     const fullscreen = getFullscreenSupport(media);
@@ -256,6 +271,7 @@ export function createPlayerStore() {
       dispatch({ type: "VOLUME_CHANGE_SUPPORT", payload: { supported } });
     });
 
+    syncStateFromMedia(mediaEl);
     mediaEl.addEventListener("loadedmetadata", handleInit, signalConfig);
     mediaEl.addEventListener("error", handleError, signalConfig);
     mediaEl.addEventListener("loadstart", handleLoading, signalConfig);

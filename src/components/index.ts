@@ -1,6 +1,6 @@
-export { Audio } from "./audio";
 export { Controls } from "./controls";
 export { FullscreenButton } from "./fullscreenButton";
+export { Media } from "./media";
 export { PipButton } from "./pipButton";
 export { PlaybackRateButton } from "./playbackRateButton";
 export { PlayButton } from "./playButton";
@@ -8,5 +8,4 @@ export { Player } from "./player";
 export { Seekbar } from "./seekbar";
 export { SkipButton } from "./skipButton";
 export { TimeDisplay } from "./timeDisplay";
-export { Video } from "./video";
 export { Volume } from "./volume";

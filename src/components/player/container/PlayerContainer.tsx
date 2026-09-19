@@ -1,4 +1,10 @@
-import type { HTMLAttributes, KeyboardEvent, Ref } from "react";
+import {
+  useImperativeHandle,
+  useRef,
+  type HTMLAttributes,
+  type KeyboardEvent,
+  type Ref,
+} from "react";
 import { usePlayer, usePlayerControls, usePlayerCtx } from "@/state/PlayerContext";
 import { useMediaAttributes } from "@/hooks/useMediaAttributes";
 import { composeHandlers, normalizeKeyCode } from "@/utils/handlers";
@@ -24,7 +30,10 @@ export function PlayerContainer({
 }: PlayerContainerProps) {
   const { attachContainer } = usePlayerCtx();
   const { toggle, toggleMute, toggleFullscreen, skip, stepVolume } = usePlayerControls();
-  const mergedRef = useMergeRefs(attachContainer, ref);
+  const internalRef = useRef<HTMLDivElement>(null);
+  useImperativeHandle(ref, () => internalRef.current!, []);
+
+  const mergedRef = useMergeRefs(attachContainer, internalRef);
   const mediaDataAttrs = useMediaAttributes();
   const isFullscreen = usePlayer((s) => s.isFullscreen);
   const isPictureInPicture = usePlayer((s) => s.isPictureInPicture);
