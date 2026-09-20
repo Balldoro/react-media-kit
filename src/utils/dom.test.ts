@@ -11,6 +11,7 @@ function makeMedia({ webkitFullscreen = false }: { webkitFullscreen?: boolean } 
   const media = document.createElement("video");
   if (webkitFullscreen) {
     stubReadonly(media, "webkitEnterFullscreen", () => {});
+    stubReadonly(media, "webkitExitFullscreen", () => {});
   }
   return media;
 }
@@ -33,6 +34,12 @@ describe("supportsWebkitMediaFullscreen", () => {
 
   it("returns false when the element does not expose webkitEnterFullscreen", () => {
     const media = makeMedia();
+    expect(supportsWebkitMediaFullscreen(media)).toBe(false);
+  });
+
+  it("returns false when the element exposes webkitEnterFullscreen but not webkitExitFullscreen", () => {
+    const media = makeMedia();
+    stubReadonly(media, "webkitEnterFullscreen", () => {});
     expect(supportsWebkitMediaFullscreen(media)).toBe(false);
   });
 });

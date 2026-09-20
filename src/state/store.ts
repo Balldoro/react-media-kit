@@ -80,12 +80,18 @@ export function createPlayerStore() {
         throw new ReactMediaKitError("Fullscreen mode is not supported");
       }
 
-      if (state.isFullscreen) return await document.exitFullscreen();
+      const webkitMedia =
+        state.supportsFullscreen === "media" && supportsWebkitMediaFullscreen(media) ? media : null;
+
+      if (state.isFullscreen) {
+        if (webkitMedia) return webkitMedia.webkitExitFullscreen();
+        return await document.exitFullscreen();
+      }
 
       if (state.supportsFullscreen === "container") await container?.requestFullscreen();
-      else if (supportsWebkitMediaFullscreen(media)) {
-        await mediaUnlock.unlock(media);
-        media.webkitEnterFullscreen();
+      else if (webkitMedia) {
+        await mediaUnlock.unlock(webkitMedia);
+        webkitMedia.webkitEnterFullscreen();
       }
     } catch (error) {
       notifyAboutError({ type: "fullscreen", error });
@@ -173,6 +179,14 @@ export function createPlayerStore() {
       type: "FULLSCREEN",
       payload: { enabled: document.fullscreenElement === container },
     });
+  }
+
+  function handleWebkitBeginFullscreen(this: HTMLMediaElement) {
+    dispatch({ type: "FULLSCREEN", payload: { enabled: true } });
+  }
+
+  function handleWebkitEndFullscreen(this: HTMLMediaElement) {
+    dispatch({ type: "FULLSCREEN", payload: { enabled: false } });
   }
 
   function handlePipEnter() {
@@ -289,6 +303,8 @@ export function createPlayerStore() {
     mediaEl.addEventListener("waiting", handleBufferingStart, signalConfig);
     mediaEl.addEventListener("playing", handleBufferingEnd, signalConfig);
     mediaEl.addEventListener("canplay", handleCanPlay, signalConfig);
+    mediaEl.addEventListener("webkitbeginfullscreen", handleWebkitBeginFullscreen, signalConfig);
+    mediaEl.addEventListener("webkitendfullscreen", handleWebkitEndFullscreen, signalConfig);
 
     // Picture-in-picture is a video-only capability
     if (mediaEl instanceof HTMLVideoElement) {

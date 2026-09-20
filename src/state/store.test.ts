@@ -66,6 +66,7 @@ describe("createPlayerStore", () => {
     it("detects fullscreen/pip support synchronously, independently of lifecycle state", () => {
       const { store, video } = setup("video", (media) => {
         stubReadonly(media, "webkitEnterFullscreen", () => {});
+        stubReadonly(media, "webkitExitFullscreen", () => {});
       });
 
       video.dispatchEvent(new Event("loadedmetadata"));
@@ -470,6 +471,37 @@ describe("createPlayerStore", () => {
 
       expect(onError).toHaveBeenCalledTimes(1);
       expect(onError.mock.calls[0]![0]).toMatchObject({ type: "fullscreen" });
+    });
+
+    it("webkitbeginfullscreen/webkitendfullscreen sync isFullscreen for iOS native video fullscreen", () => {
+      const { store, video } = setup("video", (media) => {
+        stubReadonly(media, "webkitEnterFullscreen", () => {});
+      });
+
+      video.dispatchEvent(new Event("webkitbeginfullscreen"));
+      expect(store.getSnapshot().isFullscreen).toBe(true);
+
+      video.dispatchEvent(new Event("webkitendfullscreen"));
+      expect(store.getSnapshot().isFullscreen).toBe(false);
+    });
+
+    it("toggleFullscreen() exits via webkitExitFullscreen when only media fullscreen is supported (iPhone)", async () => {
+      stubReadonly(document, "fullscreenEnabled", false);
+      const webkitExitFullscreen = vi.fn();
+      const exitFullscreenSpy = vi.fn();
+      stubReadonly(document, "exitFullscreen", exitFullscreenSpy);
+      const { store, video } = setup("video", (media) => {
+        stubReadonly(media, "webkitEnterFullscreen", () => {});
+        stubReadonly(media, "webkitExitFullscreen", webkitExitFullscreen);
+      });
+
+      video.dispatchEvent(new Event("webkitbeginfullscreen"));
+      expect(store.getSnapshot().isFullscreen).toBe(true);
+
+      await store.controls.toggleFullscreen();
+
+      expect(webkitExitFullscreen).toHaveBeenCalledTimes(1);
+      expect(exitFullscreenSpy).not.toHaveBeenCalled();
     });
   });
 
