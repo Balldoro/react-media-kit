@@ -4,7 +4,10 @@ export type ButtonAttributes = ButtonHTMLAttributes<HTMLButtonElement> & {
   ref?: Ref<HTMLButtonElement>;
 };
 
-export type WebkitHTMLMediaElement = HTMLMediaElement & { webkitEnterFullscreen: () => void };
+export type WebkitHTMLMediaElement = HTMLMediaElement & {
+  webkitEnterFullscreen: () => void;
+  webkitExitFullscreen: () => void;
+};
 
 export type FullscreenSupport = "container" | "media" | null;
 

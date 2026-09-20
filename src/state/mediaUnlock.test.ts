@@ -7,6 +7,7 @@ function createMedia({ iphone = false }: { iphone?: boolean } = {}) {
   vi.spyOn(media, "pause").mockImplementation(() => {});
   if (iphone) {
     media.webkitEnterFullscreen = vi.fn();
+    media.webkitExitFullscreen = vi.fn();
   }
   return media;
 }

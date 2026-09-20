@@ -22,7 +22,9 @@ export const isVolumeMutable = async (): Promise<boolean> => {
 
 export const supportsWebkitMediaFullscreen = (
   mediaEl: HTMLMediaElement | null,
-): mediaEl is WebkitHTMLMediaElement => typeof mediaEl?.webkitEnterFullscreen === "function";
+): mediaEl is WebkitHTMLMediaElement =>
+  typeof mediaEl?.webkitEnterFullscreen === "function" &&
+  typeof mediaEl?.webkitExitFullscreen === "function";
 
 // iPhone Safari is the only environment that has webkitEnterFullscreen but no container fullscreen support
 export const isIphone = (mediaEl: HTMLMediaElement | null): mediaEl is WebkitHTMLMediaElement =>
