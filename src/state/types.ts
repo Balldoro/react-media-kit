@@ -7,6 +7,8 @@ export type LifeCycleState = "pending" | "loading" | "metadataloaded" | "playabl
 export interface PlayerState {
   state: LifeCycleState;
   isPlaying: boolean;
+  hasStarted: boolean;
+  isEnded: boolean;
   isMuted: boolean;
   isFullscreen: boolean;
   isPictureInPicture: boolean;
@@ -41,7 +43,8 @@ export type PlayerAction =
   | LoadingAction
   | ProgressAction
   | BufferingAction
-  | ResetAction;
+  | ResetAction
+  | EndedAction;
 
 export interface PlayAction {
   type: "PLAY";
@@ -49,6 +52,10 @@ export interface PlayAction {
 
 export interface PauseAction {
   type: "PAUSE";
+}
+
+export interface EndedAction {
+  type: "ENDED";
 }
 
 export interface ToggleAction {

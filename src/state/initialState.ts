@@ -3,6 +3,8 @@ import type { PlayerState } from "./types";
 export const initialState: PlayerState = Object.freeze({
   state: "pending",
   isPlaying: false,
+  hasStarted: false,
+  isEnded: false,
   isMuted: false,
   isFullscreen: false,
   isPictureInPicture: false,

@@ -1,0 +1,7 @@
+# Poster ships as a standalone `Media.Poster` component, not a `poster` prop
+
+`Media.Video`/`Media.Audio` deliberately render the bare native element with no wrapper and no children (see the `Video.Root` migration noted in `demo/src/HeroPlayer.tsx`) — a `<picture>`-based responsive poster can't be threaded through a `poster` prop on those components without either breaking that no-wrapper contract or accepting a Fragment return that most consumers wouldn't expect from a component named after a single native element. We chose a separate `Media.Poster` component, composed by the consumer as a sibling inside `Player.Container` (the same pattern `Player.Overlay` already uses), rather than changing `Media.Video`/`Media.Audio`'s render shape.
+
+This also required adding two new facts to the shared `PlayerState` — `hasStarted` and `isEnded` (see `CONTEXT.md`) — since visibility is derived from playback history, and the store was decided as the single source of truth over having `Media.Poster` listen to the media element directly. `LifeCycleState` was deliberately left untouched: it never exits `"playable"` once reached, so it's orthogonal to "has it ever played" / "is it currently ended."
+
+**Considered and rejected**: a `poster` prop accepting a richer object/JSX. Rejected because it would either require `Media.Video`/`Media.Audio` to start rendering a wrapper element (a breaking change to an existing, intentional invariant) or return a Fragment, both surprising for a component whose entire contract today is "renders exactly the native element."
