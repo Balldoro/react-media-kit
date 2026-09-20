@@ -127,6 +127,43 @@ describe("createPlayerStore", () => {
     });
   });
 
+  describe("playback history (hasStarted/isEnded)", () => {
+    it("play sets hasStarted to true", () => {
+      const { store, video } = setup();
+      video.dispatchEvent(new Event("play"));
+      expect(store.getSnapshot().hasStarted).toBe(true);
+    });
+
+    it("ended sets isEnded to true", () => {
+      const { store, video } = setup();
+      video.dispatchEvent(new Event("play"));
+      video.dispatchEvent(new Event("ended"));
+      expect(store.getSnapshot().isEnded).toBe(true);
+    });
+
+    it("a subsequent play resets isEnded back to false", () => {
+      const { store, video } = setup();
+      video.dispatchEvent(new Event("play"));
+      video.dispatchEvent(new Event("ended"));
+      expect(store.getSnapshot().isEnded).toBe(true);
+
+      video.dispatchEvent(new Event("play"));
+      expect(store.getSnapshot().isEnded).toBe(false);
+    });
+
+    it("RESET (media detach) clears hasStarted and isEnded back to false", () => {
+      const { store, video, detachMedia } = setup();
+      video.dispatchEvent(new Event("play"));
+      video.dispatchEvent(new Event("ended"));
+
+      detachMedia();
+
+      const snapshot = store.getSnapshot();
+      expect(snapshot.hasStarted).toBe(false);
+      expect(snapshot.isEnded).toBe(false);
+    });
+  });
+
   describe("seeking", () => {
     it("seek() sets currentTime directly and reports an optimistic time and bufferedTo", async () => {
       const { store, video } = setup();

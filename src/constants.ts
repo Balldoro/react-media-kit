@@ -36,6 +36,7 @@ export const DATA_ATTRS = {
   mediaError: "data-media-error",
 
   playing: "data-playing",
+  visible: "data-visible",
   muted: "data-muted",
   fullscreen: "data-fullscreen",
   pip: "data-pip",

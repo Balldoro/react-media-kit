@@ -38,6 +38,8 @@ export function createPlayerStore() {
 
   const handlePause = () => dispatch({ type: "PAUSE" });
 
+  const handleEnded = () => dispatch({ type: "ENDED" });
+
   const play = async () => {
     try {
       await media?.play();
@@ -277,6 +279,7 @@ export function createPlayerStore() {
     mediaEl.addEventListener("loadstart", handleLoading, signalConfig);
     mediaEl.addEventListener("play", handlePlay, signalConfig);
     mediaEl.addEventListener("pause", handlePause, signalConfig);
+    mediaEl.addEventListener("ended", handleEnded, signalConfig);
     mediaEl.addEventListener("ratechange", handleRateChange, signalConfig);
     mediaEl.addEventListener("seeking", handleSeeking, signalConfig);
     mediaEl.addEventListener("seeked", handleSeeked, signalConfig);

@@ -5,9 +5,11 @@ import { initialState } from "./initialState";
 export function playerReducer(state: PlayerState, action: PlayerAction): PlayerState {
   switch (action.type) {
     case "PLAY":
-      return { ...state, isPlaying: true };
+      return { ...state, isPlaying: true, hasStarted: true, isEnded: false };
     case "PAUSE":
       return { ...state, isPlaying: false };
+    case "ENDED":
+      return { ...state, isEnded: true };
     case "TOGGLE":
       return { ...state, isPlaying: !state.isPlaying };
     case "METADATA_LOADED": {
