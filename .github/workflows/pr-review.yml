@@ -1,0 +1,80 @@
+name: PR Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+concurrency:
+  group: pr-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  pr-review:
+    # Only the repo owner's own branches are reviewed.
+    # The author check also leaves out collaborators and bots (e.g. Dependabot, which has no access to repo secrets).
+    if: >-
+      github.event.pull_request.draft == false &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.user.login == github.repository_owner
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Read-only scopes are the enforcement boundary: the tool allowlist below narrows what Claude tries, this is what GitHub enforces.
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+    outputs:
+      review: ${{ steps.claude.outputs.structured_output }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: anthropics/claude-code-action@v1
+        id: claude
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          prompt: |
+            /pr-review ${{ github.event.pull_request.number }}
+            The working tree is the PR merged into ${{ github.event.pull_request.base.ref }}.
+            Use the skill's inline mode: return `summary` and `comments`.
+          claude_args: |
+            --max-turns 40
+            --allowedTools "Read,Grep,Glob,Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh issue view:*)"
+            --disallowedTools "Edit,Write,NotebookEdit,WebFetch,WebSearch"
+            --json-schema '{"type":"object","properties":{"summary":{"type":"string"},"comments":{"type":"array","items":{"type":"object","properties":{"path":{"type":"string"},"line":{"type":"integer"},"body":{"type":"string"}},"required":["path","line","body"]}}},"required":["summary","comments"]}'
+
+  post:
+    needs: pr-review
+    if: ${{ !cancelled() && needs.pr-review.outputs.review != '' }}
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Post review with inline comments
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+          REVIEW: ${{ needs.pr-review.outputs.review }}
+        run: |
+          inline=$(jq -n --argjson r "$REVIEW" --arg sha "$SHA" '{
+            commit_id: $sha,
+            event: "COMMENT",
+            body: $r.summary,
+            comments: [$r.comments[] | {path, line, side: "RIGHT", body}]
+          }')
+
+          if echo "$inline" | gh api -X POST "repos/$REPO/pulls/$PR/reviews" --input - > /dev/null; then
+            exit 0
+          fi
+
+          # GitHub rejects the whole review if any comment points outside the diff; fall back to a body-only review
+          echo "::warning::Inline review rejected, posting findings in the review body instead"
+          jq -n --argjson r "$REVIEW" --arg sha "$SHA" '{
+            commit_id: $sha,
+            event: "COMMENT",
+            body: ($r.summary + "\n\n### Findings\n\n" + ([$r.comments[] | "- `\(.path):\(.line)` \(.body)"] | join("\n\n")))
+          }' | gh api -X POST "repos/$REPO/pulls/$PR/reviews" --input - > /dev/null
