@@ -5,7 +5,7 @@ import { DATA_ATTRS, SKIP_INTERVAL } from "@/constants";
 import type { ButtonAttributes } from "@/types";
 import { createTimeLabelFormatter } from "@/utils/time";
 import { Button } from "@/components/common/Button";
-import { ReactMediaKitError } from "@/utils/errors";
+import { normalizeSkipInterval } from "@/utils/validation";
 
 export type SkipDirection = "back" | "forward";
 
@@ -22,16 +22,10 @@ export function SkipButtonRoot({
   onClick,
   ...props
 }: SkipButtonRootProps) {
-  if (rawSkipInterval < 1 || Number.isNaN(rawSkipInterval)) {
-    throw new ReactMediaKitError(
-      `<SkipButton.Root> - \`skipInterval\` must be at least 1, got ${rawSkipInterval}.`,
-    );
-  }
-
   const { skip } = usePlayerControls();
   const mediaDataAttrs = useMediaAttributes();
+  const skipInterval = normalizeSkipInterval(rawSkipInterval, "SkipButton.Root");
 
-  const skipInterval = Math.floor(rawSkipInterval);
   const isForward = direction === "forward";
   const handleSkip = () => skip(isForward ? skipInterval : -skipInterval);
 

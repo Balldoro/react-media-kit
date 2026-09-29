@@ -1,3 +1,4 @@
 import { MAX_VOLUME, MIN_VOLUME } from "@/constants";
+import { clamp } from "@/utils/math";
 
-export const clampVolume = (volume: number) => Math.max(Math.min(volume, MAX_VOLUME), MIN_VOLUME);
+export const clampVolume = (volume: number) => clamp(volume, MIN_VOLUME, MAX_VOLUME);

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { safeDivide, toPercent } from "@/utils/math";
+import { clamp, safeDivide, toPercent } from "@/utils/math";
 
 describe("toPercent", () => {
   it("converts to a percentage", () => {
@@ -19,5 +19,18 @@ describe("safeDivide", () => {
   it("returns 0 when the divisor is 0", () => {
     expect(safeDivide(10, 0)).toBe(0);
     expect(safeDivide(0, 0)).toBe(0);
+  });
+});
+
+describe("clamp", () => {
+  it("returns the value when it is within range", () => {
+    expect(clamp(0.5, 0, 1)).toBe(0.5);
+    expect(clamp(0, 0, 1)).toBe(0);
+    expect(clamp(1, 0, 1)).toBe(1);
+  });
+
+  it("clamps to the nearest bound", () => {
+    expect(clamp(-1, 0, 1)).toBe(0);
+    expect(clamp(2, 0, 1)).toBe(1);
   });
 });

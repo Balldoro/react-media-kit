@@ -1,6 +1,7 @@
 import type { PlayerAction, PlayerState, Selector } from "./types";
 import { playerReducer } from "@/state/playerReducer";
 import { createSeekQueue } from "./seekQueue";
+import { clamp } from "@/utils/math";
 import { clampVolume } from "@/utils/volume";
 import { getBufferedEnd } from "@/utils/buffer";
 import { initialState } from "./initialState";
@@ -122,7 +123,7 @@ export function createPlayerStore() {
 
   function skip(delta: number) {
     if (!media) return;
-    const newValue = Math.max(Math.min(media.currentTime + delta, state.durationInSec), 0);
+    const newValue = clamp(media.currentTime + delta, 0, state.durationInSec);
     seek(newValue);
   }
 

@@ -7,6 +7,7 @@ import { composeHandlers } from "@/utils/handlers";
 import { Slider } from "@/components/common/Slider";
 import { useMergeRefs } from "@/hooks/useMergeRefs";
 import { useBufferTime } from "./useBufferTimer";
+import { normalizeSkipInterval } from "@/utils/validation";
 
 export interface SeekbarRootProps extends HTMLAttributes<HTMLDivElement> {
   skipInterval?: number;
@@ -14,7 +15,7 @@ export interface SeekbarRootProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export function SeekbarRoot({
-  skipInterval = SKIP_INTERVAL,
+  skipInterval: rawSkipInterval = SKIP_INTERVAL,
   ref,
   onKeyDown,
   onPointerMove,
@@ -24,11 +25,12 @@ export function SeekbarRoot({
 }: SeekbarRootProps) {
   const sliderEl = useRef<HTMLDivElement>(null);
   const mediaDataAttrs = useMediaAttributes();
+  const mergedRef = useMergeRefs(sliderEl, ref);
 
   useSeekbarTime(sliderEl);
   useBufferTime(sliderEl);
 
-  const mergedRef = useMergeRefs(sliderEl, ref);
+  const skipInterval = normalizeSkipInterval(rawSkipInterval, "Seekbar.Root");
   const { handlePointerDown, handleLostPointerCapture, handlePointerMove, handleKeyDown } =
     useSeekbarInteractivity(sliderEl, { skipInterval });
 

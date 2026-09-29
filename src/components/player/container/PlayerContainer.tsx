@@ -11,6 +11,7 @@ import { composeHandlers, normalizeKeyCode } from "@/utils/handlers";
 import { setDataAttr } from "@/utils/dom";
 import { DATA_ATTRS, KEY_NAMES, SKIP_INTERVAL, VOLUME_INTERVAL } from "@/constants";
 import { useMergeRefs } from "@/hooks/useMergeRefs";
+import { normalizeSkipInterval, normalizeVolumeInterval } from "@/utils/validation";
 
 export const NATIVE_ACTIVATION_TAGS = new Set(["BUTTON", "INPUT", "SELECT", "TEXTAREA", "A"]);
 
@@ -24,8 +25,8 @@ export function PlayerContainer({
   onKeyDown,
   style,
   ref,
-  skipInterval = SKIP_INTERVAL,
-  volumeInterval = VOLUME_INTERVAL,
+  skipInterval: rawSkipInterval = SKIP_INTERVAL,
+  volumeInterval: rawVolumeInterval = VOLUME_INTERVAL,
   ...props
 }: PlayerContainerProps) {
   const { attachContainer } = usePlayerCtx();
@@ -37,6 +38,8 @@ export function PlayerContainer({
   const mediaDataAttrs = useMediaAttributes();
   const isFullscreen = usePlayer((s) => s.isFullscreen);
   const isPictureInPicture = usePlayer((s) => s.isPictureInPicture);
+  const skipInterval = normalizeSkipInterval(rawSkipInterval, "Player.Container");
+  const volumeInterval = normalizeVolumeInterval(rawVolumeInterval, "Player.Container");
 
   const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
     if (e.defaultPrevented) return;

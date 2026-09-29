@@ -5,6 +5,7 @@ import { Slider } from "@/components/common/Slider";
 import { MAX_VOLUME, MIN_VOLUME, VOLUME_INTERVAL } from "@/constants";
 import { useMediaAttributes } from "@/hooks/useMediaAttributes";
 import { useMergeRefs } from "@/hooks/useMergeRefs";
+import { normalizeVolumeInterval } from "@/utils/validation";
 
 export interface VolumeSliderRootProps extends HTMLAttributes<HTMLDivElement> {
   volumeInterval?: number;
@@ -13,7 +14,7 @@ export interface VolumeSliderRootProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export function VolumeSlider({
-  volumeInterval = VOLUME_INTERVAL,
+  volumeInterval: rawVolumeInterval = VOLUME_INTERVAL,
   ref,
   onPointerDown,
   onPointerMove,
@@ -25,6 +26,8 @@ export function VolumeSlider({
   const sliderEl = useRef<HTMLDivElement>(null);
   const mergedRef = useMergeRefs(sliderEl, ref);
   const mediaDataAttrs = useMediaAttributes();
+  const volumeInterval = normalizeVolumeInterval(rawVolumeInterval, "Volume.Slider");
+
   const { handleKeyDown, handlePointerDown, handlePointerMove, handleLostPointerCapture } =
     useVolume(sliderEl, { volumeInterval, computeAriaValueText });
 
