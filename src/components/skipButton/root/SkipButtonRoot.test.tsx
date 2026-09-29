@@ -51,7 +51,7 @@ describe("SkipButton.Root", () => {
   });
 
   describe("skipInterval validation", () => {
-    it.each([0, 0.99, -10, NaN])(
+    it.each([0, 0.99, -10, NaN, Infinity])(
       "throws a ReactMediaKitError for skipInterval=%s",
       (skipInterval) => {
         const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});

@@ -4,7 +4,6 @@ import { usePlayerControls, usePlayerSubscription } from "@/state/PlayerContext"
 import { shallow } from "@/state/shallow";
 import { toPercent } from "@/utils/math";
 import { normalizeKeyCode } from "@/utils/handlers";
-import { clampVolume } from "@/utils/volume";
 import {
   useCallback,
   useEffect,
@@ -65,7 +64,7 @@ export function useVolume(
     const calculatedPosition = calcRectPositionX(clickX);
     if (calculatedPosition == null) return;
 
-    setVolume(clampVolume(calculatedPosition));
+    setVolume(calculatedPosition);
     updateSliderEl();
   }
 
