@@ -22,6 +22,10 @@ export function playerReducer(state: PlayerState, action: PlayerAction): PlayerS
         state: "metadataloaded",
       };
     }
+    case "DURATION_CHANGE": {
+      const { durationInSec } = action.payload;
+      return { ...state, durationInSec: normalizeTime(durationInSec) };
+    }
     case "CAN_PLAY": {
       if (state.state === "playable") return state;
 

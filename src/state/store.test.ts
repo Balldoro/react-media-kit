@@ -99,6 +99,44 @@ describe("createPlayerStore", () => {
       expect(store.getSnapshot().durationInSec).toBe(0);
     });
 
+    it("durationchange after loadedmetadata updates durationInSec", () => {
+      const { store, video } = setup();
+      stubReadonly(video, "duration", 10);
+      video.dispatchEvent(new Event("loadedmetadata"));
+
+      stubReadonly(video, "duration", 60);
+      video.dispatchEvent(new Event("durationchange"));
+
+      expect(store.getSnapshot().durationInSec).toBe(60);
+    });
+
+    it.each([Infinity, NaN])("durationchange normalizes a non-finite duration (%s) to 0", (d) => {
+      const { store, video } = setup();
+      stubReadonly(video, "duration", 60);
+      video.dispatchEvent(new Event("loadedmetadata"));
+
+      stubReadonly(video, "duration", d);
+      video.dispatchEvent(new Event("durationchange"));
+
+      expect(store.getSnapshot().durationInSec).toBe(0);
+    });
+
+    it("durationchange notifies subscribers only when the normalized duration changed", () => {
+      const { store, video } = setup();
+      stubReadonly(video, "duration", Infinity);
+      video.dispatchEvent(new Event("loadedmetadata"));
+      const listener = vi.fn();
+      store.subscribe(listener);
+
+      stubReadonly(video, "duration", NaN); // still normalizes to 0
+      video.dispatchEvent(new Event("durationchange"));
+      expect(listener).not.toHaveBeenCalled();
+
+      stubReadonly(video, "duration", 60);
+      video.dispatchEvent(new Event("durationchange"));
+      expect(listener).toHaveBeenCalledTimes(1);
+    });
+
     it("loadstart moves state to loading", () => {
       const { store, video } = setup();
       video.dispatchEvent(new Event("loadstart"));
@@ -653,6 +691,17 @@ describe("createPlayerStore", () => {
 
       secondVideo.dispatchEvent(new Event("play"));
       expect(store.getSnapshot().isPlaying).toBe(true);
+    });
+
+    it("a detached element's durationchange no longer reaches the store", () => {
+      const { store, video: firstVideo, detachMedia } = setup();
+
+      detachMedia();
+      store.attachMedia(document.createElement("video"));
+
+      stubReadonly(firstVideo, "duration", 60);
+      firstVideo.dispatchEvent(new Event("durationchange"));
+      expect(store.getSnapshot().durationInSec).toBe(0);
     });
 
     it("detaching resets state so the previous element's values don't leak into the next one", () => {

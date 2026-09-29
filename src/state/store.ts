@@ -4,6 +4,7 @@ import { createSeekQueue } from "./seekQueue";
 import { clamp } from "@/utils/math";
 import { clampVolume } from "@/utils/volume";
 import { getBufferedEnd } from "@/utils/buffer";
+import { normalizeTime } from "@/utils/time";
 import { initialState } from "./initialState";
 import type { OnErrorFunc, PlayerError } from "@/types";
 import { getFullscreenSupport, supportsWebkitMediaFullscreen, isVolumeMutable } from "@/utils/dom";
@@ -175,6 +176,12 @@ export function createPlayerStore() {
     });
   }
 
+  function handleDurationChange(this: HTMLMediaElement) {
+    if (state.durationInSec !== normalizeTime(this.duration)) {
+      dispatch({ type: "DURATION_CHANGE", payload: { durationInSec: this.duration } });
+    }
+  }
+
   function handleFullscreen(this: HTMLMediaElement) {
     dispatch({
       type: "FULLSCREEN",
@@ -290,6 +297,7 @@ export function createPlayerStore() {
 
     syncStateFromMedia(mediaEl);
     mediaEl.addEventListener("loadedmetadata", handleInit, signalConfig);
+    mediaEl.addEventListener("durationchange", handleDurationChange, signalConfig);
     mediaEl.addEventListener("error", handleError, signalConfig);
     mediaEl.addEventListener("loadstart", handleLoading, signalConfig);
     mediaEl.addEventListener("play", handlePlay, signalConfig);
