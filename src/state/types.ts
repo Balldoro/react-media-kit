@@ -29,6 +29,7 @@ export type PlayerAction =
   | PauseAction
   | ToggleAction
   | MetadataLoadedAction
+  | DurationChangeAction
   | SyncFeaturesSupportAction
   | VolumeChangeSupportAction
   | CanPlayAction
@@ -73,6 +74,11 @@ export interface LoadingAction {
 export interface MetadataLoadedAction {
   type: "METADATA_LOADED";
   payload: { durationInSec: number; volume: number; playbackRate: number };
+}
+
+export interface DurationChangeAction {
+  type: "DURATION_CHANGE";
+  payload: { durationInSec: number };
 }
 
 export interface SyncFeaturesSupportAction {

@@ -64,6 +64,17 @@ describe("TimeDisplay.Duration", () => {
     expect(duration.dateTime).toBe("PT0H0M0S");
   });
 
+  it("updates when the duration changes after metadata has loaded", () => {
+    const { duration, video } = renderDuration();
+    loadMetadata(video, 10);
+
+    stubReadonly(video, "duration", 60);
+    dispatch(video, "durationchange");
+
+    expect(duration.textContent).toBe("1:00");
+    expect(duration.dateTime).toBe("PT0H1M0S");
+  });
+
   it("resets to 0:00 when the media element unmounts", () => {
     const { duration, video, rerenderInPlayer } = renderDuration();
     loadMetadata(video, 65);
