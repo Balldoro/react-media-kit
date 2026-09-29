@@ -20,3 +20,5 @@ export const useTimeDisplay = () => {
 
   return ctx;
 };
+
+export const useIsElapsedMode = () => use(TimeDisplayContext)?.isElapsedMode ?? true;

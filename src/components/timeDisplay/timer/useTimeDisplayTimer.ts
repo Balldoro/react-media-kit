@@ -1,13 +1,13 @@
 import { usePlayerCtx, usePlayerSubscription } from "@/state/PlayerContext";
 import { getDurationTimeFormat, getTimeFormat } from "@/utils/time";
 import { useCallback, useLayoutEffect, type RefObject } from "react";
-import { useTimeDisplay } from "../TimeDisplayContext";
+import { useIsElapsedMode } from "../TimeDisplayContext";
 import { useAnimateOnPlay } from "@/hooks/useAnimateOnPlay";
 
 const UPDATE_INTERVAL_MS = 250;
 
 export function useTimeDisplayTimer(timerRef: RefObject<HTMLTimeElement | null>) {
-  const { isElapsedMode } = useTimeDisplay();
+  const isElapsedMode = useIsElapsedMode();
   const { getMedia } = usePlayerCtx();
   const { getSnapshot } = usePlayerSubscription();
 

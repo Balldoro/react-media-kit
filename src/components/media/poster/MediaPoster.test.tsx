@@ -1,30 +1,22 @@
-import { act } from "react";
 import { afterEach, describe, expect, it } from "vitest";
-import { cleanup, render } from "@testing-library/react";
-import { Player } from "@/components/player";
+import { cleanup } from "@testing-library/react";
 import { Media } from "@/components/media";
 import { DATA_ATTRS } from "@/constants";
+import { renderInPlayer, dispatch } from "@/utils/tests";
 
 afterEach(cleanup);
 
-function renderPoster(posterProps: Partial<Parameters<typeof Media.Poster>[0]> = {}) {
-  const utils = render(
-    <Player.Root>
-      <Player.Container>
-        <Media.Video />
-        <Media.Poster src="/poster.jpg" alt="Poster" {...posterProps} />
-      </Player.Container>
-    </Player.Root>,
+function renderPoster(props: Partial<Parameters<typeof Media.Poster>[0]> = {}) {
+  return renderInPlayer(
+    <>
+      <Media.Video />
+      <Media.Poster src="/poster.jpg" alt="Poster" {...props} />
+    </>,
   );
-  const video = utils.container.querySelector("video")!;
-  return { ...utils, video };
 }
 
 const isVisible = (el: Element) => el.getAttribute(DATA_ATTRS.visible) === "true";
 const isAriaHidden = (el: Element) => el.getAttribute("aria-hidden") === "true";
-
-const dispatch = (target: Element, type: string) =>
-  act(() => target.dispatchEvent(new Event(type)));
 
 describe("Media.Poster", () => {
   it("renders a bare <img> with the given src/alt and passthrough attributes when no sources are given", () => {

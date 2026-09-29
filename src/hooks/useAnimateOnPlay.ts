@@ -45,7 +45,7 @@ export function useAnimateOnPlay({ draw: onDraw, intervalMs }: Config) {
       },
     );
 
-    // Subscribe to each event as well with draw function so that it fires on seeking as well
+    // Subscribe to each event with draw function so that it fires on seeking as well
     const unsubscribeAny = subscribe(() => !getSnapshot().isPlaying && draw());
 
     if (getSnapshot().isPlaying) startLoop();
